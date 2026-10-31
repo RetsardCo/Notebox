@@ -12,6 +12,7 @@ pub fn run() {
     let database = Database::new(vault_dir).expect("Failed to initialize NoteFlow database");
     let state = AppState {
         db: Arc::new(database),
+        unlocked_keys: Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),
     };
 
     tauri::Builder::default()

@@ -6,16 +6,6 @@ marked.setOptions({
   breaks: true,
 });
 
-export function markdownToHtml(md: string): string {
-  if (!md) return '<p></p>';
-  try {
-    return marked.parse(md) as string;
-  } catch (e) {
-    console.error('Error parsing markdown to HTML:', e);
-    return `<p>${escapeHtml(md)}</p>`;
-  }
-}
-
 function escapeHtml(text: string): string {
   return text
     .replace(/&/g, '&amp;')
@@ -25,106 +15,145 @@ function escapeHtml(text: string): string {
     .replace(/'/g, '&#039;');
 }
 
+function unescapeHtml(text: string): string {
+  return text
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#039;/g, "'")
+    .replace(/&nbsp;/g, ' ');
+}
+
+export function markdownToHtml(md: string): string {
+  if (!md) return '<p></p>';
+  try {
+    // 1. Pre-process Wiki-links: [[Note Title]] or [[Note Title|Custom Alias]]
+    const withWikiLinks = md.replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_, title, alias) => {
+      const display = (alias || title).trim();
+      const target = title.trim();
+      return `<a href="#" class="wiki-link" data-note-title="${escapeHtml(target)}">${escapeHtml(display)}</a>`;
+    });
+
+    let html = marked.parse(withWikiLinks) as string;
+
+    // 2. Convert standard marked checklist HTML into TipTap TaskList schema
+    // Matches <li><input checked="" disabled="" type="checkbox"> Text</li>
+    html = html.replace(/<li><input([^>]*type=["']checkbox["'][^>]*)>\s*([\s\S]*?)<\/li>/gi, (_, inputAttrs, text) => {
+      const isChecked = /checked/i.test(inputAttrs);
+      const cleanText = text.trim();
+      return `<li data-type="taskItem" data-checked="${isChecked ? 'true' : 'false'}"><label><input type="checkbox"${isChecked ? ' checked' : ''}><span></span></label><div><p>${cleanText}</p></div></li>`;
+    });
+
+    // If html contains task items, ensure parent <ul> has data-type="taskList"
+    html = html.replace(/<ul>([\s\S]*?<li data-type="taskItem"[\s\S]*?)<\/ul>/gi, '<ul data-type="taskList">$1</ul>');
+
+    return html;
+  } catch (e) {
+    console.error('Error parsing markdown to HTML:', e);
+    return `<p>${escapeHtml(md)}</p>`;
+  }
+}
+
 export function htmlToMarkdown(html: string): string {
   if (!html) return '';
-  const parser = new DOMParser();
-  const doc = parser.parseFromString(html, 'text/html');
 
-  function nodeToMd(node: Node): string {
-    if (node.nodeType === Node.TEXT_NODE) {
-      return node.textContent || '';
+  let md = html;
+
+  // 1. Tables
+  md = md.replace(/<table[^>]*>([\s\S]*?)<\/table>/gi, (_, tableContent) => {
+    const rows: string[][] = [];
+    const trMatches = tableContent.match(/<tr[^>]*>[\s\S]*?<\/tr>/gi) || [];
+    for (const tr of trMatches) {
+      const cells: string[] = [];
+      const cellMatches = tr.match(/<(th|td)[^>]*>([\s\S]*?)<\/\1>/gi) || [];
+      for (const cell of cellMatches) {
+        const text = cell.replace(/<[^>]+>/g, '').trim();
+        cells.push(text);
+      }
+      if (cells.length > 0) {
+        rows.push(cells);
+      }
     }
+    if (rows.length === 0) return '';
+    let tableMd = '\n';
+    rows.forEach((row, i) => {
+      tableMd += `| ${row.join(' | ')} |\n`;
+      if (i === 0) {
+        tableMd += `| ${row.map(() => '---').join(' | ')} |\n`;
+      }
+    });
+    return tableMd + '\n';
+  });
 
-    if (node.nodeType !== Node.ELEMENT_NODE) {
-      return '';
-    }
+  // 2. TipTap Task items: <li data-type="taskItem" data-checked="true|false">...</li>
+  md = md.replace(/<li[^>]*data-type=["']taskItem["'][^>]*data-checked=["'](true|false)["'][^>]*>([\s\S]*?)<\/li>/gi, (_, checked, content) => {
+    const isChecked = checked.toLowerCase() === 'true';
+    const clean = content
+      .replace(/<label[^>]*>[\s\S]*?<\/label>/gi, '')
+      .replace(/<[^>]+>/g, '')
+      .trim();
+    return `- [${isChecked ? 'x' : ' '}] ${clean}\n`;
+  });
 
-    const el = node as HTMLElement;
-    const tag = el.tagName.toLowerCase();
-    const children = Array.from(el.childNodes).map(nodeToMd).join('');
+  // Also handle marked task items: <li><input ... type="checkbox"[^>]*> text</li>
+  md = md.replace(/<li[^>]*>\s*<input[^>]*type=["']checkbox["'][^>]*>\s*([\s\S]*?)<\/li>/gi, (match, text) => {
+    const isChecked = /checked/i.test(match);
+    const clean = text.replace(/<[^>]+>/g, '').trim();
+    return `- [${isChecked ? 'x' : ' '}] ${clean}\n`;
+  });
 
-    switch (tag) {
-      case 'h1':
-        return `# ${children.trim()}\n\n`;
-      case 'h2':
-        return `## ${children.trim()}\n\n`;
-      case 'h3':
-        return `### ${children.trim()}\n\n`;
-      case 'p':
-        return `${children.trim()}\n\n`;
-      case 'strong':
-      case 'b':
-        return `**${children}**`;
-      case 'em':
-      case 'i':
-        return `*${children}*`;
-      case 's':
-      case 'strike':
-      case 'del':
-        return `~~${children}~~`;
-      case 'mark':
-        return `==${children}==`;
-      case 'code':
-        if (el.parentElement?.tagName.toLowerCase() === 'pre') {
-          return children;
-        }
-        return `\`${children}\``;
-      case 'pre':
-        return `\`\`\`\n${children.trim()}\n\`\`\`\n\n`;
-      case 'blockquote':
-        return `> ${children.trim().replace(/\n/g, '\n> ')}\n\n`;
-      case 'hr':
-        return `---\n\n`;
-      case 'img': {
-        const src = el.getAttribute('src') || '';
-        const alt = el.getAttribute('alt') || 'image';
-        return `![${alt}](${src})\n\n`;
-      }
-      case 'a': {
-        const href = el.getAttribute('href') || '';
-        return `[${children}](${href})`;
-      }
-      case 'ul': {
-        if (el.getAttribute('data-type') === 'taskList') {
-          return `${children}\n`;
-        }
-        return `${children}\n`;
-      }
-      case 'ol':
-        return `${children}\n`;
-      case 'li': {
-        if (el.parentElement?.getAttribute('data-type') === 'taskList') {
-          const checked = el.getAttribute('data-checked') === 'true';
-          const text = children.trim();
-          return `- [${checked ? 'x' : ' '}] ${text}\n`;
-        }
-        const isOrdered = el.parentElement?.tagName.toLowerCase() === 'ol';
-        if (isOrdered) {
-          const idx = Array.from(el.parentElement?.children || []).indexOf(el) + 1;
-          return `${idx}. ${children.trim()}\n`;
-        }
-        return `- ${children.trim()}\n`;
-      }
-      case 'table': {
-        // Simple markdown table serialization
-        const rows = Array.from(el.querySelectorAll('tr'));
-        if (rows.length === 0) return '';
-        let md = '\n';
-        rows.forEach((row, i) => {
-          const cells = Array.from(row.querySelectorAll('th, td'));
-          const cellTexts = cells.map((c) => c.textContent?.trim() || '');
-          md += `| ${cellTexts.join(' | ')} |\n`;
-          if (i === 0) {
-            md += `| ${cells.map(() => '---').join(' | ')} |\n`;
-          }
-        });
-        return md + '\n';
-      }
-      default:
-        return children;
-    }
-  }
+  // 3. Wiki links: <a ... class="wiki-link" data-note-title="Title">...</a>
+  md = md.replace(/<a[^>]*class=["'][^"']*wiki-link[^"']*["'][^>]*data-note-title=["']([^"']+)["'][^>]*>[\s\S]*?<\/a>/gi, '[[$1]]');
 
-  const raw = Array.from(doc.body.childNodes).map(nodeToMd).join('');
-  return raw.replace(/\n{3,}/g, '\n\n').trim();
+  // 4. Images: <img src="..." data-src="..." alt="...">
+  md = md.replace(/<img[^>]*>/gi, (imgTag) => {
+    const dataSrcMatch = imgTag.match(/data-src=["']([^"']+)["']/i);
+    const srcMatch = imgTag.match(/src=["']([^"']+)["']/i);
+    const altMatch = imgTag.match(/alt=["']([^"']+)["']/i);
+    const src = dataSrcMatch ? dataSrcMatch[1] : (srcMatch ? srcMatch[1] : '');
+    const alt = altMatch ? altMatch[1] : 'image';
+    return `![${alt}](${src})\n\n`;
+  });
+
+  // 5. Code blocks: <pre><code>...</code></pre>
+  md = md.replace(/<pre[^>]*><code[^>]*>([\s\S]*?)<\/code><\/pre>/gi, (_, code) => {
+    const unescaped = unescapeHtml(code);
+    return `\`\`\`\n${unescaped.trim()}\n\`\`\`\n\n`;
+  });
+
+  // 6. Blockquotes: <blockquote>...</blockquote>
+  md = md.replace(/<blockquote[^>]*>([\s\S]*?)<\/blockquote>/gi, (_, quote) => {
+    const text = quote.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n').replace(/<[^>]+>/g, '').trim();
+    return `> ${text.replace(/\n/g, '\n> ')}\n\n`;
+  });
+
+  // 7. Headings
+  md = md.replace(/<h1[^>]*>([\s\S]*?)<\/h1>/gi, (_, c) => `# ${c.replace(/<[^>]+>/g, '').trim()}\n\n`);
+  md = md.replace(/<h2[^>]*>([\s\S]*?)<\/h2>/gi, (_, c) => `## ${c.replace(/<[^>]+>/g, '').trim()}\n\n`);
+  md = md.replace(/<h3[^>]*>([\s\S]*?)<\/h3>/gi, (_, c) => `### ${c.replace(/<[^>]+>/g, '').trim()}\n\n`);
+
+  // 8. Paragraphs
+  md = md.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n');
+
+  // 9. Standard unordered / ordered list items
+  md = md.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, c) => `- ${c.replace(/<[^>]+>/g, '').trim()}\n`);
+
+  // 10. Inline formatting
+  md = md.replace(/<(strong|b)[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
+  md = md.replace(/<(em|i)[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*');
+  md = md.replace(/<(s|strike|del)[^>]*>([\s\S]*?)<\/\1>/gi, '~~$2~~');
+  md = md.replace(/<mark[^>]*>([\s\S]*?)<\/mark>/gi, '==$1==');
+  md = md.replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`');
+  md = md.replace(/<hr[^>]*>/gi, '---\n\n');
+
+  // 11. Links (non-wiki)
+  md = md.replace(/<a[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi, '[$2]($1)');
+
+  // 12. Strip remaining wrapper tags
+  md = md.replace(/<\/?(ul|ol|div|span)[^>]*>/gi, '');
+
+  // 13. Decode HTML entities & normalize newlines
+  md = unescapeHtml(md);
+  return md.replace(/\n{3,}/g, '\n\n').trim();
 }

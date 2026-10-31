@@ -1,5 +1,6 @@
 <script lang="ts">
   import { appState } from '$lib/stores/appState.svelte';
+  import { folderService, tagService } from '$lib/services/ipc';
   import {
     Folder as FolderIcon,
     FolderPlus,
@@ -33,23 +34,12 @@
       return;
     }
     try {
-      await appState.folders.push({
-        id: '',
-        name: newFolderName.trim(),
-        parent_id: null,
-        icon: '📁',
-        sort_order: 0,
-        note_count: 0,
-        created_at: new Date().toISOString(),
-      });
-      // Call IPC
-      const { folderService } = await import('$lib/services/ipc');
       await folderService.createFolder(newFolderName.trim());
       await appState.loadFolders();
       newFolderName = '';
       showNewFolderInput = false;
     } catch (e) {
-      console.error(e);
+      console.error('Failed to create folder:', e);
     }
   }
 
@@ -59,13 +49,12 @@
       return;
     }
     try {
-      const { tagService } = await import('$lib/services/ipc');
       await tagService.createTag(newTagName.trim());
       await appState.loadTags();
       newTagName = '';
       showNewTagInput = false;
     } catch (e) {
-      console.error(e);
+      console.error('Failed to create tag:', e);
     }
   }
 
@@ -74,21 +63,28 @@
       editingFolderId = null;
       return;
     }
-    const { folderService } = await import('$lib/services/ipc');
-    await folderService.renameFolder(id, editFolderName.trim());
-    await appState.loadFolders();
-    editingFolderId = null;
+    try {
+      await folderService.renameFolder(id, editFolderName.trim());
+      await appState.loadFolders();
+    } catch (e) {
+      console.error('Failed to rename folder:', e);
+    } finally {
+      editingFolderId = null;
+    }
   }
 
   async function handleDeleteFolder(id: string, e: MouseEvent) {
     e.stopPropagation();
     if (confirm('Delete this folder? Notes inside will become uncategorized.')) {
-      const { folderService } = await import('$lib/services/ipc');
-      await folderService.deleteFolder(id);
-      if (appState.selectedFolderId === id) {
-        appState.selectFolder(null);
-      } else {
-        await appState.loadFolders();
+      try {
+        await folderService.deleteFolder(id);
+        if (appState.selectedFolderId === id) {
+          appState.selectFolder(null);
+        } else {
+          await appState.loadFolders();
+        }
+      } catch (e) {
+        console.error('Failed to delete folder:', e);
       }
     }
   }

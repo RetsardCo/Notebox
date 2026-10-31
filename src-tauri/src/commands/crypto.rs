@@ -1,5 +1,5 @@
 use aes_gcm::{
-    aead::{Aead, KeyInit},
+    aead::{Aead, AeadCore, KeyInit, OsRng},
     Aes256Gcm, Nonce,
 };
 use base64::{engine::general_purpose::STANDARD as BASE64, Engine as _};
@@ -26,19 +26,23 @@ pub fn encrypt_content(content: &str, password: &str) -> Result<String, String> 
     let cipher = Aes256Gcm::new_from_slice(&key_bytes)
         .map_err(|e| format!("Failed to create cipher: {}", e))?;
 
-    // 96-bit nonce
-    let nonce_bytes = [7u8; 12];
-    let nonce = Nonce::from_slice(&nonce_bytes);
+    // 96-bit cryptographically secure random nonce (prevents nonce reuse vulnerability)
+    let nonce = Aes256Gcm::generate_nonce(&mut OsRng);
 
     let ciphertext = cipher
-        .encrypt(nonce, content.as_bytes())
+        .encrypt(&nonce, content.as_bytes())
         .map_err(|e| format!("Encryption error: {}", e))?;
 
-    Ok(BASE64.encode(ciphertext))
+    // Prepend 12-byte nonce to ciphertext
+    let mut combined = Vec::with_capacity(12 + ciphertext.len());
+    combined.extend_from_slice(nonce.as_slice());
+    combined.extend_from_slice(&ciphertext);
+
+    Ok(BASE64.encode(combined))
 }
 
 pub fn decrypt_content(encrypted_base64: &str, password: &str) -> Result<String, String> {
-    let ciphertext = BASE64
+    let raw_bytes = BASE64
         .decode(encrypted_base64)
         .map_err(|e| format!("Invalid base64 payload: {}", e))?;
 
@@ -50,13 +54,25 @@ pub fn decrypt_content(encrypted_base64: &str, password: &str) -> Result<String,
     let cipher = Aes256Gcm::new_from_slice(&key_bytes)
         .map_err(|e| format!("Failed to create cipher: {}", e))?;
 
-    let nonce_bytes = [7u8; 12];
-    let nonce = Nonce::from_slice(&nonce_bytes);
+    // First attempt: slice first 12 bytes as random nonce
+    if raw_bytes.len() >= 12 {
+        let (nonce_bytes, ciphertext) = raw_bytes.split_at(12);
+        let nonce = Nonce::from_slice(nonce_bytes);
+        if let Ok(decrypted_bytes) = cipher.decrypt(nonce, ciphertext) {
+            if let Ok(text) = String::from_utf8(decrypted_bytes) {
+                return Ok(text);
+            }
+        }
+    }
 
-    let decrypted_bytes = cipher
-        .decrypt(nonce, ciphertext.as_ref())
-        .map_err(|_| "Incorrect password or corrupted note".to_string())?;
+    // Fallback attempt for legacy static nonce
+    let legacy_nonce_bytes = [7u8; 12];
+    let legacy_nonce = Nonce::from_slice(&legacy_nonce_bytes);
+    if let Ok(decrypted_bytes) = cipher.decrypt(legacy_nonce, raw_bytes.as_slice()) {
+        if let Ok(text) = String::from_utf8(decrypted_bytes) {
+            return Ok(text);
+        }
+    }
 
-    String::from_utf8(decrypted_bytes)
-        .map_err(|e| format!("UTF-8 decode error: {}", e))
+    Err("Incorrect password or corrupted note".to_string())
 }

@@ -220,12 +220,12 @@
       <button
         onclick={() => {
           appState.targetNoteForPassword = activeNote;
-          appState.passwordModalMode = activeNote.locked ? 'unlock' : 'lock';
+          appState.passwordModalMode = activeNote.locked ? 'remove_lock' : 'lock';
           appState.passwordModalOpen = true;
         }}
         class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
         style={activeNote.locked ? 'color: var(--accent);' : 'color: var(--text-tertiary);'}
-        title={activeNote.locked ? 'Unlock Note' : 'Lock Note'}
+        title={activeNote.locked ? 'Remove Password Lock' : 'Lock Note'}
       >
         <Lock size={15} />
       </button>

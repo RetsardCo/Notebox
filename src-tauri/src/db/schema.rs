@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS notes (
     locked BOOLEAN DEFAULT 0,
     password_hash TEXT,
     is_trash BOOLEAN DEFAULT 0,
+    has_checklist BOOLEAN DEFAULT 0,
     word_count INTEGER DEFAULT 0,
     char_count INTEGER DEFAULT 0,
     preview TEXT DEFAULT '',

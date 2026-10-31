@@ -2,13 +2,22 @@ use crate::commands::crypto;
 use crate::db::Database;
 use crate::models::{NoteDetail, NoteSummary};
 use chrono::Local;
+use std::collections::HashMap;
 use std::fs;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex};
 use tauri::State;
 use uuid::Uuid;
 
 pub struct AppState {
     pub db: Arc<Database>,
+    pub unlocked_keys: Arc<Mutex<HashMap<String, String>>>,
+}
+
+fn has_checklist_syntax(content: &str) -> bool {
+    content.contains("- [ ]")
+        || content.contains("- [x]")
+        || content.contains("data-type=\"taskList\"")
+        || content.contains("data-type=\"taskItem\"")
 }
 
 fn extract_tags(content: &str) -> Vec<String> {
@@ -72,19 +81,33 @@ pub fn create_note(
     let preview = extract_preview(&initial_content);
     let word_count = initial_content.split_whitespace().count();
     let char_count = initial_content.chars().count();
+    let has_checklist = has_checklist_syntax(&initial_content);
     let now = Local::now().to_rfc3339();
 
-    let rel_file_path = format!("{}.md", id);
+    let conn = state.db.lock();
+
+    let folder_name: Option<String> = if let Some(ref fid) = folder_id {
+        conn.query_row("SELECT name FROM folders WHERE id = ?1", [fid], |r| r.get(0)).ok()
+    } else {
+        None
+    };
+
+    let rel_file_path = if let Some(ref fname) = folder_name {
+        let folder_dir = state.db.get_vault_path().join(fname);
+        let _ = fs::create_dir_all(&folder_dir);
+        format!("{}/{}.md", fname, id)
+    } else {
+        format!("{}.md", id)
+    };
+
     let full_path = state.db.get_vault_path().join(&rel_file_path);
 
     fs::write(&full_path, &initial_content)
         .map_err(|e| format!("Failed to write note file: {}", e))?;
 
-    let conn = state.db.lock();
-
     conn.execute(
-        "INSERT INTO notes (id, title, folder_id, file_path, created_at, updated_at, pinned, locked, is_trash, word_count, char_count, preview)
-         VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, 0, 0, ?7, ?8, ?9)",
+        "INSERT INTO notes (id, title, folder_id, file_path, created_at, updated_at, pinned, locked, is_trash, has_checklist, word_count, char_count, preview)
+         VALUES (?1, ?2, ?3, ?4, ?5, ?6, 0, 0, 0, ?7, ?8, ?9, ?10)",
         (
             &id,
             &note_title,
@@ -92,6 +115,7 @@ pub fn create_note(
             &rel_file_path,
             &now,
             &now,
+            if has_checklist { 1 } else { 0 },
             word_count as i64,
             char_count as i64,
             &preview,
@@ -115,12 +139,6 @@ pub fn create_note(
             let _ = conn.execute("INSERT OR IGNORE INTO note_tags (note_id, tag_id) VALUES (?1, ?2)", (&id, &actual_tag_id));
         }
     }
-
-    let folder_name: Option<String> = if let Some(ref fid) = folder_id {
-        conn.query_row("SELECT name FROM folders WHERE id = ?1", [fid], |r| r.get(0)).ok()
-    } else {
-        None
-    };
 
     Ok(NoteSummary {
         id,
@@ -173,7 +191,14 @@ pub fn read_note(state: State<'_, AppState>, id: String) -> Result<NoteDetail, S
 
     let full_path = state.db.get_vault_path().join(&rel_file_path);
     let content = if locked {
-        "[LOCKED NOTE] Please enter password to view content.".to_string()
+        let keys = state.unlocked_keys.lock().unwrap();
+        if let Some(password) = keys.get(&id) {
+            let encrypted = fs::read_to_string(&full_path).unwrap_or_default();
+            crypto::decrypt_content(&encrypted, password)
+                .unwrap_or_else(|_| "[LOCKED NOTE] Please enter password to view content.".to_string())
+        } else {
+            "[LOCKED NOTE] Please enter password to view content.".to_string()
+        }
     } else {
         fs::read_to_string(&full_path).unwrap_or_default()
     };
@@ -222,11 +247,12 @@ pub fn save_note(
     let preview = extract_preview(&content);
     let word_count = content.split_whitespace().count();
     let char_count = content.chars().count();
+    let has_checklist = has_checklist_syntax(&content);
     let now = Local::now().to_rfc3339();
 
     let conn = state.db.lock();
 
-    let (rel_file_path, folder_id, locked, password_hash): (String, Option<String>, bool, Option<String>) = conn
+    let (rel_file_path, folder_id, locked, _password_hash): (String, Option<String>, bool, Option<String>) = conn
         .query_row(
             "SELECT file_path, folder_id, locked, password_hash FROM notes WHERE id = ?1",
             [&id],
@@ -236,28 +262,30 @@ pub fn save_note(
 
     let full_path = state.db.get_vault_path().join(&rel_file_path);
 
-    // If locked, encrypt before saving
-    let content_to_write = if locked {
-        if let Some(hash) = password_hash {
-            crypto::encrypt_content(&content, &hash)?
+    // If locked, verify that the session has unlocked it
+    if locked {
+        let keys = state.unlocked_keys.lock().unwrap();
+        if let Some(password) = keys.get(&id) {
+            let ciphertext = crypto::encrypt_content(&content, password)?;
+            fs::write(&full_path, ciphertext)
+                .map_err(|e| format!("Failed to write note file: {}", e))?;
         } else {
-            content.clone()
+            return Err("Cannot save locked note without unlocking".to_string());
         }
     } else {
-        content.clone()
-    };
-
-    fs::write(&full_path, content_to_write)
-        .map_err(|e| format!("Failed to write note file: {}", e))?;
+        fs::write(&full_path, &content)
+            .map_err(|e| format!("Failed to write note file: {}", e))?;
+    }
 
     conn.execute(
-        "UPDATE notes SET title = ?1, updated_at = ?2, word_count = ?3, char_count = ?4, preview = ?5 WHERE id = ?6",
+        "UPDATE notes SET title = ?1, updated_at = ?2, word_count = ?3, char_count = ?4, preview = ?5, has_checklist = ?6 WHERE id = ?7",
         (
             &note_title,
             &now,
             word_count as i64,
             char_count as i64,
             &preview,
+            if has_checklist { 1 } else { 0 },
             &id,
         ),
     ).map_err(|e| e.to_string())?;
@@ -347,10 +375,40 @@ pub fn restore_note(state: State<'_, AppState>, id: String) -> Result<(), String
 #[tauri::command]
 pub fn move_note(state: State<'_, AppState>, id: String, folder_id: Option<String>) -> Result<(), String> {
     let conn = state.db.lock();
+
+    let old_rel_path: String = conn
+        .query_row("SELECT file_path FROM notes WHERE id = ?1", [&id], |r| r.get(0))
+        .map_err(|e| e.to_string())?;
+
+    let filename = std::path::Path::new(&old_rel_path)
+        .file_name()
+        .and_then(|f| f.to_str())
+        .unwrap_or(&format!("{}.md", id))
+        .to_string();
+
+    let new_rel_path = if let Some(ref fid) = folder_id {
+        let folder_name: String = conn
+            .query_row("SELECT name FROM folders WHERE id = ?1", [fid], |r| r.get(0))
+            .map_err(|e| format!("Folder not found: {}", e))?;
+        let target_dir = state.db.get_vault_path().join(&folder_name);
+        let _ = fs::create_dir_all(&target_dir);
+        format!("{}/{}", folder_name, filename)
+    } else {
+        filename
+    };
+
+    let old_full = state.db.get_vault_path().join(&old_rel_path);
+    let new_full = state.db.get_vault_path().join(&new_rel_path);
+
+    if old_full.exists() && old_full != new_full {
+        let _ = fs::rename(&old_full, &new_full);
+    }
+
     conn.execute(
-        "UPDATE notes SET folder_id = ?1, updated_at = ?2 WHERE id = ?3",
-        (&folder_id, Local::now().to_rfc3339(), &id),
+        "UPDATE notes SET folder_id = ?1, file_path = ?2, updated_at = ?3 WHERE id = ?4",
+        (&folder_id, &new_rel_path, Local::now().to_rfc3339(), &id),
     ).map_err(|e| e.to_string())?;
+
     Ok(())
 }
 
@@ -384,6 +442,9 @@ pub fn lock_note(state: State<'_, AppState>, id: String, password: String) -> Re
         (&hash, Local::now().to_rfc3339(), &id),
     ).map_err(|e| e.to_string())?;
 
+    // Store key in memory for current session
+    state.unlocked_keys.lock().unwrap().insert(id, password);
+
     Ok(())
 }
 
@@ -408,6 +469,9 @@ pub fn unlock_note(state: State<'_, AppState>, id: String, password: String) -> 
     let full_path = state.db.get_vault_path().join(&rel_file_path);
     let encrypted_content = fs::read_to_string(&full_path).map_err(|e| e.to_string())?;
     let decrypted = crypto::decrypt_content(&encrypted_content, &password)?;
+
+    // Store key in memory for current session
+    state.unlocked_keys.lock().unwrap().insert(id.clone(), password);
 
     // Return note detail with decrypted content
     drop(conn);
@@ -442,6 +506,8 @@ pub fn remove_note_lock(state: State<'_, AppState>, id: String, password: String
         (Local::now().to_rfc3339(), &id),
     ).map_err(|e| e.to_string())?;
 
+    state.unlocked_keys.lock().unwrap().remove(&id);
+
     Ok(())
 }
 
@@ -464,6 +530,7 @@ pub fn get_notes(
 
     let is_trash = filter_type.as_deref() == Some("trash");
     let is_pinned_only = filter_type.as_deref() == Some("pinned");
+    let is_checklist_only = filter_type.as_deref() == Some("checklist");
 
     let mut query = String::from(
         "SELECT n.id, n.title, n.folder_id, f.name, n.file_path, n.created_at, n.updated_at,
@@ -482,6 +549,10 @@ pub fn get_notes(
 
         if is_pinned_only {
             conditions.push("n.pinned = 1".to_string());
+        }
+
+        if is_checklist_only {
+            conditions.push("n.has_checklist = 1".to_string());
         }
 
         if let Some(fid) = folder_id {

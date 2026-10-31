@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount, onDestroy } from 'svelte';
   import { appState } from '$lib/stores/appState.svelte';
-  import { imageService } from '$lib/services/ipc';
+  import { imageService, isTauri } from '$lib/services/ipc';
   import { markdownToHtml, htmlToMarkdown } from '$lib/utils/markdown';
   import { Editor } from '@tiptap/core';
   import { StarterKit } from '@tiptap/starter-kit';
@@ -12,10 +12,27 @@
   import { Highlight } from '@tiptap/extension-highlight';
   import { Placeholder } from '@tiptap/extension-placeholder';
 
+  const CustomImage = Image.extend({
+    addAttributes() {
+      return {
+        ...this.parent?.(),
+        'data-src': {
+          default: null,
+          parseHTML: (element) => element.getAttribute('data-src'),
+          renderHTML: (attributes) => {
+            if (!attributes['data-src']) return {};
+            return { 'data-src': attributes['data-src'] };
+          },
+        },
+      };
+    },
+  });
+
   let editorElement: HTMLDivElement | null = null;
   let editor: Editor | null = null;
   let fileInput: HTMLInputElement | null = null;
   let lastLoadedTabId: string | null = null;
+  let lastLoadedContent = '';
   let isInternalUpdate = false;
 
   export function executeCommand(command: string, arg?: any) {
@@ -79,26 +96,55 @@
     }
   }
 
+  function getMatches(query: string): Array<{ from: number; to: number }> {
+    if (!editor || !query) return [];
+    const matches: Array<{ from: number; to: number }> = [];
+    const lowerQuery = query.toLowerCase();
+    editor.state.doc.descendants((node, pos) => {
+      if (node.isText && node.text) {
+        const lowerText = node.text.toLowerCase();
+        let index = 0;
+        while ((index = lowerText.indexOf(lowerQuery, index)) !== -1) {
+          matches.push({
+            from: pos + index,
+            to: pos + index + query.length,
+          });
+          index += query.length;
+        }
+      }
+    });
+    return matches;
+  }
+
   export function findText(query: string, forward: boolean = true) {
     if (!editor || !query) return;
-    const text = editor.getText();
-    const doc = editor.state.doc;
-    const lowerText = text.toLowerCase();
-    const lowerQuery = query.toLowerCase();
+    const matches = getMatches(query);
+    if (matches.length === 0) return;
 
-    const idx = lowerText.indexOf(lowerQuery);
-    if (idx !== -1) {
-      editor.chain().focus().setTextSelection({ from: idx + 1, to: idx + 1 + query.length }).run();
+    const { selection } = editor.state;
+    const curPos = forward ? selection.to : selection.from;
+
+    let target: { from: number; to: number } | null = null;
+    if (forward) {
+      target = matches.find((m) => m.from >= curPos) || matches[0];
+    } else {
+      const reversed = [...matches].reverse();
+      target = reversed.find((m) => m.to <= curPos) || matches[matches.length - 1];
+    }
+
+    if (target) {
+      editor.chain().focus().setTextSelection({ from: target.from, to: target.to }).scrollIntoView().run();
     }
   }
 
   export function replaceText(search: string, replaceWith: string) {
     if (!editor || !search) return;
-    const currentSelection = editor.state.selection;
-    const selectedText = editor.state.doc.textBetween(currentSelection.from, currentSelection.to);
+    const { selection, doc } = editor.state;
+    const selectedText = doc.textBetween(selection.from, selection.to);
 
     if (selectedText.toLowerCase() === search.toLowerCase()) {
       editor.chain().focus().insertContent(replaceWith).run();
+      findText(search, true);
     } else {
       findText(search, true);
     }
@@ -106,10 +152,16 @@
 
   export function replaceAllText(search: string, replaceWith: string) {
     if (!editor || !search) return;
-    const currentHtml = editor.getHTML();
-    const regex = new RegExp(search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'), 'gi');
-    const newHtml = currentHtml.replace(regex, replaceWith);
-    editor.commands.setContent(newHtml);
+    const matches = getMatches(search);
+    if (matches.length === 0) return;
+
+    const { tr } = editor.state;
+    // Replace backwards so document positions remain valid
+    for (let i = matches.length - 1; i >= 0; i--) {
+      const m = matches[i];
+      tr.insertText(replaceWith, m.from, m.to);
+    }
+    editor.view.dispatch(tr);
   }
 
   async function handleImageFile(file: File) {
@@ -122,7 +174,7 @@
         const relPath = await imageService.pasteImage(noteId, base64);
         const dataUrl = await imageService.getImageData(relPath);
         if (editor) {
-          editor.chain().focus().setImage({ src: dataUrl, alt: file.name }).run();
+          editor.chain().focus().setImage({ src: dataUrl, alt: file.name, 'data-src': relPath } as any).run();
         }
       } catch (e) {
         console.error('Failed to embed image:', e);
@@ -186,7 +238,7 @@
         StarterKit.configure({
           heading: { levels: [1, 2, 3] },
         }),
-        Image.configure({
+        CustomImage.configure({
           inline: false,
           allowBase64: true,
         }),
@@ -215,6 +267,7 @@
         if (isInternalUpdate) return;
         const html = ed.getHTML();
         const md = htmlToMarkdown(html);
+        lastLoadedContent = md;
         appState.updateTabContent(md);
         updateMetricsFromEditor();
       },
@@ -235,21 +288,53 @@
     }
   });
 
-  function loadTabContent(tabId: string, content: string) {
+  async function loadTabContent(tabId: string, content: string) {
     if (!editor) return;
     isInternalUpdate = true;
     lastLoadedTabId = tabId;
-    const html = markdownToHtml(content);
+    lastLoadedContent = content;
+    let html = markdownToHtml(content);
+
+    // Resolve any relative image paths (e.g. .assets/images/...)
+    if (isTauri && html.includes('.assets/images/')) {
+      const imgRegex = /<img([^>]*?)data-src="(\.assets\/images\/[^"]+)"([^>]*?)>/g;
+      const matches = [...html.matchAll(imgRegex)];
+      for (const m of matches) {
+        const fullTag = m[0];
+        const relPath = m[2];
+        try {
+          const dataUrl = await imageService.getImageData(relPath);
+          const updatedTag = fullTag.replace(/src="[^"]*"/, `src="${dataUrl}"`);
+          html = html.replace(fullTag, updatedTag);
+        } catch (e) {
+          console.warn('Failed to load image data for:', relPath, e);
+        }
+      }
+    }
+
     editor.commands.setContent(html);
     isInternalUpdate = false;
     updateMetricsFromEditor();
   }
 
-  // React to tab switch
+  function handleEditorClick(e: MouseEvent) {
+    const target = (e.target as HTMLElement).closest('.wiki-link');
+    if (target) {
+      e.preventDefault();
+      const title = target.getAttribute('data-wiki-title') || target.textContent;
+      if (title) {
+        appState.openNoteByTitle(title);
+      }
+    }
+  }
+
+  // React to tab switch or note unlock/content sync
   $effect(() => {
     const tab = appState.activeTab;
-    if (tab && tab.id !== lastLoadedTabId) {
-      loadTabContent(tab.id, tab.content);
+    if (tab) {
+      if (tab.id !== lastLoadedTabId || (!tab.is_dirty && tab.content !== lastLoadedContent)) {
+        loadTabContent(tab.id, tab.content);
+      }
     }
   });
 </script>
@@ -263,15 +348,16 @@
 />
 
 <div
-  class="flex-1 h-full overflow-y-auto relative select-text"
+  class="flex-1 h-full overflow-y-auto {appState.wordWrap ? '' : 'overflow-x-auto'} relative select-text"
   style="background-color: var(--bg-editor); zoom: {appState.zoomLevel}%;"
   onpaste={handlePaste}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
+  onclick={handleEditorClick}
 >
   <div
     bind:this={editorElement}
-    class="min-h-full max-w-4xl mx-auto"
-    style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: break-word;"
+    class="min-h-full max-w-4xl mx-auto {appState.wordWrap ? '' : 'min-w-max'}"
+    style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
   ></div>
 </div>

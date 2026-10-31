@@ -45,13 +45,40 @@ impl Database {
         // FTS5 table
         let _ = conn.execute(schema::CREATE_FTS_TABLE, []);
 
+        // Migrations for existing databases
+        let _ = conn.execute("ALTER TABLE notes ADD COLUMN has_checklist BOOLEAN DEFAULT 0", []);
+
         let db = Self {
             conn: Mutex::new(conn),
             vault_path,
         };
 
+        db.purge_old_trash();
         db.seed_defaults()?;
         Ok(db)
+    }
+
+    pub fn purge_old_trash(&self) -> u32 {
+        let conn = self.lock();
+        let mut stmt = match conn.prepare("SELECT id, file_path FROM notes WHERE is_trash = 1 AND updated_at < datetime('now', '-30 days')") {
+            Ok(s) => s,
+            Err(_) => return 0,
+        };
+        let rows = match stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?))) {
+            Ok(r) => r,
+            Err(_) => return 0,
+        };
+
+        let mut count = 0;
+        for r in rows.flatten() {
+            let (id, file_path) = r;
+            let full_path = self.vault_path.join(file_path);
+            let _ = fs::remove_file(full_path);
+            let _ = conn.execute("DELETE FROM notes_fts WHERE note_id = ?1", [&id]);
+            let _ = conn.execute("DELETE FROM notes WHERE id = ?1", [&id]);
+            count += 1;
+        }
+        count
     }
 
     pub fn get_vault_path(&self) -> PathBuf {
@@ -188,8 +215,8 @@ NoteFlow is your **super-lightweight**, local-first desktop note app designed wi
                 let char_count = welcome_content.chars().count();
 
                 let _ = conn.execute(
-                    "INSERT INTO notes (id, title, folder_id, file_path, pinned, preview, word_count, char_count) 
-                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8)",
+                    "INSERT INTO notes (id, title, folder_id, file_path, pinned, preview, word_count, char_count, has_checklist) 
+                     VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1)",
                     (
                         &welcome_id,
                         "Welcome to NoteFlow!",

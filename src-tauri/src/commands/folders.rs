@@ -70,21 +70,93 @@ pub fn create_folder(
 #[tauri::command]
 pub fn rename_folder(state: State<'_, AppState>, id: String, name: String) -> Result<(), String> {
     let conn = state.db.lock();
-    conn.execute(
-        "UPDATE folders SET name = ?1 WHERE id = ?2",
-        (&name, &id),
-    ).map_err(|e| e.to_string())?;
+
+    let old_name: String = conn
+        .query_row("SELECT name FROM folders WHERE id = ?1", [&id], |r| r.get(0))
+        .map_err(|e| e.to_string())?;
+
+    if old_name != name {
+        let old_dir = state.db.get_vault_path().join(&old_name);
+        let new_dir = state.db.get_vault_path().join(&name);
+        if old_dir.exists() {
+            let _ = fs::rename(&old_dir, &new_dir);
+        } else {
+            let _ = fs::create_dir_all(&new_dir);
+        }
+
+        // Update note file paths in this folder
+        let mut stmt = conn
+            .prepare("SELECT id, file_path FROM notes WHERE folder_id = ?1")
+            .map_err(|e| e.to_string())?;
+        let rows = stmt
+            .query_map([&id], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))
+            .map_err(|e| e.to_string())?;
+
+        for r in rows.flatten() {
+            let (nid, old_path) = r;
+            let filename = std::path::Path::new(&old_path)
+                .file_name()
+                .and_then(|f| f.to_str())
+                .unwrap_or("");
+            if !filename.is_empty() {
+                let new_path = format!("{}/{}", name, filename);
+                let _ = conn.execute("UPDATE notes SET file_path = ?1 WHERE id = ?2", (&new_path, &nid));
+            }
+        }
+
+        conn.execute(
+            "UPDATE folders SET name = ?1 WHERE id = ?2",
+            (&name, &id),
+        ).map_err(|e| e.to_string())?;
+    }
+
     Ok(())
 }
 
 #[tauri::command]
 pub fn delete_folder(state: State<'_, AppState>, id: String) -> Result<(), String> {
     let conn = state.db.lock();
-    // Notes in this folder become uncategorized (folder_id = NULL)
+
+    let folder_name: Result<String, _> = conn
+        .query_row("SELECT name FROM folders WHERE id = ?1", [&id], |r| r.get(0));
+
+    if let Ok(fname) = folder_name {
+        // Move all notes in this folder to the root vault directory
+        let mut stmt = conn
+            .prepare("SELECT id, file_path FROM notes WHERE folder_id = ?1")
+            .map_err(|e| e.to_string())?;
+        let rows = stmt
+            .query_map([&id], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?)))
+            .map_err(|e| e.to_string())?;
+
+        for r in rows.flatten() {
+            let (nid, old_path) = r;
+            let filename = std::path::Path::new(&old_path)
+                .file_name()
+                .and_then(|f| f.to_str())
+                .unwrap_or(&format!("{}.md", nid))
+                .to_string();
+
+            let old_full = state.db.get_vault_path().join(&old_path);
+            let new_full = state.db.get_vault_path().join(&filename);
+            if old_full.exists() && old_full != new_full {
+                let _ = fs::rename(&old_full, &new_full);
+            }
+            let _ = conn.execute(
+                "UPDATE notes SET folder_id = NULL, file_path = ?1 WHERE id = ?2",
+                (&filename, &nid),
+            );
+        }
+
+        let folder_dir = state.db.get_vault_path().join(&fname);
+        let _ = fs::remove_dir_all(folder_dir);
+    }
+
     conn.execute("UPDATE notes SET folder_id = NULL WHERE folder_id = ?1", [&id])
         .map_err(|e| e.to_string())?;
     conn.execute("DELETE FROM folders WHERE id = ?1", [&id])
         .map_err(|e| e.to_string())?;
+
     Ok(())
 }
 

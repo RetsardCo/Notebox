@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { markdownToHtml } from './markdown';
+import { markdownToHtml, htmlToMarkdown } from './markdown';
 
 describe('Markdown Converter', () => {
   it('converts headings and paragraphs to HTML', () => {
@@ -16,11 +16,38 @@ describe('Markdown Converter', () => {
     expect(html).toContain('<em>Italic Text</em>');
   });
 
-  it('converts checklists and task lists', () => {
+  it('converts checklists and task lists into TipTap schema', () => {
     const md = '- [x] Completed task\n- [ ] Pending task';
     const html = markdownToHtml(md);
-    expect(html).toContain('type="checkbox"');
-    expect(html).toContain('checked');
+    expect(html).toContain('data-type="taskList"');
+    expect(html).toContain('data-type="taskItem"');
+    expect(html).toContain('data-checked="true"');
+    expect(html).toContain('data-checked="false"');
+  });
+
+  it('round-trips checklists from Markdown to HTML and back to Markdown', () => {
+    const md = '- [x] Completed task\n- [ ] Pending task';
+    const html = markdownToHtml(md);
+    const resultMd = htmlToMarkdown(html);
+    expect(resultMd).toContain('- [x] Completed task');
+    expect(resultMd).toContain('- [ ] Pending task');
+  });
+
+  it('converts wiki-links [[Note Title]] and roundtrips', () => {
+    const md = 'Check out [[Project Roadmap]] and [[Meeting Notes|notes]].';
+    const html = markdownToHtml(md);
+    expect(html).toContain('class="wiki-link"');
+    expect(html).toContain('data-note-title="Project Roadmap"');
+
+    const resultMd = htmlToMarkdown(html);
+    expect(resultMd).toContain('[[Project Roadmap]]');
+  });
+
+  it('serializes image data-src to prevent base64 bloat', () => {
+    const html = '<p><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAA" data-src=".assets/images/note-1/pic.png" alt="My Photo"></p>';
+    const md = htmlToMarkdown(html);
+    expect(md).toContain('![My Photo](.assets/images/note-1/pic.png)');
+    expect(md).not.toContain('data:image/png;base64');
   });
 
   it('converts code blocks', () => {
@@ -43,5 +70,9 @@ describe('Markdown Converter', () => {
     expect(html).toContain('<table>');
     expect(html).toContain('<th>Col 1</th>');
     expect(html).toContain('<td>A</td>');
+
+    const roundtrip = htmlToMarkdown(html);
+    expect(roundtrip).toContain('| Col 1 | Col 2 |');
+    expect(roundtrip).toContain('| A | B |');
   });
 });

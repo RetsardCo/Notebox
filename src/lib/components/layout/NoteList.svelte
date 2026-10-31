@@ -268,7 +268,7 @@
         <button
           onclick={() => {
             appState.targetNoteForPassword = note;
-            appState.passwordModalMode = note.locked ? 'unlock' : 'lock';
+            appState.passwordModalMode = note.locked ? 'remove_lock' : 'lock';
             appState.passwordModalOpen = true;
             closeContextMenu();
           }}

@@ -55,6 +55,7 @@
       const existing = appState.tabs.find((t) => t.note_id === noteDetail.id);
       if (existing) {
         existing.content = noteDetail.content;
+        existing.is_dirty = false;
         appState.activeTabId = existing.id;
       } else {
         appState.tabs.push({
@@ -68,6 +69,33 @@
           scroll_top: 0,
         });
         appState.activeTabId = appState.tabs[appState.tabs.length - 1].id;
+      }
+      appState.passwordModalOpen = false;
+      resetForm();
+    } catch (e: any) {
+      errorMessage = e?.toString() || 'Incorrect password.';
+    } finally {
+      isSubmitting = false;
+    }
+  }
+
+  async function handleRemoveLockSubmit() {
+    if (!appState.targetNoteForPassword) return;
+    if (!password) {
+      errorMessage = 'Please enter password.';
+      return;
+    }
+
+    isSubmitting = true;
+    errorMessage = '';
+    try {
+      await noteService.removeNoteLock(appState.targetNoteForPassword.id, password);
+      await appState.loadNotes();
+      const existing = appState.tabs.find((t) => t.note_id === appState.targetNoteForPassword?.id);
+      if (existing) {
+        const noteDetail = await noteService.readNote(existing.note_id!);
+        existing.content = noteDetail.content;
+        existing.is_dirty = false;
       }
       appState.passwordModalOpen = false;
       resetForm();
@@ -100,6 +128,9 @@
           {#if appState.passwordModalMode === 'lock'}
             <Lock size={16} style="color: var(--accent);" />
             <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Lock Note</h3>
+          {:else if appState.passwordModalMode === 'remove_lock'}
+            <Unlock size={16} style="color: var(--accent);" />
+            <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Remove Password Lock</h3>
           {:else}
             <Unlock size={16} style="color: var(--accent);" />
             <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Unlock Note</h3>
@@ -120,6 +151,8 @@
       <p class="text-xs" style="color: var(--text-secondary);">
         {#if appState.passwordModalMode === 'lock'}
           Protect "{appState.targetNoteForPassword?.title || 'this note'}" with AES-256 encryption.
+        {:else if appState.passwordModalMode === 'remove_lock'}
+          Enter current password to remove encryption lock from "{appState.targetNoteForPassword?.title}".
         {:else}
           Enter password to unlock and view "{appState.targetNoteForPassword?.title}".
         {/if}
@@ -136,6 +169,7 @@
             onkeydown={(e) => {
               if (e.key === 'Enter') {
                 if (appState.passwordModalMode === 'lock') handleLockSubmit();
+                else if (appState.passwordModalMode === 'remove_lock') handleRemoveLockSubmit();
                 else handleUnlockSubmit();
               }
             }}
@@ -185,13 +219,18 @@
         <button
           onclick={() => {
             if (appState.passwordModalMode === 'lock') handleLockSubmit();
+            else if (appState.passwordModalMode === 'remove_lock') handleRemoveLockSubmit();
             else handleUnlockSubmit();
           }}
           disabled={isSubmitting}
           class="px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-90 transition cursor-pointer"
           style="background-color: var(--accent); color: #000;"
         >
-          {appState.passwordModalMode === 'lock' ? 'Lock Note' : 'Unlock Note'}
+          {appState.passwordModalMode === 'lock'
+            ? 'Lock Note'
+            : appState.passwordModalMode === 'remove_lock'
+              ? 'Remove Lock'
+              : 'Unlock Note'}
         </button>
       </div>
     </div>

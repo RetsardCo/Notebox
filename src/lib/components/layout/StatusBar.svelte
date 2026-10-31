@@ -44,6 +44,16 @@
     <!-- Word & Character Counts -->
     <span>{appState.wordCount} {appState.wordCount === 1 ? 'word' : 'words'}</span>
     <span>{appState.charCount} {appState.charCount === 1 ? 'character' : 'characters'}</span>
+
+    {#if appState.currentBacklinks.length > 0}
+      <div class="w-px h-3" style="background-color: var(--border);"></div>
+      <div
+        class="flex items-center gap-1 text-amber-600 dark:text-amber-400 font-medium"
+        title={appState.currentBacklinks.map((b) => b.title).join(', ')}
+      >
+        <span>🔗 {appState.currentBacklinks.length} {appState.currentBacklinks.length === 1 ? 'backlink' : 'backlinks'}</span>
+      </div>
+    {/if}
   </div>
 
   <!-- Right Side: Notepad System Indicators -->

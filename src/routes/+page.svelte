@@ -67,12 +67,45 @@
     } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 's') {
       e.preventDefault();
       appState.saveActiveNote();
-    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'd') {
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 's') {
       e.preventDefault();
-      appState.toggleTheme();
+      exportModalOpen = true;
+    } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'f') {
+      e.preventDefault();
+      appState.findReplaceOpen = true;
     } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'h') {
       e.preventDefault();
       appState.findReplaceOpen = !appState.findReplaceOpen;
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'd') {
+      e.preventDefault();
+      appState.toggleTheme();
+    } else if (ctrl && !e.shiftKey && e.key === '\\') {
+      e.preventDefault();
+      appState.sidebarCollapsed = !appState.sidebarCollapsed;
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'p') {
+      e.preventDefault();
+      if (appState.activeTab?.note_id) {
+        const n = appState.notes.find((x) => x.id === appState.activeTab?.note_id);
+        if (n) appState.togglePinNote(n.id, n.pinned);
+      }
+    } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'p') {
+      e.preventDefault();
+      exportModalOpen = true;
+    } else if (ctrl && !e.shiftKey && (e.key === '1' || e.key === '2' || e.key === '3')) {
+      e.preventDefault();
+      editorComponent?.executeCommand('heading', parseInt(e.key, 10));
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'c') {
+      e.preventDefault();
+      editorComponent?.executeCommand('taskList');
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      editorComponent?.executeCommand('codeBlock');
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 't') {
+      e.preventDefault();
+      editorComponent?.executeCommand('insertTable');
+    } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'i') {
+      e.preventDefault();
+      editorComponent?.triggerImageUpload();
     } else if (ctrl && e.key === 'Tab') {
       e.preventDefault();
       if (e.shiftKey) appState.prevTab();

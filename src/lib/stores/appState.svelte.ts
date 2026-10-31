@@ -64,7 +64,7 @@ class AppStore {
   // Modals
   settingsOpen = $state<boolean>(false);
   passwordModalOpen = $state<boolean>(false);
-  passwordModalMode = $state<'lock' | 'unlock'>('unlock');
+  passwordModalMode = $state<'lock' | 'unlock' | 'remove_lock'>('unlock');
   targetNoteForPassword = $state<NoteSummary | null>(null);
   findReplaceOpen = $state<boolean>(false);
 
@@ -81,6 +81,33 @@ class AppStore {
       return this.notes.filter((n) => matchIds.has(n.id));
     }
     return this.notes;
+  }
+
+  // Obsidian Backlinks Derived
+  get currentBacklinks(): NoteSummary[] {
+    const active = this.activeTab;
+    if (!active || !active.title) return [];
+    const title = active.title.toLowerCase();
+    return this.notes.filter((n) => {
+      if (n.id === active.note_id) return false;
+      return n.preview.toLowerCase().includes(`[[${title}`) || n.title.toLowerCase().includes(title);
+    });
+  }
+
+  async openNoteByTitle(title: string) {
+    const clean = title.trim().toLowerCase();
+    const match = this.notes.find((n) => n.title.trim().toLowerCase() === clean);
+    if (match) {
+      await this.openNoteInTab(match.id);
+    } else {
+      try {
+        const created = await noteService.createNote(this.selectedFolderId, title, `# ${title}\n\n`);
+        await this.loadNotes();
+        await this.openNoteInTab(created.id);
+      } catch (e) {
+        console.error('Failed to create wiki-linked note:', e);
+      }
+    }
   }
 
   async init() {
