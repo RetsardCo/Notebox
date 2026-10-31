@@ -36,6 +36,7 @@ walkdir = "2"
 tempfile = "3"
 
 [features]
+default = ["custom-protocol"]
 custom-protocol = ["tauri/custom-protocol"]
 
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
