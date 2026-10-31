@@ -41,15 +41,15 @@
 </script>
 
 <div
-  class="h-11 px-4 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
+  class="h-12 px-4.5 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
   style="background-color: var(--bg-toolbar); border-color: var(--border);"
 >
   <!-- Left Formatting Tools (Image 1 Style) -->
-  <div class="flex items-center gap-1">
+  <div class="flex items-center gap-1.5">
     <!-- Heading / Style Dropdown -->
     <select
       onchange={(e) => onCommand('heading', (e.target as HTMLSelectElement).value)}
-      class="text-xs font-semibold rounded-xl px-3 py-1.5 mr-1.5 outline-none cursor-pointer border shadow-xs transition-colors"
+      class="text-xs font-semibold rounded-xl px-3.5 py-1.5 mr-2 outline-none cursor-pointer border shadow-xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
       title="Text Style"
     >
@@ -59,7 +59,7 @@
       <option value="3">Heading 3</option>
     </select>
 
-    <div class="w-px h-4 mx-1.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-4.5 mx-2 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Text Styles: Bold, Italic, Underline, Strike, Highlight -->
     <button

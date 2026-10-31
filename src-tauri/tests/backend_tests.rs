@@ -193,4 +193,34 @@ mod tests {
         let notebox_session = vault.join(".notebox").join("session.json");
         assert!(notebox_session.exists(), "session.json must be migrated to .notebox");
     }
+
+    #[test]
+    fn test_legacy_vellum_db_and_session_migration() {
+        let dir = tempdir().expect("Failed to create tempdir");
+        let vault = dir.path().to_path_buf();
+        let legacy_dir = vault.join(".vellum");
+        fs::create_dir_all(&legacy_dir).unwrap();
+
+        let legacy_db = legacy_dir.join("vellum.db");
+        {
+            let conn = rusqlite::Connection::open(&legacy_db).unwrap();
+            conn.execute("CREATE TABLE test_vellum (val TEXT)", []).unwrap();
+            conn.execute("INSERT INTO test_vellum (val) VALUES ('from-vellum')", []).unwrap();
+        }
+        let legacy_session = legacy_dir.join("session.json");
+        fs::write(&legacy_session, r#"{"tabs":[],"active_tab_id":null,"sidebar_width":260,"note_list_width":310,"sidebar_collapsed":false,"note_list_collapsed":false,"selected_folder_id":null,"selected_tag":null,"selected_smart_folder":null,"theme":"midnight","view_mode":"list","word_wrap":true,"font_size":15}"#).unwrap();
+
+        // Initialize Notebox database
+        let _db = Database::new(vault.clone()).expect("Failed to init database with vellum migration");
+
+        let notebox_db = vault.join(".notebox").join("notebox.db");
+        assert!(notebox_db.exists(), "notebox.db must exist after vellum migration");
+
+        let migrated_conn = rusqlite::Connection::open(&notebox_db).unwrap();
+        let val: String = migrated_conn.query_row("SELECT val FROM test_vellum LIMIT 1", [], |r| r.get(0)).unwrap();
+        assert_eq!(val, "from-vellum");
+
+        let notebox_session = vault.join(".notebox").join("session.json");
+        assert!(notebox_session.exists(), "session.json must be migrated from .vellum to .notebox");
+    }
 }

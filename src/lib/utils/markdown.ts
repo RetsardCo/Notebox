@@ -143,6 +143,7 @@ export function htmlToMarkdown(html: string): string {
   md = md.replace(/<(strong|b)[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
   md = md.replace(/<(em|i)[^>]*>([\s\S]*?)<\/\1>/gi, '*$2*');
   md = md.replace(/<(s|strike|del)[^>]*>([\s\S]*?)<\/\1>/gi, '~~$2~~');
+  md = md.replace(/<u[^>]*>([\s\S]*?)<\/u>/gi, '<u>$1</u>');
   md = md.replace(/<mark[^>]*>([\s\S]*?)<\/mark>/gi, '==$1==');
   md = md.replace(/<code[^>]*>([\s\S]*?)<\/code>/gi, '`$1`');
   md = md.replace(/<hr[^>]*>/gi, '---\n\n');

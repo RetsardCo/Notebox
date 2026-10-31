@@ -16,6 +16,14 @@ describe('Markdown Converter', () => {
     expect(html).toContain('<em>Italic Text</em>');
   });
 
+  it('converts and roundtrips underline text', () => {
+    const md = 'This is <u>Underlined Text</u> in note.';
+    const html = markdownToHtml(md);
+    expect(html).toContain('<u>Underlined Text</u>');
+    const roundtrip = htmlToMarkdown(html);
+    expect(roundtrip).toContain('<u>Underlined Text</u>');
+  });
+
   it('converts checklists and task lists into TipTap schema', () => {
     const md = '- [x] Completed task\n- [ ] Pending task';
     const html = markdownToHtml(md);

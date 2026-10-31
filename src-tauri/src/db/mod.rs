@@ -15,6 +15,7 @@ impl Database {
     pub fn new(vault_path: PathBuf) -> Result<Self, String> {
         let notebox_dir = vault_path.join(".notebox");
         let legacy_noteflow_dir = vault_path.join(".noteflow");
+        let legacy_vellum_dir = vault_path.join(".vellum");
         let assets_dir = vault_path.join(".assets").join("images");
         
         fs::create_dir_all(&vault_path).map_err(|e| format!("Failed to create vault dir: {}", e))?;
@@ -23,22 +24,30 @@ impl Database {
 
         let db_path = notebox_dir.join("notebox.db");
         let legacy_db_path = legacy_noteflow_dir.join("noteflow.db");
+        let legacy_vellum_db_path = legacy_vellum_dir.join("vellum.db");
         let fallback_db_in_new_dir = notebox_dir.join("noteflow.db");
 
-        // Migrate from legacy noteflow.db if notebox.db does not exist yet
+        // Migrate from legacy noteflow.db or vellum.db if notebox.db does not exist yet
         if !db_path.exists() {
             if legacy_db_path.exists() {
                 let _ = fs::copy(&legacy_db_path, &db_path);
+            } else if legacy_vellum_db_path.exists() {
+                let _ = fs::copy(&legacy_vellum_db_path, &db_path);
             } else if fallback_db_in_new_dir.exists() {
                 let _ = fs::copy(&fallback_db_in_new_dir, &db_path);
             }
         }
 
-        // Migrate session.json if it exists in .noteflow but not in .notebox
+        // Migrate session.json if it exists in legacy directories but not in .notebox
         let session_file = notebox_dir.join("session.json");
         let legacy_session_file = legacy_noteflow_dir.join("session.json");
-        if !session_file.exists() && legacy_session_file.exists() {
-            let _ = fs::copy(&legacy_session_file, &session_file);
+        let legacy_vellum_session = legacy_vellum_dir.join("session.json");
+        if !session_file.exists() {
+            if legacy_session_file.exists() {
+                let _ = fs::copy(&legacy_session_file, &session_file);
+            } else if legacy_vellum_session.exists() {
+                let _ = fs::copy(&legacy_vellum_session, &session_file);
+            }
         }
 
         let conn = Connection::open(&db_path).map_err(|e| format!("Failed to open SQLite database: {}", e))?;
@@ -184,7 +193,9 @@ impl Database {
 
             let welcome_content = r#"# Welcome to Notebox
 
-> **Your notes, ideas, and knowledge in one place.**
+![Welcome to Notebox](/welcome-banner.jpg)
+
+> 🪶 *Your notes, ideas, and knowledge in one place.*
 
 Notebox helps you capture thoughts quickly, keep them organized, and turn ideas into action.
 
@@ -258,6 +269,7 @@ Notebox helps you capture thoughts quickly, keep them organized, and turn ideas 
 pub fn default_vault_path() -> PathBuf {
     let docs_notebox = dirs::document_dir().map(|d| d.join("Notebox"));
     let docs_noteflow = dirs::document_dir().map(|d| d.join("NoteFlow"));
+    let docs_vellum = dirs::document_dir().map(|d| d.join("Vellum"));
 
     if let Some(ref nb) = docs_notebox {
         if nb.exists() {
@@ -275,12 +287,24 @@ pub fn default_vault_path() -> PathBuf {
             return nf.clone();
         }
     }
+    if let Some(ref vl) = docs_vellum {
+        if vl.exists() {
+            if let Some(ref nb) = docs_notebox {
+                let _ = fs::rename(vl, nb);
+                if nb.exists() {
+                    return nb.clone();
+                }
+            }
+            return vl.clone();
+        }
+    }
     if let Some(nb) = docs_notebox {
         return nb;
     }
     if let Some(home) = dirs::home_dir() {
         let home_nb = home.join("Notebox");
         let home_nf = home.join("NoteFlow");
+        let home_vl = home.join("Vellum");
         if home_nb.exists() {
             return home_nb;
         }
@@ -290,6 +314,13 @@ pub fn default_vault_path() -> PathBuf {
                 return home_nb;
             }
             return home_nf;
+        }
+        if home_vl.exists() {
+            let _ = fs::rename(&home_vl, &home_nb);
+            if home_nb.exists() {
+                return home_nb;
+            }
+            return home_vl;
         }
         return home_nb;
     }

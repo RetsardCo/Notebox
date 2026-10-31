@@ -484,6 +484,9 @@
           class="absolute bottom-full right-0 mb-2 w-56 rounded-2xl border shadow-xl p-2 z-50 backdrop-blur-md"
           style="background-color: var(--bg-modal); border-color: var(--border);"
           onclick={(e) => e.stopPropagation()}
+          role="dialog"
+          tabindex="-1"
+          onkeydown={(e) => { if (e.key === 'Escape') showThemePicker = false; }}
         >
           <div class="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider border-b mb-1" style="color: var(--text-tertiary); border-color: var(--border-subtle);">
             Color Palette Library

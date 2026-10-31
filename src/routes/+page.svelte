@@ -148,7 +148,7 @@
   <title>Notebox — {appState.activeTab?.title || 'Notes'}</title>
 </svelte:head>
 
-<main class="w-screen h-screen flex flex-row overflow-hidden select-none">
+<main class="w-screen h-screen flex flex-row overflow-hidden">
   <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
   <div
     class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"

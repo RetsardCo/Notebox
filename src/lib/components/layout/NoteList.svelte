@@ -152,14 +152,14 @@
   </div>
 
   <!-- Notes List / Cards Container with Generous Breathing Room -->
-  <div class="flex-1 overflow-y-auto px-3 py-2.5 space-y-2">
+  <div class="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5">
     {#if appState.displayedNotes.length === 0}
       <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
         <p class="font-medium mb-1">No notes found</p>
         <p class="text-[11px] max-w-[180px] mb-3 opacity-75">Create a new note or adjust your search filter</p>
         <button
           onclick={() => appState.createNewNote()}
-          class="px-3 py-1.5 rounded-xl text-xs font-semibold hover:brightness-105 active:scale-95 transition-all cursor-pointer shadow-xs"
+          class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:brightness-105 active:scale-95 transition-all cursor-pointer shadow-xs"
           style="background-color: var(--accent); color: #000;"
         >
           New Note
@@ -176,13 +176,13 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative mx-0.5 my-1.5 p-4 rounded-2xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
+          class="group relative mx-1 my-2 p-4.5 rounded-2xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm ring-1 ring-[var(--accent)]' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
           style={isSelected
             ? 'background-color: var(--bg-notelist-active); border-color: var(--accent);'
             : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle);'}
         >
           <!-- Card Header: Title & Badges -->
-          <div class="flex items-start justify-between gap-2 mb-1.5">
+          <div class="flex items-start justify-between gap-2 mb-2">
             <span
               class="font-semibold text-xs leading-snug line-clamp-1 flex-1"
               style="color: var(--text-primary);"
@@ -190,7 +190,7 @@
               {note.title || 'Untitled Note'}
             </span>
 
-            <div class="flex items-center gap-1 shrink-0 pt-0.5">
+            <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
               {#if note.pinned}
                 <Pin size={12} style="color: var(--accent);" class="fill-current" />
               {/if}
@@ -202,14 +202,14 @@
 
           <!-- Card Body: 2-line Snippet (Image 1 Style) -->
           <p
-            class="text-[11px] line-clamp-2 leading-relaxed mb-2.5 opacity-90"
+            class="text-[11.5px] line-clamp-2 leading-relaxed mb-3 opacity-90"
             style="color: var(--text-secondary);"
           >
             {note.preview || 'No additional text'}
           </p>
 
           <!-- Card Footer: Date on left, Folder/Tags on right -->
-          <div class="flex items-center justify-between text-[10px] pt-0.5">
+          <div class="flex items-center justify-between text-[11px] pt-1">
             <span class="font-medium shrink-0" style="color: var(--text-tertiary);">
               {formatDate(note.updated_at)}
             </span>
@@ -217,7 +217,7 @@
             <div class="flex items-center gap-1.5 overflow-hidden">
               {#if note.folder_name}
                 <span
-                  class="px-2 py-0.5 rounded-lg font-medium truncate max-w-[110px]"
+                  class="px-2.5 py-0.5 rounded-lg font-medium truncate max-w-[120px]"
                   style="background-color: var(--border-subtle); color: var(--text-secondary);"
                 >
                   📁 {note.folder_name}
@@ -266,6 +266,7 @@
       class="fixed z-50 py-1.5 rounded-2xl border shadow-xl text-xs backdrop-blur-md"
       style="top: {contextMenuPos.y}px; left: {contextMenuPos.x}px; background-color: var(--bg-modal); border-color: var(--border); min-width: 180px;"
       onclick={(e) => e.stopPropagation()}
+      onkeydown={(e) => { if (e.key === 'Escape') closeContextMenu(); }}
       role="menu"
       tabindex="-1"
     >

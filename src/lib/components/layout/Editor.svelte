@@ -11,6 +11,7 @@
   import { Image } from '@tiptap/extension-image';
   import { Highlight } from '@tiptap/extension-highlight';
   import { Placeholder } from '@tiptap/extension-placeholder';
+  import { Underline } from '@tiptap/extension-underline';
   import { FileText } from '@lucide/svelte';
 
   const CustomImage = Image.extend({
@@ -48,6 +49,9 @@
         break;
       case 'strike':
         editor.chain().focus().toggleStrike().run();
+        break;
+      case 'underline':
+        editor.chain().focus().toggleUnderline().run();
         break;
       case 'highlight':
         editor.chain().focus().toggleHighlight().run();
@@ -254,13 +258,14 @@
           nested: true,
         }),
         Highlight,
+        Underline,
         Placeholder.configure({
           placeholder: 'Write your thoughts, checklists, notes...',
         }),
       ],
       editorProps: {
         attributes: {
-          class: 'focus:outline-none min-h-full leading-relaxed',
+          class: 'focus:outline-none min-h-full leading-relaxed select-text cursor-text',
           style: `font-size: ${appState.fontSize}px;`,
         },
       },
@@ -337,11 +342,11 @@
       return;
     }
 
-    // Ensure editor is editable and focused whenever user clicks canvas
+    // Ensure editor is editable; if clicked outside text content, focus at end
     if (editor) {
       editor.setEditable(true);
-      if (!editor.isFocused) {
-        editor.commands.focus();
+      if (!target.closest('.ProseMirror')) {
+        editor.chain().focus('end').run();
       }
     }
   }
@@ -412,8 +417,7 @@
 
       <div
         bind:this={editorElement}
-        class="flex-1 min-h-[400px] flex flex-col cursor-text"
-        style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
+        class="flex-1 min-h-[500px] cursor-text select-text"
       ></div>
     </div>
   </div>
