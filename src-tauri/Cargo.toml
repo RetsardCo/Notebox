@@ -35,6 +35,9 @@ walkdir = "2"
 [dev-dependencies]
 tempfile = "3"
 
+[features]
+custom-protocol = ["tauri/custom-protocol"]
+
 # Read the optimization guideline for more details: https://tauri.app/concept/size/#cargo-configuration
 [profile.release]
 codegen-units = 1
