@@ -46,19 +46,19 @@
 
 {#if appState.findReplaceOpen}
   <div
-    class="p-2 border-b flex flex-wrap items-center gap-2 text-xs select-none shadow-sm"
+    class="px-3.5 py-2 border-b flex flex-wrap items-center gap-2.5 text-xs select-none shadow-xs"
     style="background-color: var(--bg-toolbar); border-color: var(--border);"
   >
     <!-- Find Group -->
     <div
-      class="flex items-center gap-1.5 px-2 py-1 rounded border"
+      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-2xs"
       style="background-color: var(--bg-input); border-color: var(--border);"
     >
-      <Search size={13} style="color: var(--text-tertiary);" />
+      <Search size={14} style="color: var(--text-tertiary);" />
       <input
         type="text"
         bind:value={findQuery}
-        placeholder="Find..."
+        placeholder="Find in note..."
         onkeydown={(e) => {
           if (e.key === 'Enter') {
             if (e.shiftKey) handleFindPrev();
@@ -66,24 +66,24 @@
           }
           if (e.key === 'Escape') appState.findReplaceOpen = false;
         }}
-        class="bg-transparent outline-none w-32 md:w-44 text-xs"
+        class="bg-transparent outline-none w-32 md:w-48 text-xs"
         style="color: var(--text-primary);"
         autofocus
       />
-      <button onclick={handleFindPrev} class="p-0.5 rounded hover:opacity-75" title="Previous match (Shift+Enter)">
+      <button onclick={handleFindPrev} class="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer" title="Previous match (Shift+Enter)">
         <ChevronUp size={14} />
       </button>
-      <button onclick={handleFindNext} class="p-0.5 rounded hover:opacity-75" title="Next match (Enter)">
+      <button onclick={handleFindNext} class="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer" title="Next match (Enter)">
         <ChevronDown size={14} />
       </button>
     </div>
 
     <!-- Replace Group -->
     <div
-      class="flex items-center gap-1.5 px-2 py-1 rounded border"
+      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-2xs"
       style="background-color: var(--bg-input); border-color: var(--border);"
     >
-      <Replace size={13} style="color: var(--text-tertiary);" />
+      <Replace size={14} style="color: var(--text-tertiary);" />
       <input
         type="text"
         bind:value={replaceQuery}
@@ -92,23 +92,23 @@
           if (e.key === 'Enter') handleReplace();
           if (e.key === 'Escape') appState.findReplaceOpen = false;
         }}
-        class="bg-transparent outline-none w-32 md:w-44 text-xs"
+        class="bg-transparent outline-none w-32 md:w-48 text-xs"
         style="color: var(--text-primary);"
       />
     </div>
 
     <!-- Action Buttons -->
-    <div class="flex items-center gap-1">
+    <div class="flex items-center gap-1.5">
       <button
         onclick={handleReplace}
-        class="px-2 py-1 rounded border text-xs font-medium hover:opacity-85 transition cursor-pointer"
+        class="px-2.5 py-1 rounded-lg border text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
         style="background-color: var(--bg-sidebar); border-color: var(--border); color: var(--text-primary);"
       >
         Replace
       </button>
       <button
         onclick={handleReplaceAll}
-        class="px-2 py-1 rounded border text-xs font-medium hover:opacity-85 transition cursor-pointer"
+        class="px-2.5 py-1 rounded-lg border text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer"
         style="background-color: var(--bg-sidebar); border-color: var(--border); color: var(--text-primary);"
       >
         Replace All
@@ -118,10 +118,10 @@
     <!-- Close Button -->
     <button
       onclick={() => (appState.findReplaceOpen = false)}
-      class="p-1 rounded hover:opacity-75 ml-auto cursor-pointer"
+      class="p-1 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 ml-auto cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] transition-colors"
       title="Close (Esc)"
     >
-      <X size={14} />
+      <X size={15} />
     </button>
   </div>
 {/if}

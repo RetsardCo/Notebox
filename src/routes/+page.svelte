@@ -16,8 +16,8 @@
   let exportModalOpen = $state(false);
 
   // Splitter dragging
-  let isDraggingSidebar = false;
-  let isDraggingNoteList = false;
+  let isDraggingSidebar = $state(false);
+  let isDraggingNoteList = $state(false);
 
   function onMouseDownSidebarSplitter(e: MouseEvent) {
     isDraggingSidebar = true;
@@ -81,7 +81,7 @@
       appState.toggleTheme();
     } else if (ctrl && !e.shiftKey && e.key === '\\') {
       e.preventDefault();
-      appState.sidebarCollapsed = !appState.sidebarCollapsed;
+      appState.toggleSidebar();
     } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'p') {
       e.preventDefault();
       if (appState.activeTab?.note_id) {
@@ -137,10 +137,15 @@
 
 <main class="w-screen h-screen flex flex-row overflow-hidden select-none">
   <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
-  {#if !appState.sidebarCollapsed}
+  <div
+    class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
+    style="width: {appState.sidebarCollapsed ? 0 : appState.sidebarWidth}px;"
+  >
     <Sidebar />
+  </div>
 
-    <!-- Sidebar Resize Handle -->
+  <!-- Sidebar Resize Handle -->
+  {#if !appState.sidebarCollapsed}
     <div
       class="w-1 hover:w-1.5 h-full cursor-col-resize hover:bg-amber-400/50 transition-colors z-20 shrink-0"
       onmousedown={onMouseDownSidebarSplitter}
@@ -150,10 +155,15 @@
   {/if}
 
   <!-- Column 2: Note Cards List -->
-  {#if !appState.noteListCollapsed}
+  <div
+    class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
+    style="width: {appState.noteListCollapsed ? 0 : appState.noteListWidth}px;"
+  >
     <NoteList />
+  </div>
 
-    <!-- NoteList Resize Handle -->
+  <!-- NoteList Resize Handle -->
+  {#if !appState.noteListCollapsed}
     <div
       class="w-1 hover:w-1.5 h-full cursor-col-resize hover:bg-amber-400/50 transition-colors z-20 shrink-0"
       onmousedown={onMouseDownNoteListSplitter}

@@ -5,9 +5,6 @@
     Italic,
     Strikethrough,
     Highlighter,
-    Heading1,
-    Heading2,
-    Heading3,
     List,
     ListOrdered,
     CheckSquare,
@@ -21,8 +18,6 @@
     Pin,
     Lock,
     WrapText,
-    ZoomIn,
-    ZoomOut,
   } from '@lucide/svelte';
 
   interface Props {
@@ -45,16 +40,16 @@
 </script>
 
 <div
-  class="h-10 px-3 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto"
+  class="h-11 px-3.5 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto"
   style="background-color: var(--bg-toolbar); border-color: var(--border);"
 >
   <!-- Left Formatting Tools -->
-  <div class="flex items-center gap-0.5">
+  <div class="flex items-center gap-1">
     <!-- Heading / Style Dropdown -->
     <select
       onchange={(e) => onCommand('heading', (e.target as HTMLSelectElement).value)}
-      class="text-xs bg-transparent border rounded px-1.5 py-1 mr-1 outline-none cursor-pointer"
-      style="border-color: var(--border); color: var(--text-primary);"
+      class="text-xs font-medium rounded-lg px-2.5 py-1 mr-1 outline-none cursor-pointer border shadow-2xs transition-colors"
+      style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
     >
       <option value="p">Paragraph</option>
       <option value="1">Heading 1</option>
@@ -62,119 +57,119 @@
       <option value="3">Heading 3</option>
     </select>
 
-    <div class="w-px h-4 mx-1" style="background-color: var(--border);"></div>
+    <div class="w-px h-4 mx-1 opacity-50 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Text Styles -->
     <button
       onclick={() => onCommand('bold')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Bold (Ctrl+B)"
-      style="color: var(--text-primary);"
+      aria-label="Bold"
     >
       <Bold size={15} />
     </button>
 
     <button
       onclick={() => onCommand('italic')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Italic (Ctrl+I)"
-      style="color: var(--text-primary);"
+      aria-label="Italic"
     >
       <Italic size={15} />
     </button>
 
     <button
       onclick={() => onCommand('strike')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Strikethrough"
-      style="color: var(--text-primary);"
+      aria-label="Strikethrough"
     >
       <Strikethrough size={15} />
     </button>
 
     <button
       onclick={() => onCommand('highlight')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--accent)]"
       title="Highlight"
-      style="color: var(--accent);"
+      aria-label="Highlight"
     >
       <Highlighter size={15} />
     </button>
 
-    <div class="w-px h-4 mx-1" style="background-color: var(--border);"></div>
+    <div class="w-px h-4 mx-1 opacity-50 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Lists & Checklists -->
     <button
       onclick={() => onCommand('taskList')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--accent)]"
       title="Checklist"
-      style="color: var(--accent);"
+      aria-label="Checklist"
     >
       <CheckSquare size={15} />
     </button>
 
     <button
       onclick={() => onCommand('bulletList')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Bullet List"
-      style="color: var(--text-primary);"
+      aria-label="Bullet List"
     >
       <List size={15} />
     </button>
 
     <button
       onclick={() => onCommand('orderedList')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Numbered List"
-      style="color: var(--text-primary);"
+      aria-label="Numbered List"
     >
       <ListOrdered size={15} />
     </button>
 
-    <div class="w-px h-4 mx-1" style="background-color: var(--border);"></div>
+    <div class="w-px h-4 mx-1 opacity-50 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Blocks: Table, Image, Code, Quote, HR -->
     <button
       onclick={() => onCommand('insertTable')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Insert Table"
-      style="color: var(--text-primary);"
+      aria-label="Insert Table"
     >
       <TableIcon size={15} />
     </button>
 
     <button
       onclick={onImageUpload}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Insert Image"
-      style="color: var(--text-primary);"
+      aria-label="Insert Image"
     >
       <ImageIcon size={15} />
     </button>
 
     <button
       onclick={() => onCommand('blockquote')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Blockquote"
-      style="color: var(--text-primary);"
+      aria-label="Blockquote"
     >
       <Quote size={15} />
     </button>
 
     <button
       onclick={() => onCommand('codeBlock')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Code Block"
-      style="color: var(--text-primary);"
+      aria-label="Code Block"
     >
       <Code size={15} />
     </button>
 
     <button
       onclick={() => onCommand('horizontalRule')}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Horizontal Divider"
-      style="color: var(--text-primary);"
+      aria-label="Horizontal Divider"
     >
       <Minus size={15} />
     </button>
@@ -188,9 +183,9 @@
         appState.wordWrap = !appState.wordWrap;
         appState.scheduleSessionSave();
       }}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
-      style={appState.wordWrap ? 'color: var(--accent);' : 'color: var(--text-tertiary);'}
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {appState.wordWrap ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-tertiary)]'}"
       title="Toggle Word Wrap"
+      aria-label="Toggle Word Wrap"
     >
       <WrapText size={15} />
     </button>
@@ -198,9 +193,9 @@
     <!-- Find & Replace -->
     <button
       onclick={() => (appState.findReplaceOpen = !appState.findReplaceOpen)}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
-      style={appState.findReplaceOpen ? 'color: var(--accent);' : 'color: var(--text-primary);'}
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {appState.findReplaceOpen ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
       title="Find & Replace (Ctrl+H)"
+      aria-label="Find and Replace"
     >
       <Search size={15} />
     </button>
@@ -209,9 +204,9 @@
     {#if activeNote}
       <button
         onclick={() => appState.togglePinNote(activeNote.id, activeNote.pinned)}
-        class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
-        style={activeNote.pinned ? 'color: var(--accent);' : 'color: var(--text-tertiary);'}
+        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {activeNote.pinned ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}"
         title={activeNote.pinned ? 'Unpin Note' : 'Pin Note'}
+        aria-label={activeNote.pinned ? 'Unpin Note' : 'Pin Note'}
       >
         <Pin size={15} class={activeNote.pinned ? 'fill-current' : ''} />
       </button>
@@ -223,9 +218,9 @@
           appState.passwordModalMode = activeNote.locked ? 'remove_lock' : 'lock';
           appState.passwordModalOpen = true;
         }}
-        class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
-        style={activeNote.locked ? 'color: var(--accent);' : 'color: var(--text-tertiary);'}
+        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {activeNote.locked ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}"
         title={activeNote.locked ? 'Remove Password Lock' : 'Lock Note'}
+        aria-label={activeNote.locked ? 'Remove Password Lock' : 'Lock Note'}
       >
         <Lock size={15} />
       </button>
@@ -234,9 +229,9 @@
     <!-- Export Note -->
     <button
       onclick={onExport}
-      class="p-1.5 rounded hover:opacity-75 transition cursor-pointer"
-      style="color: var(--text-primary);"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Share & Export Note"
+      aria-label="Share and Export Note"
     >
       <Share2 size={15} />
     </button>

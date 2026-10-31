@@ -14,10 +14,9 @@
     FileText,
     CheckSquare,
     Pin,
-    ChevronDown,
-    ChevronRight,
     Edit2,
     X,
+    PanelLeftClose,
   } from '@lucide/svelte';
 
   let showNewFolderInput = $state(false);
@@ -91,135 +90,170 @@
 </script>
 
 <aside
-  class="flex flex-col h-full select-none border-r shrink-0 transition-all duration-200"
+  class="flex flex-col h-full select-none border-r shrink-0 overflow-hidden"
   style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar); border-color: var(--border);"
 >
   <!-- Window Header / Brand -->
-  <div class="h-12 px-3 flex items-center justify-between border-b" style="border-color: var(--border-subtle);">
-    <div class="flex items-center gap-2">
-      <div class="w-6 h-6 rounded-md flex items-center justify-center font-bold text-xs" style="background-color: var(--accent); color: #000;">
+  <div class="h-12 px-3.5 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+    <div class="flex items-center gap-2.5">
+      <div class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shadow-xs" style="background-color: var(--accent); color: #000;">
         NF
       </div>
       <span class="font-semibold text-sm tracking-tight" style="color: var(--text-primary);">NoteFlow</span>
     </div>
+
     <div class="flex items-center gap-1">
       <button
         onclick={() => (showNewFolderInput = true)}
-        class="p-1 rounded hover:opacity-80 transition cursor-pointer"
-        style="color: var(--text-secondary);"
+        class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
         title="New Folder"
+        aria-label="New Folder"
       >
         <FolderPlus size={16} />
       </button>
+
       <button
         onclick={() => (appState.settingsOpen = true)}
-        class="p-1 rounded hover:opacity-80 transition cursor-pointer"
-        style="color: var(--text-secondary);"
+        class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
         title="Settings"
+        aria-label="Settings"
       >
         <Settings size={16} />
+      </button>
+
+      <button
+        onclick={() => appState.toggleSidebar()}
+        class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+        title="Hide Sidebar (Ctrl+\)"
+        aria-label="Hide Sidebar"
+      >
+        <PanelLeftClose size={16} />
       </button>
     </div>
   </div>
 
-  <!-- Scrollable Nav Section -->
-  <div class="flex-1 overflow-y-auto px-2 py-3 space-y-4">
-    <!-- Smart Folders / Quick Views -->
-    <div class="space-y-0.5">
-      <div class="px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+  <!-- Scrollable Navigation Section with Generous Breathing Room -->
+  <div class="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
+    <!-- Quick Access / Smart Views -->
+    <div class="space-y-1">
+      <div class="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         Quick Access
       </div>
 
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
         style={appState.selectedSmartFolder === 'all'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
-        <div class="flex items-center gap-2">
-          <FileText size={15} style="color: var(--accent);" />
+        <div class="flex items-center gap-2.5">
+          <FileText size={16} style="color: var(--accent);" />
           <span>All Notes</span>
         </div>
-        <span class="text-[11px]" style="color: var(--text-tertiary);">
+        <span class="text-[11px] font-semibold" style="color: var(--text-tertiary);">
           {appState.notes.length}
         </span>
       </button>
 
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
         style={appState.selectedSmartFolder === 'pinned'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
-        <div class="flex items-center gap-2">
-          <Pin size={15} style="color: var(--accent);" />
+        <div class="flex items-center gap-2.5">
+          <Pin size={16} style="color: var(--accent);" />
           <span>Pinned Notes</span>
         </div>
       </button>
 
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
         style={appState.selectedSmartFolder === 'checklist'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
-        <div class="flex items-center gap-2">
-          <CheckSquare size={15} style="color: var(--accent);" />
+        <div class="flex items-center gap-2.5">
+          <CheckSquare size={16} style="color: var(--accent);" />
           <span>Checklists</span>
         </div>
       </button>
 
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
         style={appState.selectedSmartFolder === 'trash'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
-        <div class="flex items-center gap-2">
-          <Trash2 size={15} style="color: var(--text-tertiary);" />
+        <div class="flex items-center gap-2.5">
+          <Trash2 size={16} style="color: var(--text-tertiary);" />
           <span>Trash</span>
         </div>
       </button>
     </div>
 
     <!-- Folders Section -->
-    <div class="space-y-0.5">
-      <div class="flex items-center justify-between px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div class="space-y-1">
+      <div class="flex items-center justify-between px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Folders</span>
         <button
           onclick={() => (showNewFolderInput = true)}
-          class="p-0.5 rounded hover:opacity-75 cursor-pointer"
+          class="p-1 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           title="Add folder"
+          aria-label="Add folder"
         >
-          <Plus size={13} />
+          <Plus size={14} />
         </button>
       </div>
 
+      <!-- New Folder Input (shown ONLY when user clicks "+", with dismiss options) -->
       {#if showNewFolderInput}
-        <div class="px-2 py-1">
-          <input
-            type="text"
-            bind:value={newFolderName}
-            placeholder="Folder name..."
-            onkeydown={(e) => {
-              if (e.key === 'Enter') handleCreateFolder();
-              if (e.key === 'Escape') showNewFolderInput = false;
-            }}
-            class="w-full px-2 py-1 text-xs rounded border outline-none"
-            style="background-color: var(--bg-input); border-color: var(--accent); color: var(--text-primary);"
-            autofocus
-          />
+        <div class="px-1 py-1">
+          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
+            <FolderIcon size={14} style="color: var(--accent);" class="shrink-0" />
+            <input
+              type="text"
+              bind:value={newFolderName}
+              placeholder="Folder name..."
+              onkeydown={(e) => {
+                if (e.key === 'Enter') handleCreateFolder();
+                if (e.key === 'Escape') {
+                  showNewFolderInput = false;
+                  newFolderName = '';
+                }
+              }}
+              onblur={() => {
+                if (!newFolderName.trim()) {
+                  showNewFolderInput = false;
+                }
+              }}
+              class="w-full bg-transparent text-xs outline-none"
+              style="color: var(--text-primary);"
+              autofocus
+            />
+            <button
+              onclick={() => {
+                showNewFolderInput = false;
+                newFolderName = '';
+              }}
+              class="p-0.5 rounded text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer shrink-0"
+              title="Cancel"
+            >
+              <X size={12} />
+            </button>
+          </div>
         </div>
       {/if}
 
       {#each appState.folders as folder (folder.id)}
+        {@const isSelected = appState.selectedFolderId === folder.id}
         <div
-          class="group flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer"
-          style={appState.selectedFolderId === folder.id
+          class="group flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+          style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
             : 'color: var(--text-primary);'}
           onclick={() => appState.selectFolder(folder.id)}
@@ -229,7 +263,7 @@
             if (e.key === 'Enter') appState.selectFolder(folder.id);
           }}
         >
-          <div class="flex items-center gap-2 overflow-hidden">
+          <div class="flex items-center gap-2.5 overflow-hidden">
             <span class="text-sm shrink-0">{folder.icon || '📁'}</span>
             {#if editingFolderId === folder.id}
               <input
@@ -239,7 +273,8 @@
                   if (e.key === 'Enter') handleRenameFolder(folder.id);
                   if (e.key === 'Escape') editingFolderId = null;
                 }}
-                class="px-1 py-0.5 text-xs rounded border outline-none w-28"
+                onblur={() => handleRenameFolder(folder.id)}
+                class="px-2 py-0.5 text-xs rounded-md border outline-none w-28"
                 style="background-color: var(--bg-input); border-color: var(--accent); color: var(--text-primary);"
                 onclick={(e) => e.stopPropagation()}
                 autofocus
@@ -250,24 +285,24 @@
           </div>
 
           <div class="flex items-center gap-1">
-            <span class="text-[11px] group-hover:hidden" style="color: var(--text-tertiary);">
+            <span class="text-[11px] font-semibold group-hover:hidden" style="color: var(--text-tertiary);">
               {folder.note_count || 0}
             </span>
-            <div class="hidden group-hover:flex items-center gap-0.5">
+            <div class="hidden group-hover:flex items-center gap-1">
               <button
                 onclick={(e) => {
                   e.stopPropagation();
                   editingFolderId = folder.id;
                   editFolderName = folder.name;
                 }}
-                class="p-0.5 rounded hover:opacity-75"
+                class="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
                 title="Rename folder"
               >
-                <Edit2 size={11} style="color: var(--text-secondary);" />
+                <Edit2 size={12} style="color: var(--text-secondary);" />
               </button>
               <button
                 onclick={(e) => handleDeleteFolder(folder.id, e)}
-                class="p-0.5 rounded hover:opacity-75"
+                class="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
                 title="Delete folder"
               >
                 <X size={12} style="color: var(--text-secondary);" />
@@ -279,48 +314,72 @@
     </div>
 
     <!-- Tags Section -->
-    <div class="space-y-0.5">
-      <div class="flex items-center justify-between px-2 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div class="space-y-1">
+      <div class="flex items-center justify-between px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Tags</span>
         <button
           onclick={() => (showNewTagInput = true)}
-          class="p-0.5 rounded hover:opacity-75 cursor-pointer"
+          class="p-1 rounded-md text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
           title="Add tag"
+          aria-label="Add tag"
         >
-          <Plus size={13} />
+          <Plus size={14} />
         </button>
       </div>
 
+      <!-- New Tag Input (shown ONLY when user clicks "+", with dismiss options) -->
       {#if showNewTagInput}
-        <div class="px-2 py-1">
-          <input
-            type="text"
-            bind:value={newTagName}
-            placeholder="Tag name..."
-            onkeydown={(e) => {
-              if (e.key === 'Enter') handleCreateTag();
-              if (e.key === 'Escape') showNewTagInput = false;
-            }}
-            class="w-full px-2 py-1 text-xs rounded border outline-none"
-            style="background-color: var(--bg-input); border-color: var(--accent); color: var(--text-primary);"
-            autofocus
-          />
+        <div class="px-1 py-1">
+          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
+            <TagIcon size={14} style="color: var(--accent);" class="shrink-0" />
+            <input
+              type="text"
+              bind:value={newTagName}
+              placeholder="Tag name..."
+              onkeydown={(e) => {
+                if (e.key === 'Enter') handleCreateTag();
+                if (e.key === 'Escape') {
+                  showNewTagInput = false;
+                  newTagName = '';
+                }
+              }}
+              onblur={() => {
+                if (!newTagName.trim()) {
+                  showNewTagInput = false;
+                }
+              }}
+              class="w-full bg-transparent text-xs outline-none"
+              style="color: var(--text-primary);"
+              autofocus
+            />
+            <button
+              onclick={() => {
+                showNewTagInput = false;
+                newTagName = '';
+              }}
+              class="p-0.5 rounded text-[var(--text-tertiary)] hover:text-[var(--text-primary)] cursor-pointer shrink-0"
+              title="Cancel"
+            >
+              <X size={12} />
+            </button>
+          </div>
         </div>
       {/if}
 
       {#each appState.tags as tag (tag.id)}
+        {@const isSelected = appState.selectedTag === tag.name}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-md text-xs font-medium transition cursor-pointer"
-          style={appState.selectedTag === tag.name
+          class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+          style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
             : 'color: var(--text-primary);'}
         >
-          <div class="flex items-center gap-2 truncate">
-            <span class="w-2 h-2 rounded-full shrink-0" style="background-color: {tag.color || 'var(--accent)'};"></span>
+          <div class="flex items-center gap-2.5 truncate">
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
             <span class="truncate">#{tag.name}</span>
           </div>
-          <span class="text-[11px]" style="color: var(--text-tertiary);">
+          <span class="text-[11px] font-semibold" style="color: var(--text-tertiary);">
             {tag.note_count || 0}
           </span>
         </button>
@@ -328,25 +387,25 @@
     </div>
   </div>
 
-  <!-- Bottom Bar: Theme switch & Vault indicator -->
-  <div class="p-2 border-t flex items-center justify-between text-xs" style="border-color: var(--border-subtle); background-color: var(--bg-sidebar);">
-    <div class="flex items-center gap-1.5 text-[11px] truncate px-1" style="color: var(--text-tertiary);" title={appState.vaultPath}>
-      <span class="w-1.5 h-1.5 rounded-full bg-emerald-500 shrink-0"></span>
-      <span class="truncate">{appState.vaultPath.split(/[\\/]/).pop() || 'NoteFlow'}</span>
+  <!-- Bottom Bar: Vault indicator & Theme switch -->
+  <div class="p-2.5 px-3 border-t flex items-center justify-between text-xs shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-sidebar);">
+    <div class="flex items-center gap-2 text-[11px] truncate px-1" style="color: var(--text-tertiary);" title={appState.vaultPath}>
+      <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
+      <span class="truncate font-medium">{appState.vaultPath.split(/[\\/]/).pop() || 'NoteFlow'}</span>
     </div>
 
     <button
       onclick={() => appState.toggleTheme()}
-      class="p-1.5 rounded-md hover:opacity-80 transition cursor-pointer flex items-center gap-1"
-      style="color: var(--text-secondary);"
+      class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
       title="Toggle Theme (Light / Dark / System)"
+      aria-label="Toggle Theme"
     >
       {#if appState.theme === 'light'}
-        <Sun size={14} style="color: var(--accent);" />
+        <Sun size={15} style="color: var(--accent);" />
       {:else if appState.theme === 'dark'}
-        <Moon size={14} style="color: var(--accent);" />
+        <Moon size={15} style="color: var(--accent);" />
       {:else}
-        <Laptop size={14} />
+        <Laptop size={15} />
       {/if}
     </button>
   </div>

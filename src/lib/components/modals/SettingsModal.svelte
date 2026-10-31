@@ -11,6 +11,7 @@
     { key: 'Ctrl + H', desc: 'Find & Replace' },
     { key: 'Ctrl + B', desc: 'Bold' },
     { key: 'Ctrl + I', desc: 'Italic' },
+    { key: 'Ctrl + \\', desc: 'Toggle Sidebar' },
     { key: 'Ctrl + Shift + D', desc: 'Toggle Dark Mode' },
     { key: 'Ctrl + Tab', desc: 'Next Tab' },
     { key: 'Ctrl + Shift + Tab', desc: 'Previous Tab' },

@@ -178,6 +178,11 @@ class AppStore {
     this.scheduleSessionSave();
   }
 
+  toggleSidebar() {
+    this.sidebarCollapsed = !this.sidebarCollapsed;
+    this.scheduleSessionSave();
+  }
+
   async loadFolders() {
     try {
       this.folders = await folderService.getFolders();

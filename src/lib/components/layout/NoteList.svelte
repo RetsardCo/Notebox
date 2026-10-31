@@ -8,12 +8,8 @@
     Lock,
     Trash2,
     Copy,
-    FolderInput,
-    MoreVertical,
-    Clock,
     RotateCcw,
     X,
-    SlidersHorizontal,
   } from '@lucide/svelte';
 
   let searchInput = $state('');
@@ -85,18 +81,18 @@
 <svelte:window onclick={closeContextMenu} />
 
 <section
-  class="flex flex-col h-full select-none border-r shrink-0"
+  class="flex flex-col h-full select-none border-r shrink-0 overflow-hidden"
   style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist); border-color: var(--border);"
 >
-  <!-- Search and Actions Bar -->
-  <div class="p-2 space-y-2 border-b" style="border-color: var(--border-subtle);">
-    <div class="flex items-center gap-1.5">
-      <!-- Search Input -->
+  <!-- Search and Compose Bar with Generous Breathing Room -->
+  <div class="p-3 space-y-2.5 border-b shrink-0" style="border-color: var(--border-subtle);">
+    <div class="flex items-center gap-2">
+      <!-- Search Input Pill -->
       <div
-        class="flex-1 flex items-center gap-1.5 px-2 py-1 rounded-md border text-xs"
+        class="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs shadow-2xs transition-colors"
         style="background-color: var(--bg-input); border-color: var(--border);"
       >
-        <Search size={14} style="color: var(--text-tertiary);" />
+        <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
         <input
           type="text"
           value={searchInput}
@@ -106,7 +102,7 @@
           style="color: var(--text-primary);"
         />
         {#if searchInput}
-          <button onclick={clearSearch} class="p-0.5 rounded hover:opacity-75" title="Clear">
+          <button onclick={clearSearch} class="p-0.5 rounded-full hover:opacity-75 cursor-pointer shrink-0" title="Clear">
             <X size={12} style="color: var(--text-tertiary);" />
           </button>
         {/if}
@@ -115,26 +111,27 @@
       <!-- New Note Button -->
       <button
         onclick={() => appState.createNewNote()}
-        class="p-1.5 rounded-md hover:opacity-90 transition cursor-pointer flex items-center justify-center shrink-0"
+        class="w-8 h-8 rounded-full hover:brightness-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm font-semibold"
         style="background-color: var(--accent); color: #000;"
         title="New Note (Ctrl+N)"
+        aria-label="New Note"
       >
-        <Plus size={16} />
+        <Plus size={16} strokeWidth={2.5} />
       </button>
     </div>
 
     <!-- Filter & Sort Sub-bar -->
-    <div class="flex items-center justify-between px-1 text-[11px]" style="color: var(--text-tertiary);">
+    <div class="flex items-center justify-between px-1 text-[11px] font-medium" style="color: var(--text-tertiary);">
       <span>{appState.displayedNotes.length} {appState.displayedNotes.length === 1 ? 'Note' : 'Notes'}</span>
 
-      <div class="flex items-center gap-2">
+      <div class="flex items-center gap-1.5">
         <select
           value={appState.sortBy}
           onchange={(e) => {
             appState.sortBy = (e.target as HTMLSelectElement).value as SortOption;
             appState.loadNotes();
           }}
-          class="bg-transparent text-[11px] outline-none cursor-pointer"
+          class="bg-transparent text-[11px] outline-none cursor-pointer font-medium hover:text-[var(--text-primary)] transition-colors"
           style="color: var(--text-secondary);"
         >
           <option value="updated">Date Edited</option>
@@ -146,13 +143,13 @@
   </div>
 
   <!-- Notes List / Cards Container -->
-  <div class="flex-1 overflow-y-auto p-1.5 space-y-1">
+  <div class="flex-1 overflow-y-auto px-2.5 py-2 space-y-1.5">
     {#if appState.displayedNotes.length === 0}
-      <div class="h-40 flex flex-col items-center justify-center text-center p-4 text-xs" style="color: var(--text-tertiary);">
+      <div class="h-44 flex flex-col items-center justify-center text-center p-6 text-xs" style="color: var(--text-tertiary);">
         <span>No notes found</span>
         <button
           onclick={() => appState.createNewNote()}
-          class="mt-2 text-xs font-medium underline"
+          class="mt-2.5 text-xs font-medium hover:underline cursor-pointer"
           style="color: var(--accent);"
         >
           Create a new note
@@ -160,6 +157,7 @@
       </div>
     {:else}
       {#each appState.displayedNotes as note (note.id)}
+        {@const isSelected = selectedNote?.id === note.id}
         <div
           role="button"
           tabindex="0"
@@ -168,50 +166,50 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative p-2.5 rounded-lg text-left transition cursor-pointer border"
-          style={selectedNote?.id === note.id
+          class="group relative p-3.5 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
+          style={isSelected
             ? 'background-color: var(--bg-notelist-active); border-color: var(--accent);'
-            : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle); hover:background-color: var(--bg-notelist-hover);'}
+            : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle);'}
         >
           <!-- Card Header: Title & Badges -->
-          <div class="flex items-start justify-between gap-1 mb-1">
+          <div class="flex items-start justify-between gap-1.5 mb-1.5">
             <span
-              class="font-semibold text-xs leading-snug line-clamp-1"
+              class="font-semibold text-xs leading-snug line-clamp-1 flex-1"
               style="color: var(--text-primary);"
             >
               {note.title || 'Untitled Note'}
             </span>
 
-            <div class="flex items-center gap-1 shrink-0">
+            <div class="flex items-center gap-1 shrink-0 pt-0.5">
               {#if note.pinned}
-                <Pin size={11} style="color: var(--accent);" class="fill-current" />
+                <Pin size={12} style="color: var(--accent);" class="fill-current" />
               {/if}
               {#if note.locked}
-                <Lock size={11} style="color: var(--text-secondary);" />
+                <Lock size={12} style="color: var(--text-secondary);" />
               {/if}
             </div>
           </div>
 
           <!-- Card Body: Date + Snippet -->
-          <div class="flex items-baseline gap-2 text-[11px] mb-1">
+          <div class="flex items-baseline gap-2 text-[11px] mb-1.5">
             <span class="font-medium shrink-0" style="color: var(--text-tertiary);">
               {formatDate(note.updated_at)}
             </span>
-            <span class="line-clamp-1" style="color: var(--text-secondary);">
+            <span class="line-clamp-1 leading-relaxed" style="color: var(--text-secondary);">
               {note.preview || 'No additional text'}
             </span>
           </div>
 
           <!-- Card Footer: Folder / Tags -->
           {#if note.folder_name || (note.tags && note.tags.length > 0)}
-            <div class="flex items-center gap-1 flex-wrap mt-1 text-[10px]">
+            <div class="flex items-center gap-1.5 flex-wrap pt-0.5 text-[10px]">
               {#if note.folder_name}
-                <span class="px-1.5 py-0.5 rounded" style="background-color: var(--border-subtle); color: var(--text-tertiary);">
+                <span class="px-2 py-0.5 rounded-md font-medium" style="background-color: var(--border-subtle); color: var(--text-tertiary);">
                   📁 {note.folder_name}
                 </span>
               {/if}
               {#each note.tags.slice(0, 3) as tag}
-                <span class="px-1.5 py-0.5 rounded" style="background-color: var(--accent-light); color: var(--accent-text);">
+                <span class="px-2 py-0.5 rounded-md font-medium" style="background-color: var(--accent-light); color: var(--accent-text);">
                   #{tag}
                 </span>
               {/each}
@@ -224,15 +222,15 @@
 
   <!-- Trash Bar if in trash mode -->
   {#if appState.selectedSmartFolder === 'trash' && appState.notes.length > 0}
-    <div class="p-2 border-t flex items-center justify-between" style="border-color: var(--border-subtle);">
-      <span class="text-xs" style="color: var(--text-secondary);">Trash</span>
+    <div class="p-2.5 px-3 border-t flex items-center justify-between shrink-0" style="border-color: var(--border-subtle);">
+      <span class="text-xs font-medium" style="color: var(--text-secondary);">Trash</span>
       <button
         onclick={() => {
           if (confirm('Permanently delete all notes in Trash?')) {
             appState.emptyTrash();
           }
         }}
-        class="px-2 py-1 text-xs rounded hover:opacity-80 transition cursor-pointer"
+        class="px-2.5 py-1 text-xs rounded-lg hover:opacity-90 active:scale-95 transition-all cursor-pointer font-medium"
         style="background-color: #ef4444; color: #fff;"
       >
         Empty Trash
@@ -246,8 +244,8 @@
   {@const note = appState.notes.find((n) => n.id === activeContextMenuNoteId)}
   {#if note}
     <div
-      class="fixed z-50 py-1 rounded-lg border shadow-lg text-xs"
-      style="top: {contextMenuPos.y}px; left: {contextMenuPos.x}px; background-color: var(--bg-modal); border-color: var(--border); min-width: 160px;"
+      class="fixed z-50 py-1.5 rounded-xl border shadow-xl text-xs backdrop-blur-md"
+      style="top: {contextMenuPos.y}px; left: {contextMenuPos.x}px; background-color: var(--bg-modal); border-color: var(--border); min-width: 170px;"
       onclick={(e) => e.stopPropagation()}
       role="menu"
       tabindex="-1"
@@ -258,7 +256,7 @@
             appState.togglePinNote(note.id, note.pinned);
             closeContextMenu();
           }}
-          class="w-full px-3 py-1.5 flex items-center gap-2 hover:opacity-80 text-left cursor-pointer"
+          class="w-full px-3.5 py-1.5 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/10 text-left cursor-pointer transition-colors"
           style="color: var(--text-primary);"
         >
           <Pin size={13} style="color: var(--accent);" />
@@ -272,7 +270,7 @@
             appState.passwordModalOpen = true;
             closeContextMenu();
           }}
-          class="w-full px-3 py-1.5 flex items-center gap-2 hover:opacity-80 text-left cursor-pointer"
+          class="w-full px-3.5 py-1.5 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/10 text-left cursor-pointer transition-colors"
           style="color: var(--text-primary);"
         >
           <Lock size={13} />
@@ -284,7 +282,7 @@
             appState.duplicateNote(note.id);
             closeContextMenu();
           }}
-          class="w-full px-3 py-1.5 flex items-center gap-2 hover:opacity-80 text-left cursor-pointer"
+          class="w-full px-3.5 py-1.5 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/10 text-left cursor-pointer transition-colors"
           style="color: var(--text-primary);"
         >
           <Copy size={13} />
@@ -298,7 +296,7 @@
             appState.deleteNote(note.id, false);
             closeContextMenu();
           }}
-          class="w-full px-3 py-1.5 flex items-center gap-2 hover:opacity-80 text-left cursor-pointer"
+          class="w-full px-3.5 py-1.5 flex items-center gap-2.5 hover:bg-red-500/10 text-left cursor-pointer transition-colors"
           style="color: #ef4444;"
         >
           <Trash2 size={13} />
@@ -310,7 +308,7 @@
             appState.restoreNote(note.id);
             closeContextMenu();
           }}
-          class="w-full px-3 py-1.5 flex items-center gap-2 hover:opacity-80 text-left cursor-pointer"
+          class="w-full px-3.5 py-1.5 flex items-center gap-2.5 hover:bg-black/5 dark:hover:bg-white/10 text-left cursor-pointer transition-colors"
           style="color: var(--text-primary);"
         >
           <RotateCcw size={13} />
@@ -324,7 +322,7 @@
             }
             closeContextMenu();
           }}
-          class="w-full px-3 py-1.5 flex items-center gap-2 hover:opacity-80 text-left cursor-pointer"
+          class="w-full px-3.5 py-1.5 flex items-center gap-2.5 hover:bg-red-500/10 text-left cursor-pointer transition-colors"
           style="color: #ef4444;"
         >
           <Trash2 size={13} />

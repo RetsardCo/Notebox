@@ -7,35 +7,35 @@
 
 /* Light Theme (Apple Notes inspired) */
 :root[data-theme="light"], :root:not([data-theme]) {
-  --bg-sidebar: #f5f5f7;
-  --bg-sidebar-hover: #ebebee;
-  --bg-sidebar-active: #e2e2e7;
-  --bg-notelist: #ffffff;
+  --bg-sidebar: #f6f6f8;
+  --bg-sidebar-hover: #eaebee;
+  --bg-sidebar-active: #dfdfe4;
+  --bg-notelist: #fbfbfd;
   --bg-notelist-card: #ffffff;
-  --bg-notelist-hover: #f5f5f7;
-  --bg-notelist-active: #ffe89e;
+  --bg-notelist-hover: #f3f3f6;
+  --bg-notelist-active: #fef5d8;
   --bg-editor: #ffffff;
-  --bg-toolbar: #f8f8fa;
-  --bg-tabbar: #e9e9ed;
+  --bg-toolbar: #ffffff;
+  --bg-tabbar: #f0f0f3;
   --bg-tab-active: #ffffff;
-  --bg-tab-hover: #dfdfe4;
-  --bg-statusbar: #f5f5f7;
+  --bg-tab-hover: #e5e5ea;
+  --bg-statusbar: #f6f6f8;
   --bg-modal: #ffffff;
   --bg-input: #ffffff;
 
   --text-primary: #1d1d1f;
-  --text-secondary: #6e6e73;
+  --text-secondary: #58585e;
   --text-tertiary: #86868b;
   --text-muted: #a1a1a6;
 
-  --accent: #e5a823;
-  --accent-hover: #d19416;
-  --accent-light: #fef4dc;
-  --accent-text: #784d00;
+  --accent: #e5a93c;
+  --accent-hover: #d3982e;
+  --accent-light: rgba(229, 169, 60, 0.15);
+  --accent-text: #8e5d03;
 
-  --border: #e5e5e7;
-  --border-subtle: #f0f0f2;
-  --border-focus: #e5a823;
+  --border: rgba(0, 0, 0, 0.08);
+  --border-subtle: rgba(0, 0, 0, 0.05);
+  --border-focus: #e5a93c;
 
   --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -47,25 +47,25 @@
 
 /* Dark Theme (Apple Notes Dark Mode) */
 :root[data-theme="dark"] {
-  --bg-sidebar: #1e1e20;
-  --bg-sidebar-hover: #2a2a2d;
-  --bg-sidebar-active: #343438;
-  --bg-notelist: #252528;
-  --bg-notelist-card: #252528;
-  --bg-notelist-hover: #2e2e32;
-  --bg-notelist-active: #4a3e1b;
+  --bg-sidebar: #1c1c1e;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --bg-sidebar-active: rgba(255, 255, 255, 0.10);
+  --bg-notelist: #232326;
+  --bg-notelist-card: #2c2c2e;
+  --bg-notelist-hover: #333336;
+  --bg-notelist-active: #3b3523;
   --bg-editor: #1c1c1e;
-  --bg-toolbar: #242427;
-  --bg-tabbar: #18181a;
+  --bg-toolbar: #1c1c1e;
+  --bg-tabbar: #161618;
   --bg-tab-active: #1c1c1e;
-  --bg-tab-hover: #242427;
-  --bg-statusbar: #18181a;
+  --bg-tab-hover: rgba(255, 255, 255, 0.05);
+  --bg-statusbar: #161618;
   --bg-modal: #252528;
-  --bg-input: #2d2d31;
+  --bg-input: #28282b;
 
   --text-primary: #f5f5f7;
   --text-secondary: #a1a1a6;
-  --text-tertiary: #6e6e73;
+  --text-tertiary: #7c7c82;
   --text-muted: #545458;
 
   --accent: #ffd60a;
@@ -73,16 +73,16 @@
   --accent-light: rgba(255, 214, 10, 0.15);
   --accent-text: #ffd60a;
 
-  --border: #38383c;
-  --border-subtle: #2c2c30;
+  --border: rgba(255, 255, 255, 0.08);
+  --border-subtle: rgba(255, 255, 255, 0.05);
   --border-focus: #ffd60a;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.45);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.65);
 
-  --scrollbar-thumb: #444448;
-  --scrollbar-thumb-hover: #58585e;
+  --scrollbar-thumb: #3a3a3e;
+  --scrollbar-thumb-hover: #4e4e54;
 }
 
 * {
@@ -126,47 +126,57 @@ body {
   min-height: 100%;
   color: var(--text-primary);
   user-select: text;
+  line-height: 1.75;
+  font-family: var(--font-sans);
 }
 
 .ProseMirror p {
-  margin-bottom: 0.75em;
-  line-height: 1.6;
+  margin-bottom: 1.15em;
+  line-height: 1.75;
 }
 
 .ProseMirror h1 {
-  font-size: 1.85em;
+  font-size: 2.1em;
   font-weight: 700;
-  margin-top: 0.8em;
-  margin-bottom: 0.4em;
+  margin-top: 1.25em;
+  margin-bottom: 0.5em;
   color: var(--text-primary);
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
+  line-height: 1.25;
+}
+
+.ProseMirror h1:first-child {
+  margin-top: 0;
 }
 
 .ProseMirror h2 {
-  font-size: 1.45em;
+  font-size: 1.5em;
   font-weight: 600;
-  margin-top: 0.8em;
+  margin-top: 1.15em;
   margin-bottom: 0.4em;
   color: var(--text-primary);
+  letter-spacing: -0.015em;
+  line-height: 1.3;
 }
 
 .ProseMirror h3 {
-  font-size: 1.2em;
+  font-size: 1.22em;
   font-weight: 600;
-  margin-top: 0.8em;
-  margin-bottom: 0.3em;
+  margin-top: 1em;
+  margin-bottom: 0.35em;
   color: var(--text-primary);
+  line-height: 1.35;
 }
 
 .ProseMirror ul,
 .ProseMirror ol {
-  padding-left: 1.5em;
-  margin-bottom: 0.75em;
+  padding-left: 1.6em;
+  margin-bottom: 1.15em;
 }
 
 .ProseMirror li {
-  margin-bottom: 0.25em;
-  line-height: 1.5;
+  margin-bottom: 0.35em;
+  line-height: 1.65;
 }
 
 /* Task lists / Checklists */

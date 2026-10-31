@@ -259,7 +259,7 @@
       ],
       editorProps: {
         attributes: {
-          class: 'prose dark:prose-invert max-w-none focus:outline-none min-h-full p-6 md:p-10',
+          class: 'focus:outline-none min-h-full leading-relaxed',
           style: `font-size: ${appState.fontSize}px;`,
         },
       },
@@ -355,9 +355,11 @@
   ondragover={(e) => e.preventDefault()}
   onclick={handleEditorClick}
 >
-  <div
-    bind:this={editorElement}
-    class="min-h-full max-w-4xl mx-auto {appState.wordWrap ? '' : 'min-w-max'}"
-    style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
-  ></div>
+  <div class="min-h-full w-full flex justify-center">
+    <div
+      bind:this={editorElement}
+      class="w-full max-w-3xl px-8 sm:px-12 md:px-16 py-10 min-h-full {appState.wordWrap ? '' : 'min-w-max'}"
+      style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
+    ></div>
+  </div>
 </div>
