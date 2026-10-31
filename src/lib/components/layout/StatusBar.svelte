@@ -20,33 +20,33 @@
 </script>
 
 <footer
-  class="h-7 px-3.5 flex items-center justify-between border-t text-[11px] select-none shrink-0"
+  class="h-8 px-4 flex items-center justify-between border-t text-[11px] select-none shrink-0"
   style="background-color: var(--bg-statusbar); border-color: var(--border-subtle); color: var(--text-tertiary);"
 >
-  <!-- Left Side: Status & Counts -->
-  <div class="flex items-center gap-3">
+  <!-- Left Side: Status & Counts (Image 1 Style) -->
+  <div class="flex items-center gap-3.5">
     <!-- Save Indicator -->
     <div class="flex items-center gap-1.5 font-medium">
       {#if appState.saveStatus === 'saving'}
-        <Loader2 size={12} class="animate-spin text-amber-500" />
+        <Loader2 size={13} class="animate-spin text-amber-500" />
         <span class="text-amber-500">Saving...</span>
       {:else if appState.saveStatus === 'dirty'}
         <span class="w-2 h-2 rounded-full bg-amber-400"></span>
         <span>Unsaved</span>
       {:else}
-        <Check size={12} class="text-emerald-500" />
-        <span class="text-emerald-500">Saved</span>
+        <Check size={13} class="text-emerald-500" />
+        <span class="text-emerald-500 font-medium">Saved</span>
       {/if}
     </div>
 
-    <div class="w-px h-3 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-3.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
-    <!-- Word & Character Counts -->
-    <span>{appState.wordCount} {appState.wordCount === 1 ? 'word' : 'words'}</span>
-    <span>{appState.charCount} {appState.charCount === 1 ? 'character' : 'characters'}</span>
+    <!-- Word Count -->
+    <span class="font-medium">{appState.wordCount} {appState.wordCount === 1 ? 'word' : 'words'}</span>
 
+    <!-- Optional Backlink Counter -->
     {#if appState.currentBacklinks.length > 0}
-      <div class="w-px h-3 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+      <div class="w-px h-3.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
       <div
         class="flex items-center gap-1 font-medium"
         style="color: var(--accent);"
@@ -57,19 +57,19 @@
     {/if}
   </div>
 
-  <!-- Right Side: Notepad System Indicators -->
-  <div class="flex items-center gap-3 font-medium">
+  <!-- Right Side: Zoom and Layout Indicators -->
+  <div class="flex items-center gap-3.5 font-medium">
     <!-- Line & Col -->
     <span>Ln {appState.cursorLine}, Col {appState.cursorCol}</span>
 
-    <div class="w-px h-3 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-3.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Zoom Control -->
     <div class="flex items-center gap-1.5">
       <button onclick={zoomOut} class="hover:text-[var(--text-primary)] transition-colors cursor-pointer p-0.5 rounded" title="Zoom Out (Ctrl+-)">
         <Minus size={11} />
       </button>
-      <button onclick={resetZoom} class="hover:underline cursor-pointer" title="Reset Zoom (Ctrl+0)">
+      <button onclick={resetZoom} class="hover:underline cursor-pointer font-medium" title="Reset Zoom (Ctrl+0)">
         {appState.zoomLevel}%
       </button>
       <button onclick={zoomIn} class="hover:text-[var(--text-primary)] transition-colors cursor-pointer p-0.5 rounded" title="Zoom In (Ctrl+=)">
@@ -77,7 +77,7 @@
       </button>
     </div>
 
-    <div class="w-px h-3 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-3.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Word Wrap -->
     <button
@@ -87,11 +87,5 @@
     >
       Wrap: {appState.wordWrap ? 'On' : 'Off'}
     </button>
-
-    <div class="w-px h-3 opacity-40 shrink-0" style="background-color: var(--border);"></div>
-
-    <!-- Line Endings & Encoding -->
-    <span>Windows (CRLF)</span>
-    <span>UTF-8</span>
   </div>
 </footer>

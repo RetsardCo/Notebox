@@ -3,6 +3,7 @@
   import {
     Bold,
     Italic,
+    Underline as UnderlineIcon,
     Strikethrough,
     Highlighter,
     List,
@@ -40,16 +41,17 @@
 </script>
 
 <div
-  class="h-11 px-3.5 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
+  class="h-11 px-4 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
   style="background-color: var(--bg-toolbar); border-color: var(--border);"
 >
-  <!-- Left Formatting Tools -->
+  <!-- Left Formatting Tools (Image 1 Style) -->
   <div class="flex items-center gap-1">
     <!-- Heading / Style Dropdown -->
     <select
       onchange={(e) => onCommand('heading', (e.target as HTMLSelectElement).value)}
-      class="text-xs font-medium rounded-lg px-2.5 py-1 mr-1 outline-none cursor-pointer border shadow-xs transition-colors"
+      class="text-xs font-semibold rounded-xl px-3 py-1.5 mr-1.5 outline-none cursor-pointer border shadow-xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
+      title="Text Style"
     >
       <option value="p">Paragraph</option>
       <option value="1">Heading 1</option>
@@ -57,9 +59,9 @@
       <option value="3">Heading 3</option>
     </select>
 
-    <div class="w-px h-4 mx-1 opacity-50 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-4 mx-1.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
-    <!-- Text Styles -->
+    <!-- Text Styles: Bold, Italic, Underline, Strike, Highlight -->
     <button
       onclick={() => onCommand('bold')}
       class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
@@ -76,6 +78,15 @@
       aria-label="Italic"
     >
       <Italic size={15} />
+    </button>
+
+    <button
+      onclick={() => onCommand('underline')}
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      title="Underline (Ctrl+U)"
+      aria-label="Underline"
+    >
+      <UnderlineIcon size={15} />
     </button>
 
     <button
@@ -96,7 +107,7 @@
       <Highlighter size={15} />
     </button>
 
-    <div class="w-px h-4 mx-1 opacity-50 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-4 mx-1.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
     <!-- Lists & Checklists -->
     <button
@@ -126,9 +137,9 @@
       <ListOrdered size={15} />
     </button>
 
-    <div class="w-px h-4 mx-1 opacity-50 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-4 mx-1.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
 
-    <!-- Blocks: Table, Image, Code, Quote, HR -->
+    <!-- Insert Blocks: Table, Image, Quote, Code, Horizontal Rule -->
     <button
       onclick={() => onCommand('insertTable')}
       class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"

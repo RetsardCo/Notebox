@@ -13,14 +13,34 @@ pub struct Database {
 
 impl Database {
     pub fn new(vault_path: PathBuf) -> Result<Self, String> {
-        let noteflow_dir = vault_path.join(".noteflow");
+        let notebox_dir = vault_path.join(".notebox");
+        let legacy_noteflow_dir = vault_path.join(".noteflow");
         let assets_dir = vault_path.join(".assets").join("images");
         
         fs::create_dir_all(&vault_path).map_err(|e| format!("Failed to create vault dir: {}", e))?;
-        fs::create_dir_all(&noteflow_dir).map_err(|e| format!("Failed to create .noteflow dir: {}", e))?;
+        fs::create_dir_all(&notebox_dir).map_err(|e| format!("Failed to create .notebox dir: {}", e))?;
         fs::create_dir_all(&assets_dir).map_err(|e| format!("Failed to create assets dir: {}", e))?;
 
-        let db_path = noteflow_dir.join("noteflow.db");
+        let db_path = notebox_dir.join("notebox.db");
+        let legacy_db_path = legacy_noteflow_dir.join("noteflow.db");
+        let fallback_db_in_new_dir = notebox_dir.join("noteflow.db");
+
+        // Migrate from legacy noteflow.db if notebox.db does not exist yet
+        if !db_path.exists() {
+            if legacy_db_path.exists() {
+                let _ = fs::copy(&legacy_db_path, &db_path);
+            } else if fallback_db_in_new_dir.exists() {
+                let _ = fs::copy(&fallback_db_in_new_dir, &db_path);
+            }
+        }
+
+        // Migrate session.json if it exists in .noteflow but not in .notebox
+        let session_file = notebox_dir.join("session.json");
+        let legacy_session_file = legacy_noteflow_dir.join("session.json");
+        if !session_file.exists() && legacy_session_file.exists() {
+            let _ = fs::copy(&legacy_session_file, &session_file);
+        }
+
         let conn = Connection::open(&db_path).map_err(|e| format!("Failed to open SQLite database: {}", e))?;
 
         // Enable foreign keys and WAL mode for optimal performance and concurrency
@@ -159,27 +179,33 @@ impl Database {
 
             // Create Welcome Note
             let welcome_id = Uuid::new_v4().to_string();
-            let welcome_rel_path = "Personal/Welcome to NoteFlow.md";
+            let welcome_rel_path = "Personal/Welcome to Notebox.md";
             let welcome_file_path = self.vault_path.join(welcome_rel_path);
 
-            let welcome_content = r#"# 🗒️ Welcome to NoteFlow!
+            let welcome_content = r#"# Welcome to Notebox
 
-NoteFlow is your **super-lightweight**, local-first desktop note app designed with the elegance of **macOS Apple Notes**, the speed & instant session restore of **Windows 11 Notepad**, and the filesystem freedom of **Obsidian**.
+> **Your notes, ideas, and knowledge in one place.**
+
+Notebox helps you capture thoughts quickly, keep them organized, and turn ideas into action.
 
 ---
 
-### ✨ What Makes NoteFlow Special?
+### ✨ What Makes Notebox Special?
 
 1. **Instant Session Restore (Notepad-style)**
-   - Close NoteFlow at any moment — even without saving!
+   - Close Notebox at any moment — even without saving!
    - Every tab, unsaved scratch note, cursor position, and scroll location is restored instantly.
    - Zero "Do you want to save before exiting?" annoying dialogs. Auto-saves continuously in the background!
 
-2. **Apple Notes 3-Column Experience**
-   - Three sleek columns: **Folders & Tags** ➔ **Note List Cards** ➔ **Distraction-Free Editor**.
-   - Gorgeous warm Apple Notes Light Mode and deep Charcoal Dark Mode.
+2. **Personalization & Color Palettes**
+   - 6 beautiful theme palettes: **Warm Paper**, **Midnight**, **Forest**, **Ocean**, **Lavender**, and **Sunset**.
+   - Custom-tailored typography and comfortable margins designed for distraction-free writing.
 
-3. **Obsidian-Style Freedom**
+3. **Apple Notes 3-Column Experience**
+   - Three sleek columns: **Folders & Tags** ➔ **Note List Cards** ➔ **Distraction-Free Editor**.
+   - Organized, flexible, and lightning-fast.
+
+4. **Obsidian-Style Freedom**
    - All notes are plain **Markdown (.md)** files inside your vault folder.
    - You can open, edit, sync, or git-commit your notes anytime using any tool.
    - Link notes together using `[[Note Title]]` wiki-links!
@@ -187,30 +213,18 @@ NoteFlow is your **super-lightweight**, local-first desktop note app designed wi
 ---
 
 ### 🚀 Interactive Checklist Example
-- [x] Download and open NoteFlow
+- [x] Download and open Notebox
 - [ ] Try creating a new scratch tab with **Ctrl+T**
-- [ ] Insert a table or image
-- [ ] Toggle dark mode with **Ctrl+Shift+D**
+- [ ] Select your favorite theme palette from the switcher
 - [ ] Pin your most important notes with **Ctrl+Shift+P**
-
-### 📊 Quick Comparison
-
-| Feature | Windows 11 Notepad | Apple Notes | NoteFlow |
-| :--- | :---: | :---: | :---: |
-| Tabs & Session Restore | ✅ | ❌ | ✅ |
-| Ultra-Fast & Lightweight | ✅ | ✅ | ✅ |
-| Rich Formatting & Tables | ❌ | ✅ | ✅ |
-| Checklists & Images | ❌ | ✅ | ✅ |
-| Local Markdown Files | ❌ | ❌ | ✅ |
-| Full-Text Instant Search | ❌ | ✅ | ✅ (FTS5) |
 
 ---
 
-*Enjoy writing with NoteFlow!*
+*Enjoy writing with Notebox!*
 "#;
 
             if let Ok(()) = fs::write(&welcome_file_path, welcome_content) {
-                let preview = "NoteFlow is your super-lightweight, local-first desktop note app designed with the elegance of macOS Apple Notes...";
+                let preview = "Your notes, ideas, and knowledge in one place. Notebox helps you capture thoughts quickly...";
                 let word_count = welcome_content.split_whitespace().count();
                 let char_count = welcome_content.chars().count();
 
@@ -219,7 +233,7 @@ NoteFlow is your **super-lightweight**, local-first desktop note app designed wi
                      VALUES (?1, ?2, ?3, ?4, ?5, ?6, ?7, ?8, 1)",
                     (
                         &welcome_id,
-                        "Welcome to NoteFlow!",
+                        "Welcome to Notebox",
                         &personal_id,
                         welcome_rel_path,
                         1, // pinned by default
@@ -232,7 +246,7 @@ NoteFlow is your **super-lightweight**, local-first desktop note app designed wi
                 // Add to FTS
                 let _ = conn.execute(
                     "INSERT INTO notes_fts (note_id, title, content, tags) VALUES (?1, ?2, ?3, ?4)",
-                    (&welcome_id, "Welcome to NoteFlow!", welcome_content, "#welcome #noteflow"),
+                    (&welcome_id, "Welcome to Notebox", welcome_content, "#welcome #notebox"),
                 );
             }
         }
@@ -242,11 +256,42 @@ NoteFlow is your **super-lightweight**, local-first desktop note app designed wi
 }
 
 pub fn default_vault_path() -> PathBuf {
-    if let Some(docs) = dirs::document_dir() {
-        docs.join("NoteFlow")
-    } else if let Some(home) = dirs::home_dir() {
-        home.join("NoteFlow")
-    } else {
-        PathBuf::from("NoteFlow")
+    let docs_notebox = dirs::document_dir().map(|d| d.join("Notebox"));
+    let docs_noteflow = dirs::document_dir().map(|d| d.join("NoteFlow"));
+
+    if let Some(ref nb) = docs_notebox {
+        if nb.exists() {
+            return nb.clone();
+        }
     }
+    if let Some(ref nf) = docs_noteflow {
+        if nf.exists() {
+            if let Some(ref nb) = docs_notebox {
+                let _ = fs::rename(nf, nb);
+                if nb.exists() {
+                    return nb.clone();
+                }
+            }
+            return nf.clone();
+        }
+    }
+    if let Some(nb) = docs_notebox {
+        return nb;
+    }
+    if let Some(home) = dirs::home_dir() {
+        let home_nb = home.join("Notebox");
+        let home_nf = home.join("NoteFlow");
+        if home_nb.exists() {
+            return home_nb;
+        }
+        if home_nf.exists() {
+            let _ = fs::rename(&home_nf, &home_nb);
+            if home_nb.exists() {
+                return home_nb;
+            }
+            return home_nf;
+        }
+        return home_nb;
+    }
+    PathBuf::from("Notebox")
 }

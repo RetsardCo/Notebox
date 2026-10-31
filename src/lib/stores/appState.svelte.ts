@@ -44,14 +44,20 @@ class AppStore {
   activeTabId = $state<string | null>(null);
 
   // UI State
-  sidebarWidth = $state<number>(230);
+  sidebarWidth = $state<number>(240);
   noteListWidth = $state<number>(290);
   sidebarCollapsed = $state<boolean>(false);
   noteListCollapsed = $state<boolean>(false);
-  theme = $state<'light' | 'dark' | 'system'>('system');
+  theme = $state<string>('warm-paper');
   wordWrap = $state<boolean>(true);
   fontSize = $state<number>(15);
   zoomLevel = $state<number>(100);
+
+  // Quick Access Counts
+  allCount = $state<number>(0);
+  pinnedCount = $state<number>(0);
+  checklistCount = $state<number>(0);
+  trashCount = $state<number>(0);
 
   // Status Bar
   cursorLine = $state<number>(1);
@@ -129,14 +135,14 @@ class AppStore {
       if (savedSession && savedSession.tabs && savedSession.tabs.length > 0) {
         this.tabs = savedSession.tabs;
         this.activeTabId = savedSession.active_tab_id || savedSession.tabs[0].id;
-        this.sidebarWidth = savedSession.sidebar_width || 230;
+        this.sidebarWidth = savedSession.sidebar_width || 240;
         this.noteListWidth = savedSession.note_list_width || 290;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;
         this.selectedTag = savedSession.selected_tag;
         this.selectedSmartFolder = savedSession.selected_smart_folder || 'all';
-        this.theme = savedSession.theme || 'system';
+        this.theme = savedSession.theme || 'warm-paper';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
         this.fontSize = savedSession.font_size || 15;
@@ -157,25 +163,36 @@ class AppStore {
     }
 
     this.applyTheme(this.theme);
+    await this.loadCounts();
   }
 
-  applyTheme(theme: 'light' | 'dark' | 'system') {
-    this.theme = theme;
-    if (typeof document !== 'undefined') {
-      let isDark = false;
-      if (theme === 'system') {
-        isDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+  applyTheme(theme: string) {
+    let resolved = theme;
+    if (theme === 'system' || theme === 'light') {
+      if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        resolved = 'midnight';
       } else {
-        isDark = theme === 'dark';
+        resolved = 'warm-paper';
       }
-      document.documentElement.setAttribute('data-theme', isDark ? 'dark' : 'light');
+    } else if (theme === 'dark') {
+      resolved = 'midnight';
+    }
+    this.theme = resolved;
+    if (typeof document !== 'undefined') {
+      document.documentElement.setAttribute('data-theme', resolved);
     }
   }
 
-  toggleTheme() {
-    const next = this.theme === 'light' ? 'dark' : this.theme === 'dark' ? 'system' : 'light';
-    this.applyTheme(next);
+  setTheme(themeId: string) {
+    this.applyTheme(themeId);
     this.scheduleSessionSave();
+  }
+
+  toggleTheme() {
+    const paletteOrder = ['warm-paper', 'midnight', 'forest', 'ocean', 'lavender', 'sunset'];
+    const currentIndex = paletteOrder.indexOf(this.theme);
+    const next = paletteOrder[(currentIndex + 1) % paletteOrder.length];
+    this.setTheme(next);
   }
 
   toggleSidebar() {
@@ -207,12 +224,28 @@ class AppStore {
     }
   }
 
+  async loadCounts() {
+    try {
+      const all = await noteService.getNotes(null, null, 'all');
+      this.allCount = all.length;
+      const pinned = await noteService.getNotes(null, null, 'pinned');
+      this.pinnedCount = pinned.length;
+      const check = await noteService.getNotes(null, null, 'checklist');
+      this.checklistCount = check.length;
+      const trash = await noteService.getNotes(null, null, 'trash');
+      this.trashCount = trash.length;
+    } catch (e) {
+      console.warn('Failed to load counts:', e);
+    }
+  }
+
   async loadNotes() {
     try {
       const fid = this.selectedFolderId;
       const tag = this.selectedTag;
       const filterType = this.selectedSmartFolder;
       this.notes = await noteService.getNotes(fid, tag, filterType, this.sortBy);
+      await this.loadCounts();
     } catch (e) {
       console.error('Failed to load notes:', e);
     }

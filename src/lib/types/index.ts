@@ -78,7 +78,7 @@ export interface SessionState {
   selected_folder_id: string | null;
   selected_tag: string | null;
   selected_smart_folder: string | null;
-  theme: 'light' | 'dark' | 'system';
+  theme: string;
   view_mode: 'list' | 'gallery';
   word_wrap: boolean;
   font_size: number;
@@ -95,4 +95,87 @@ export interface SearchResult {
 
 export type SortOption = 'updated' | 'created' | 'title';
 export type ViewMode = 'list' | 'gallery';
-export type Theme = 'light' | 'dark' | 'system';
+export type Theme =
+  | 'warm-paper'
+  | 'midnight'
+  | 'forest'
+  | 'ocean'
+  | 'lavender'
+  | 'sunset'
+  | 'light'
+  | 'dark'
+  | 'system';
+
+export interface PaletteInfo {
+  id: 'warm-paper' | 'midnight' | 'forest' | 'ocean' | 'lavender' | 'sunset';
+  name: string;
+  type: 'light' | 'dark';
+  description: string;
+  dots: string[];
+  accent: string;
+  bg: string;
+  text: string;
+}
+
+export const PALETTES: PaletteInfo[] = [
+  {
+    id: 'warm-paper',
+    name: 'Warm Paper',
+    type: 'light',
+    description: 'A calm, comfortable space for focused writing.',
+    dots: ['#fbf8f2', '#f3ede2', '#d7c3b0', '#c48137', '#2c221e'],
+    accent: '#c48137',
+    bg: '#fbf8f2',
+    text: '#2c221e',
+  },
+  {
+    id: 'midnight',
+    name: 'Midnight',
+    type: 'dark',
+    description: 'A sleek, modern dark theme with depth and contrast.',
+    dots: ['#f1f5f9', '#38bdf8', '#64748b', '#1c2633', '#121820'],
+    accent: '#38bdf8',
+    bg: '#121820',
+    text: '#f1f5f9',
+  },
+  {
+    id: 'forest',
+    name: 'Forest',
+    type: 'dark',
+    description: 'A refreshing, nature-inspired theme for a balanced workflow.',
+    dots: ['#ecfdf5', '#10b981', '#689780', '#1a2e24', '#101c16'],
+    accent: '#10b981',
+    bg: '#101c16',
+    text: '#ecfdf5',
+  },
+  {
+    id: 'ocean',
+    name: 'Ocean',
+    type: 'light',
+    description: 'A clean and airy theme with a cool, modern look.',
+    dots: ['#0c2338', '#0284c7', '#62809e', '#e2ecf5', '#ffffff'],
+    accent: '#0284c7',
+    bg: '#f0f5fa',
+    text: '#0c2338',
+  },
+  {
+    id: 'lavender',
+    name: 'Lavender',
+    type: 'light',
+    description: 'A soft, creative theme that’s easy on the eyes.',
+    dots: ['#281438', '#8b5cf6', '#82659e', '#ece4f4', '#ffffff'],
+    accent: '#8b5cf6',
+    bg: '#f8f4fb',
+    text: '#281438',
+  },
+  {
+    id: 'sunset',
+    name: 'Sunset',
+    type: 'dark',
+    description: 'A warm, vibrant theme with a bold yet elegant feel.',
+    dots: ['#fdf2f4', '#f97316', '#d6a8b4', '#35252c', '#22181c'],
+    accent: '#f97316',
+    bg: '#22181c',
+    text: '#fdf2f4',
+  },
+];

@@ -5,84 +5,269 @@
   --font-mono: "SF Mono", "Cascadia Code", "Fira Code", Consolas, Menlo, monospace;
 }
 
-/* Light Theme (Apple Notes inspired) */
-:root[data-theme="light"], :root:not([data-theme]) {
-  --bg-sidebar: #f6f6f8;
-  --bg-sidebar-hover: #eaebee;
-  --bg-sidebar-active: #dfdfe4;
-  --bg-notelist: #fbfbfd;
+/* ==========================================================================
+   Notebox Color Palette Library (6 Distinct Curated Themes)
+   ========================================================================== */
+
+/* 1. Warm Paper (Warm cream/parchment light theme - Default) */
+:root[data-theme="warm-paper"],
+:root[data-theme="light"],
+:root:not([data-theme]) {
+  --bg-sidebar: #fbf8f2;
+  --bg-sidebar-hover: #f3ede2;
+  --bg-sidebar-active: #ebdccb;
+  --bg-notelist: #f3ede2;
   --bg-notelist-card: #ffffff;
-  --bg-notelist-hover: #f3f3f6;
-  --bg-notelist-active: #fef5d8;
-  --bg-editor: #ffffff;
-  --bg-toolbar: #ffffff;
-  --bg-tabbar: #f0f0f3;
-  --bg-tab-active: #ffffff;
-  --bg-tab-hover: #e5e5ea;
-  --bg-statusbar: #f6f6f8;
+  --bg-notelist-hover: #eadecb;
+  --bg-notelist-active: #faeed9;
+  --bg-editor: #fbf8f2;
+  --bg-toolbar: #fbf8f2;
+  --bg-tabbar: #ede5d8;
+  --bg-tab-active: #fbf8f2;
+  --bg-tab-hover: #e4dacb;
+  --bg-statusbar: #f3ede2;
+  --bg-modal: #fbf8f2;
+  --bg-input: #ffffff;
+
+  --text-primary: #2c221e;
+  --text-secondary: #5c4c44;
+  --text-tertiary: #8c786c;
+  --text-muted: #ab988c;
+
+  --accent: #c48137;
+  --accent-hover: #b0702a;
+  --accent-light: rgba(196, 129, 55, 0.14);
+  --accent-text: #8a4f15;
+
+  --border: rgba(44, 34, 30, 0.10);
+  --border-subtle: rgba(44, 34, 30, 0.05);
+  --border-focus: #c48137;
+
+  --callout-bg: #f4ecdf;
+  --callout-border: #e6dac6;
+
+  --shadow-sm: 0 1px 3px rgba(44, 34, 30, 0.05);
+  --shadow-md: 0 4px 14px rgba(44, 34, 30, 0.08);
+  --shadow-lg: 0 12px 32px rgba(44, 34, 30, 0.12);
+
+  --scrollbar-thumb: #d9cdbe;
+  --scrollbar-thumb-hover: #c4b5a3;
+}
+
+/* 2. Midnight (Sleek deep slate/navy dark theme) */
+:root[data-theme="midnight"],
+:root[data-theme="dark"] {
+  --bg-sidebar: #121820;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --bg-sidebar-active: rgba(56, 189, 248, 0.14);
+  --bg-notelist: #161e28;
+  --bg-notelist-card: #1c2633;
+  --bg-notelist-hover: #232f3e;
+  --bg-notelist-active: #1d334a;
+  --bg-editor: #121820;
+  --bg-toolbar: #121820;
+  --bg-tabbar: #0d1218;
+  --bg-tab-active: #121820;
+  --bg-tab-hover: rgba(255, 255, 255, 0.04);
+  --bg-statusbar: #0d1218;
+  --bg-modal: #18202b;
+  --bg-input: #1a2430;
+
+  --text-primary: #f1f5f9;
+  --text-secondary: #94a3b8;
+  --text-tertiary: #64748b;
+  --text-muted: #475569;
+
+  --accent: #38bdf8;
+  --accent-hover: #0ea5e9;
+  --accent-light: rgba(56, 189, 248, 0.15);
+  --accent-text: #38bdf8;
+
+  --border: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-focus: #38bdf8;
+
+  --callout-bg: #192534;
+  --callout-border: #233549;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
+
+  --scrollbar-thumb: #283546;
+  --scrollbar-thumb-hover: #3a4c63;
+}
+
+/* 3. Forest (Refreshing nature green dark theme) */
+:root[data-theme="forest"] {
+  --bg-sidebar: #101c16;
+  --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
+  --bg-sidebar-active: rgba(16, 185, 129, 0.16);
+  --bg-notelist: #14241c;
+  --bg-notelist-card: #1a2e24;
+  --bg-notelist-hover: #21382c;
+  --bg-notelist-active: #1e4131;
+  --bg-editor: #101c16;
+  --bg-toolbar: #101c16;
+  --bg-tabbar: #0b1510;
+  --bg-tab-active: #101c16;
+  --bg-tab-hover: rgba(255, 255, 255, 0.04);
+  --bg-statusbar: #0b1510;
+  --bg-modal: #16271e;
+  --bg-input: #172920;
+
+  --text-primary: #ecfdf5;
+  --text-secondary: #a7f3d0;
+  --text-tertiary: #689780;
+  --text-muted: #456956;
+
+  --accent: #10b981;
+  --accent-hover: #059669;
+  --accent-light: rgba(16, 185, 129, 0.18);
+  --accent-text: #34d399;
+
+  --border: rgba(255, 255, 255, 0.09);
+  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border-focus: #10b981;
+
+  --callout-bg: #152b20;
+  --callout-border: #203f30;
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
+
+  --scrollbar-thumb: #223c2f;
+  --scrollbar-thumb-hover: #2f5442;
+}
+
+/* 4. Ocean (Clean airy light blue theme) */
+:root[data-theme="ocean"] {
+  --bg-sidebar: #f0f5fa;
+  --bg-sidebar-hover: #e4ecf3;
+  --bg-sidebar-active: #d4e3ef;
+  --bg-notelist: #e2ecf5;
+  --bg-notelist-card: #ffffff;
+  --bg-notelist-hover: #d5e4ef;
+  --bg-notelist-active: #cbe1f2;
+  --bg-editor: #f0f5fa;
+  --bg-toolbar: #f0f5fa;
+  --bg-tabbar: #dce7f2;
+  --bg-tab-active: #f0f5fa;
+  --bg-tab-hover: #d3e1ed;
+  --bg-statusbar: #e2ecf5;
   --bg-modal: #ffffff;
   --bg-input: #ffffff;
 
-  --text-primary: #1d1d1f;
-  --text-secondary: #58585e;
-  --text-tertiary: #86868b;
-  --text-muted: #a1a1a6;
+  --text-primary: #0c2338;
+  --text-secondary: #335372;
+  --text-tertiary: #62809e;
+  --text-muted: #8aa3bd;
 
-  --accent: #e5a93c;
-  --accent-hover: #d3982e;
-  --accent-light: rgba(229, 169, 60, 0.15);
-  --accent-text: #8e5d03;
+  --accent: #0284c7;
+  --accent-hover: #0369a1;
+  --accent-light: rgba(2, 132, 199, 0.15);
+  --accent-text: #0369a1;
 
-  --border: rgba(0, 0, 0, 0.08);
-  --border-subtle: rgba(0, 0, 0, 0.05);
-  --border-focus: #e5a93c;
+  --border: rgba(12, 35, 56, 0.10);
+  --border-subtle: rgba(12, 35, 56, 0.05);
+  --border-focus: #0284c7;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+  --callout-bg: #e2ecf6;
+  --callout-border: #cadbe9;
 
-  --scrollbar-thumb: #d1d1d6;
-  --scrollbar-thumb-hover: #b0b0b8;
+  --shadow-sm: 0 1px 3px rgba(12, 35, 56, 0.06);
+  --shadow-md: 0 4px 14px rgba(12, 35, 56, 0.09);
+  --shadow-lg: 0 12px 32px rgba(12, 35, 56, 0.13);
+
+  --scrollbar-thumb: #cadbe9;
+  --scrollbar-thumb-hover: #b4cbdd;
 }
 
-/* Dark Theme (Apple Notes Dark Mode) */
-:root[data-theme="dark"] {
-  --bg-sidebar: #1c1c1e;
+/* 5. Lavender (Soft creative lilac light theme) */
+:root[data-theme="lavender"] {
+  --bg-sidebar: #f8f4fb;
+  --bg-sidebar-hover: #f0e8f5;
+  --bg-sidebar-active: #e5d7ee;
+  --bg-notelist: #ece4f4;
+  --bg-notelist-card: #ffffff;
+  --bg-notelist-hover: #e1d4eb;
+  --bg-notelist-active: #dcc8ec;
+  --bg-editor: #f8f4fb;
+  --bg-toolbar: #f8f4fb;
+  --bg-tabbar: #e7dcf1;
+  --bg-tab-active: #f8f4fb;
+  --bg-tab-hover: #ded1e9;
+  --bg-statusbar: #ece4f4;
+  --bg-modal: #ffffff;
+  --bg-input: #ffffff;
+
+  --text-primary: #281438;
+  --text-secondary: #553a6e;
+  --text-tertiary: #82659e;
+  --text-muted: #a68fc0;
+
+  --accent: #8b5cf6;
+  --accent-hover: #7c3aed;
+  --accent-light: rgba(139, 92, 246, 0.15);
+  --accent-text: #7c3aed;
+
+  --border: rgba(40, 20, 56, 0.10);
+  --border-subtle: rgba(40, 20, 56, 0.05);
+  --border-focus: #8b5cf6;
+
+  --callout-bg: #efe5f8;
+  --callout-border: #ded1ec;
+
+  --shadow-sm: 0 1px 3px rgba(40, 20, 56, 0.06);
+  --shadow-md: 0 4px 14px rgba(40, 20, 56, 0.09);
+  --shadow-lg: 0 12px 32px rgba(40, 20, 56, 0.13);
+
+  --scrollbar-thumb: #dad0e6;
+  --scrollbar-thumb-hover: #c4b5d4;
+}
+
+/* 6. Sunset (Warm vibrant plum dark theme) */
+:root[data-theme="sunset"] {
+  --bg-sidebar: #22181c;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
-  --bg-sidebar-active: rgba(255, 255, 255, 0.10);
-  --bg-notelist: #232326;
-  --bg-notelist-card: #2c2c2e;
-  --bg-notelist-hover: #333336;
-  --bg-notelist-active: #3b3523;
-  --bg-editor: #1c1c1e;
-  --bg-toolbar: #1c1c1e;
-  --bg-tabbar: #161618;
-  --bg-tab-active: #1c1c1e;
-  --bg-tab-hover: rgba(255, 255, 255, 0.05);
-  --bg-statusbar: #161618;
-  --bg-modal: #252528;
-  --bg-input: #28282b;
+  --bg-sidebar-active: rgba(249, 115, 22, 0.16);
+  --bg-notelist: #2a1e23;
+  --bg-notelist-card: #35252c;
+  --bg-notelist-hover: #3f2d35;
+  --bg-notelist-active: #4a2f3a;
+  --bg-editor: #22181c;
+  --bg-toolbar: #22181c;
+  --bg-tabbar: #1a1215;
+  --bg-tab-active: #22181c;
+  --bg-tab-hover: rgba(255, 255, 255, 0.04);
+  --bg-statusbar: #1a1215;
+  --bg-modal: #2d2026;
+  --bg-input: #2f2227;
 
-  --text-primary: #f5f5f7;
-  --text-secondary: #a1a1a6;
-  --text-tertiary: #7c7c82;
-  --text-muted: #545458;
+  --text-primary: #fdf2f4;
+  --text-secondary: #d6a8b4;
+  --text-tertiary: #9d7380;
+  --text-muted: #6d4d57;
 
-  --accent: #ffd60a;
-  --accent-hover: #ffcc00;
-  --accent-light: rgba(255, 214, 10, 0.15);
-  --accent-text: #ffd60a;
+  --accent: #f97316;
+  --accent-hover: #ea580c;
+  --accent-light: rgba(249, 115, 22, 0.18);
+  --accent-text: #fb923c;
 
-  --border: rgba(255, 255, 255, 0.08);
+  --border: rgba(255, 255, 255, 0.09);
   --border-subtle: rgba(255, 255, 255, 0.05);
-  --border-focus: #ffd60a;
+  --border-focus: #f97316;
 
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.3);
-  --shadow-md: 0 6px 16px rgba(0, 0, 0, 0.45);
-  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.65);
+  --callout-bg: #302027;
+  --callout-border: #462c37;
 
-  --scrollbar-thumb: #3a3a3e;
-  --scrollbar-thumb-hover: #4e4e54;
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
+  --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
+
+  --scrollbar-thumb: #412f36;
+  --scrollbar-thumb-hover: #583f49;
 }
 
 * {
@@ -331,4 +516,38 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   text-decoration: underline;
   cursor: pointer;
   font-weight: 500;
+}
+
+/* Callout Quote Box (Image 1 Style) */
+.note-callout {
+  background-color: var(--callout-bg);
+  border: 1px solid var(--callout-border);
+  border-radius: 14px;
+  padding: 14px 18px;
+  margin: 1.25em 0;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--text-primary);
+  font-size: 0.98em;
+  line-height: 1.6;
+}
+
+.note-metadata-line {
+  color: var(--text-tertiary);
+  font-size: 0.85em;
+  margin-bottom: 1.25em;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 500;
+}
+
+.note-hero-banner {
+  width: 100%;
+  max-height: 240px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin: 1.25em 0;
+  box-shadow: var(--shadow-sm);
 }

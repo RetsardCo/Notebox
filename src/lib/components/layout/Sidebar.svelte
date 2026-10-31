@@ -1,15 +1,13 @@
 <script lang="ts">
   import { appState } from '$lib/stores/appState.svelte';
   import { folderService, tagService } from '$lib/services/ipc';
+  import { PALETTES } from '$lib/types';
   import {
     Folder as FolderIcon,
     FolderPlus,
     Tag as TagIcon,
     Plus,
     Trash2,
-    Sun,
-    Moon,
-    Laptop,
     Settings,
     FileText,
     CheckSquare,
@@ -17,7 +15,13 @@
     Edit2,
     X,
     PanelLeftClose,
+    Search,
+    Palette,
   } from '@lucide/svelte';
+
+  let searchInput = $state('');
+  let searchTimeout: any = null;
+  let showThemePicker = $state(false);
 
   let showNewFolderInput = $state(false);
   let newFolderName = $state('');
@@ -29,6 +33,20 @@
 
   function autoFocus(el: HTMLElement) {
     setTimeout(() => el?.focus(), 10);
+  }
+
+  function handleSearchInput(e: Event) {
+    const val = (e.target as HTMLInputElement).value;
+    searchInput = val;
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      appState.executeSearch(val);
+    }, 200);
+  }
+
+  function clearSearch() {
+    searchInput = '';
+    appState.executeSearch('');
   }
 
   async function handleCreateFolder() {
@@ -91,43 +109,33 @@
       }
     }
   }
+
+  function closeThemePicker() {
+    showThemePicker = false;
+  }
 </script>
+
+<svelte:window onclick={closeThemePicker} />
 
 <aside
   class="flex flex-col h-full select-none border-r shrink-0 overflow-hidden"
   style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar); border-color: var(--border);"
 >
-  <!-- Window Header / Brand -->
-  <div class="h-12 px-3.5 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <!-- Window Header / Brand (Image 1 Style) -->
+  <div class="h-13 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2.5">
-      <div class="w-6 h-6 rounded-lg flex items-center justify-center font-bold text-xs shadow-xs" style="background-color: var(--accent); color: #000;">
-        NF
-      </div>
-      <span class="font-semibold text-sm tracking-tight" style="color: var(--text-primary);">NoteFlow</span>
+      <img
+        src="/notebox-icon.png"
+        class="w-7 h-7 rounded-lg object-contain shadow-xs"
+        alt="Notebox"
+      />
+      <span class="font-semibold text-sm tracking-tight" style="color: var(--text-primary);">Notebox</span>
     </div>
 
     <div class="flex items-center gap-1">
       <button
-        onclick={() => (showNewFolderInput = true)}
-        class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-        title="New Folder"
-        aria-label="New Folder"
-      >
-        <FolderPlus size={16} />
-      </button>
-
-      <button
-        onclick={() => (appState.settingsOpen = true)}
-        class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-        title="Settings"
-        aria-label="Settings"
-      >
-        <Settings size={16} />
-      </button>
-
-      <button
         onclick={() => appState.toggleSidebar()}
-        class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         title="Hide Sidebar (Ctrl+\)"
         aria-label="Hide Sidebar"
       >
@@ -136,73 +144,117 @@
     </div>
   </div>
 
+  <!-- Search Pill with Ctrl K Shortcut (Image 1 Style) -->
+  <div class="px-3 pt-3 pb-2 shrink-0">
+    <div
+      class="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs shadow-xs transition-colors"
+      style="background-color: var(--bg-input); border-color: var(--border);"
+    >
+      <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
+      <input
+        id="sidebar-search-input"
+        type="text"
+        value={searchInput}
+        oninput={handleSearchInput}
+        placeholder="Search notes..."
+        class="w-full bg-transparent outline-none text-xs"
+        style="color: var(--text-primary);"
+      />
+      {#if searchInput}
+        <button onclick={clearSearch} class="p-0.5 rounded-full hover:opacity-75 cursor-pointer shrink-0" title="Clear">
+          <X size={12} style="color: var(--text-tertiary);" />
+        </button>
+      {:else}
+        <kbd
+          class="px-1.5 py-0.5 rounded text-[10px] font-mono border select-none shrink-0"
+          style="background-color: var(--border-subtle); border-color: var(--border); color: var(--text-tertiary);"
+        >
+          Ctrl K
+        </kbd>
+      {/if}
+    </div>
+  </div>
+
   <!-- Scrollable Navigation Section with Generous Breathing Room -->
-  <div class="flex-1 overflow-y-auto px-2.5 py-3 space-y-4">
-    <!-- Quick Access / Smart Views -->
+  <div class="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+    <!-- Quick Access Section -->
     <div class="space-y-1">
-      <div class="px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         Quick Access
       </div>
 
+      <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'all'
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary);'}
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
       >
         <div class="flex items-center gap-2.5">
-          <FileText size={16} style="color: var(--accent);" />
+          <FileText size={15} style="color: var(--accent);" />
           <span>All Notes</span>
         </div>
-        <span class="text-[11px] font-semibold" style="color: var(--text-tertiary);">
-          {appState.notes.length}
+        <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
+          {appState.allCount || appState.notes.length}
         </span>
       </button>
 
+      <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'pinned'
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary);'}
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
       >
         <div class="flex items-center gap-2.5">
-          <Pin size={16} style="color: var(--accent);" />
-          <span>Pinned Notes</span>
+          <Pin size={15} style="color: var(--accent);" />
+          <span>Pinned</span>
         </div>
+        <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
+          {appState.pinnedCount}
+        </span>
       </button>
 
+      <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'checklist'
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary);'}
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
       >
         <div class="flex items-center gap-2.5">
-          <CheckSquare size={16} style="color: var(--accent);" />
+          <CheckSquare size={15} style="color: var(--accent);" />
           <span>Checklists</span>
         </div>
+        <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
+          {appState.checklistCount}
+        </span>
       </button>
 
+      <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'trash'
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-          : 'color: var(--text-primary);'}
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
       >
         <div class="flex items-center gap-2.5">
-          <Trash2 size={16} style="color: var(--text-tertiary);" />
-          <span>Trash</span>
+          <Trash2 size={15} style="color: var(--text-tertiary);" />
+          <span>Recently Deleted</span>
         </div>
+        <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
+          {appState.trashCount}
+        </span>
       </button>
     </div>
 
     <!-- Folders Section -->
-    <div class="space-y-1">
-      <div class="flex items-center justify-between px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div class="space-y-1 pt-1">
+      <div class="flex items-center justify-between px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Folders</span>
         <button
           onclick={() => (showNewFolderInput = true)}
@@ -214,10 +266,10 @@
         </button>
       </div>
 
-      <!-- New Folder Input (shown ONLY when user clicks "+", with dismiss options) -->
+      <!-- New Folder Input -->
       {#if showNewFolderInput}
         <div class="px-1 py-1">
-          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
+          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
             <FolderIcon size={14} style="color: var(--accent);" class="shrink-0" />
             <input
               type="text"
@@ -259,10 +311,10 @@
       {#each appState.folders as folder (folder.id)}
         {@const isSelected = appState.selectedFolderId === folder.id}
         <div
-          class="group flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+          class="group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
           style={isSelected
-            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-            : 'color: var(--text-primary);'}
+            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+            : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
           onclick={() => appState.selectFolder(folder.id)}
           role="button"
           tabindex="0"
@@ -324,8 +376,8 @@
     </div>
 
     <!-- Tags Section -->
-    <div class="space-y-1">
-      <div class="flex items-center justify-between px-3 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div class="space-y-1 pt-1">
+      <div class="flex items-center justify-between px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Tags</span>
         <button
           onclick={() => (showNewTagInput = true)}
@@ -337,10 +389,10 @@
         </button>
       </div>
 
-      <!-- New Tag Input (shown ONLY when user clicks "+", with dismiss options) -->
+      <!-- New Tag Input -->
       {#if showNewTagInput}
         <div class="px-1 py-1">
-          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
+          <div class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
             <TagIcon size={14} style="color: var(--accent);" class="shrink-0" />
             <input
               type="text"
@@ -383,16 +435,16 @@
         {@const isSelected = appState.selectedTag === tag.name}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors cursor-pointer"
+          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
           style={isSelected
-            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-            : 'color: var(--text-primary);'}
+            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+            : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
         >
           <div class="flex items-center gap-2.5 truncate">
             <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
             <span class="truncate">#{tag.name}</span>
           </div>
-          <span class="text-[11px] font-semibold" style="color: var(--text-tertiary);">
+          <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
             {tag.note_count || 0}
           </span>
         </button>
@@ -400,26 +452,73 @@
     </div>
   </div>
 
-  <!-- Bottom Bar: Vault indicator & Theme switch -->
-  <div class="p-2.5 px-3 border-t flex items-center justify-between text-xs shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-sidebar);">
-    <div class="flex items-center gap-2 text-[11px] truncate px-1" style="color: var(--text-tertiary);" title={appState.vaultPath}>
-      <span class="w-2 h-2 rounded-full bg-emerald-500 shrink-0"></span>
-      <span class="truncate font-medium">{appState.vaultPath.split(/[\\/]/).pop() || 'NoteFlow'}</span>
-    </div>
-
+  <!-- Bottom Bar: Settings and Palette Library Switcher (Image 1 Style) -->
+  <div class="p-2.5 px-3.5 border-t flex items-center justify-between text-xs shrink-0 relative" style="border-color: var(--border-subtle); background-color: var(--bg-sidebar);">
+    <!-- Settings Button (Image 1 bottom left) -->
     <button
-      onclick={() => appState.toggleTheme()}
-      class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center justify-center"
-      title="Toggle Theme (Light / Dark / System)"
-      aria-label="Toggle Theme"
+      onclick={() => (appState.settingsOpen = true)}
+      class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-xs font-medium"
+      style="color: var(--text-secondary);"
     >
-      {#if appState.theme === 'light'}
-        <Sun size={15} style="color: var(--accent);" />
-      {:else if appState.theme === 'dark'}
-        <Moon size={15} style="color: var(--accent);" />
-      {:else}
-        <Laptop size={15} />
-      {/if}
+      <Settings size={15} style="color: var(--text-tertiary);" />
+      <span>Settings</span>
     </button>
+
+    <!-- Theme Palette Switcher Button (Image 1 bottom right) -->
+    <div class="relative">
+      <button
+        onclick={(e) => {
+          e.stopPropagation();
+          showThemePicker = !showThemePicker;
+        }}
+        class="p-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1.5"
+        title="Personalization: Color Palette Library"
+        aria-label="Color Palette Switcher"
+      >
+        <span class="w-4 h-4 rounded-full border shadow-xs shrink-0" style="background-color: var(--accent); border-color: var(--border);"></span>
+      </button>
+
+      <!-- Palette Dropdown Popover (Exact 6 themes from Image 1) -->
+      {#if showThemePicker}
+        <div
+          class="absolute bottom-full right-0 mb-2 w-56 rounded-2xl border shadow-xl p-2 z-50 backdrop-blur-md"
+          style="background-color: var(--bg-modal); border-color: var(--border);"
+          onclick={(e) => e.stopPropagation()}
+        >
+          <div class="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider border-b mb-1" style="color: var(--text-tertiary); border-color: var(--border-subtle);">
+            Color Palette Library
+          </div>
+          <div class="space-y-1">
+            {#each PALETTES as pal}
+              {@const isCurrent = appState.theme === pal.id}
+              <button
+                onclick={() => {
+                  appState.setTheme(pal.id);
+                  showThemePicker = false;
+                }}
+                class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all {isCurrent ? 'shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'}"
+                style={isCurrent
+                  ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
+                  : 'color: var(--text-primary);'}
+              >
+                <div class="flex items-center gap-2">
+                  <span class="w-3.5 h-3.5 rounded-full border shrink-0" style="background-color: {pal.accent}; border-color: rgba(0,0,0,0.1);"></span>
+                  <div class="text-left">
+                    <div class="font-medium">{pal.name}</div>
+                    <div class="text-[10px] opacity-60 capitalize">{pal.type} theme</div>
+                  </div>
+                </div>
+                <!-- 5 palette dots preview from Image 1 -->
+                <div class="flex items-center gap-0.5">
+                  {#each pal.dots as dot}
+                    <span class="w-1.5 h-1.5 rounded-full border border-black/10" style="background-color: {dot};"></span>
+                  {/each}
+                </div>
+              </button>
+            {/each}
+          </div>
+        </div>
+      {/if}
+    </div>
   </div>
 </aside>

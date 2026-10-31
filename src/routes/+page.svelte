@@ -98,6 +98,18 @@
     } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'c') {
       e.preventDefault();
       editorComponent?.executeCommand('taskList');
+    } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'k') {
+      e.preventDefault();
+      if (appState.sidebarCollapsed) {
+        appState.toggleSidebar();
+      }
+      setTimeout(() => {
+        const searchEl = document.getElementById('sidebar-search-input') as HTMLInputElement | null;
+        if (searchEl) {
+          searchEl.focus();
+          searchEl.select();
+        }
+      }, 50);
     } else if (ctrl && e.shiftKey && e.key.toLowerCase() === 'k') {
       e.preventDefault();
       editorComponent?.executeCommand('codeBlock');
@@ -133,7 +145,7 @@
 </script>
 
 <svelte:head>
-  <title>NoteFlow — {appState.activeTab?.title || 'Notes'}</title>
+  <title>Notebox — {appState.activeTab?.title || 'Notes'}</title>
 </svelte:head>
 
 <main class="w-screen h-screen flex flex-row overflow-hidden select-none">
@@ -147,6 +159,7 @@
 
   <!-- Sidebar Resize Handle -->
   {#if !appState.sidebarCollapsed}
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       class="w-1 {isDraggingSidebar ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
       onmousedown={onMouseDownSidebarSplitter}
@@ -167,6 +180,7 @@
 
   <!-- NoteList Resize Handle -->
   {#if !appState.noteListCollapsed}
+    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
     <div
       class="w-1 {isDraggingNoteList ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
       onmousedown={onMouseDownNoteListSplitter}

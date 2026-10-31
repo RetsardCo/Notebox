@@ -9,7 +9,7 @@ use std::sync::Arc;
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     let vault_dir = default_vault_path();
-    let database = Database::new(vault_dir).expect("Failed to initialize NoteFlow database");
+    let database = Database::new(vault_dir).expect("Failed to initialize Notebox database");
     let state = AppState {
         db: Arc::new(database),
         unlocked_keys: Arc::new(std::sync::Mutex::new(std::collections::HashMap::new())),

@@ -5,21 +5,32 @@ use tauri::State;
 
 #[tauri::command]
 pub fn get_session(state: State<'_, AppState>) -> Result<Option<SessionState>, String> {
-    let session_file = state.db.get_vault_path().join(".noteflow").join("session.json");
-    if !session_file.exists() {
-        return Ok(None);
-    }
+    let notebox_file = state.db.get_vault_path().join(".notebox").join("session.json");
+    let legacy_file = state.db.get_vault_path().join(".noteflow").join("session.json");
+    
+    let path = if notebox_file.exists() {
+        Some(notebox_file)
+    } else if legacy_file.exists() {
+        Some(legacy_file)
+    } else {
+        None
+    };
 
-    let content = fs::read_to_string(&session_file).map_err(|e| e.to_string())?;
+    let Some(session_path) = path else {
+        return Ok(None);
+    };
+
+    let content = fs::read_to_string(&session_path).map_err(|e| e.to_string())?;
     let session: SessionState = serde_json::from_str(&content).map_err(|e| e.to_string())?;
     Ok(Some(session))
 }
 
 #[tauri::command]
 pub fn save_session(state: State<'_, AppState>, session: SessionState) -> Result<(), String> {
-    let noteflow_dir = state.db.get_vault_path().join(".noteflow");
-    let session_file = noteflow_dir.join("session.json");
-    let tmp_file = noteflow_dir.join("session.json.tmp");
+    let notebox_dir = state.db.get_vault_path().join(".notebox");
+    let _ = fs::create_dir_all(&notebox_dir);
+    let session_file = notebox_dir.join("session.json");
+    let tmp_file = notebox_dir.join("session.json.tmp");
 
     let json = serde_json::to_string_pretty(&session).map_err(|e| e.to_string())?;
     

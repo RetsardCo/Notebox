@@ -1,7 +1,8 @@
-# 🗒️ NoteFlow
+# 🗒️ Notebox
 
 <div align="center">
-  <p><strong>A super-lightweight, local-first desktop note-taking app combining the elegance of Apple Notes, the speed & instant session restore of Windows 11 Notepad, and the filesystem freedom of Obsidian.</strong></p>
+  <p><strong>Your notes, ideas, and knowledge in one place.</strong></p>
+  <p>A super-lightweight, local-first desktop note-taking app combining the elegance of Apple Notes, the speed & instant session restore of Windows 11 Notepad, and the filesystem freedom of Obsidian.</p>
   <p>
     <a href="#features">Features</a> •
     <a href="#architecture">Architecture</a> •
@@ -13,30 +14,32 @@
 
 ---
 
-## 💡 The Philosophy Behind NoteFlow
+## 💡 The Philosophy Behind Notebox
 
 Most note applications force an unfortunate compromise:
 - **Cloud/Electron note apps** (Notion, Evernote) are sluggish, consume 300MB+ RAM, and keep your data locked on external servers.
 - **Classic Notepad** is lightning fast and restores unsaved scratch tabs, but lacks formatting, folders, images, and organization.
 - **Apple Notes** has a gorgeous three-column design and smooth formatting, but is closed within Apple's proprietary ecosystem.
 
-**NoteFlow** unites all three into a single, cohesive desktop app:
-1. **Apple Notes Experience**: Signature three-column layout (Folders → Note Cards → Distraction-free Editor), warm white light mode, deep charcoal dark mode, rich formatting, tables, checklists, and images.
-2. **Windows 11 Notepad Speed & Session Restore**: Tabs, auto-save without explicit save, instant session restore (reopen the app and see the exact same state, open tabs, unsaved scratchpad, and cursor positions), word wrap, find & replace, and status bar.
-3. **Obsidian Local Freedom**: All notes live on your disk as standard `.md` (Markdown) files. Zero proprietary lock-in. Full-text search with SQLite FTS5 index.
+**Notebox** unites all three into a single, cohesive desktop app:
+1. **Apple Notes Experience**: Signature three-column layout (Folders → Note Cards → Distraction-free Editor), rich formatting, tables, checklists, and images.
+2. **Personalization & 6 Color Palettes**: Choose between Warm Paper, Midnight, Forest, Ocean, Lavender, and Sunset.
+3. **Windows 11 Notepad Speed & Session Restore**: Tabs, auto-save without explicit save, instant session restore (reopen the app and see the exact same state, open tabs, unsaved scratchpad, and cursor positions), word wrap, find & replace, and status bar.
+4. **Obsidian Local Freedom**: All notes live on your disk as standard `.md` (Markdown) files. Zero proprietary lock-in. Full-text search with SQLite FTS5 index.
 
 ---
 
 ## ✨ Features
 
-### 🖥️ Design & UI (Apple Notes Aesthetic)
+### 🖥️ Design & UI (Apple Notes Aesthetic & 6 Palettes)
 - **Three-Column Layout**: Left sidebar for folders & tags, middle column for note preview cards with timestamps, right column for the editor.
-- **Light & Dark Themes**: Warm paper tone light theme and deep dark mode matching macOS SF Pro aesthetic.
+- **6 Color Palettes**: Warm Paper (light), Midnight (dark), Forest (dark), Ocean (light), Lavender (light), and Sunset (dark).
+- **Generous Margins & Clean Spacing**: Built with generous whitespace and breathing room for relaxed reading and writing.
 - **Fluid Splitters**: Drag and resize columns to fit your workflow.
 
 ### ⚡ Notepad Power & Zero-Friction UX
 - **Multi-Tab Workspace**: Open multiple notes or scratchpads side-by-side. Reorder, switch (`Ctrl+Tab`), or middle-click to close.
-- **Instant Session Restore**: Close NoteFlow anytime—even with unsaved scratchpad notes. When reopened, all tabs, contents, cursor lines, and scroll positions are restored instantly.
+- **Instant Session Restore**: Close Notebox anytime—even with unsaved scratchpad notes. When reopened, all tabs, contents, cursor lines, and scroll positions are restored instantly.
 - **Continuous Background Auto-Save**: Debounced 500ms writes to disk. No "Do you want to save changes?" interruption dialogs.
 - **In-Note Find & Replace**: Press `Ctrl+H` for search, replace, and replace all.
 - **Windows 11 Status Bar**: Real-time line and column counter, word and character statistics, zoom controls (60%–200%), and word wrap toggle.
@@ -61,7 +64,7 @@ Most note applications force an unfortunate compromise:
 
 ## ⚡ Performance Budget
 
-| Metric | Target | NoteFlow Result |
+| Metric | Target | Notebox Result |
 | :--- | :--- | :--- |
 | **Release Binary Size** | < 10 MB | **~6.1 MB** |
 | **Idle RAM Usage** | < 40 MB | **~35 MB** (via native WebView2) |
@@ -80,11 +83,11 @@ flowchart TD
     end
 
     subgraph "Frontend UI (Svelte 5 + Vite)"
-        SVELTE["Svelte 5 Runes<br/>• Three-Column Layout<br/>• TipTap WYSIWYG Editor<br/>• Notepad Tabs & Status Bar<br/>• Apple Notes Theme Engine"]
+        SVELTE["Svelte 5 Runes<br/>• Three-Column Layout<br/>• TipTap WYSIWYG Editor<br/>• Notepad Tabs & Status Bar<br/>• 6 Color Palettes Engine"]
     end
 
     subgraph "Local Filesystem Vault"
-        VAULT["📁 NoteFlow/<br/>├── 📁 Personal/<br/>├── 📁 Work/<br/>├── 📁 .assets/images/<br/>└── 📁 .noteflow/<br/>    ├── noteflow.db (SQLite FTS5)<br/>    └── session.json"]
+        VAULT["📁 Notebox/<br/>├── 📁 Personal/<br/>├── 📁 Work/<br/>├── 📁 .assets/images/<br/>└── 📁 .notebox/<br/>    ├── notebox.db (SQLite FTS5)<br/>    └── session.json"]
     end
 
     SVELTE <-->|"Tauri IPC Invoke"| RUST
@@ -95,7 +98,7 @@ flowchart TD
 - **Backend**: Rust 2024 (rusqlite with bundled FTS5, aes-gcm, sha2, uuid, chrono, dirs)
 - **Frontend**: Svelte 5 (with Runes: `$state`, `$derived`, `$props`), Vite 8
 - **Editor**: TipTap 3 (ProseMirror-based) + marked
-- **Styling**: Tailwind CSS 4 + SF Pro Apple Notes Design Tokens
+- **Styling**: Tailwind CSS 4 + 6 Color Palettes Design Tokens
 - **Icons**: Lucide Svelte
 
 ---
@@ -111,8 +114,8 @@ flowchart TD
 
 ```bash
 # Clone the repository
-git clone https://github.com/RetsardCo/noteflow.git
-cd noteflow
+git clone https://github.com/RetsardCo/notebox.git
+cd notebox
 
 # Install frontend dependencies
 npm install
@@ -124,7 +127,7 @@ npm run tauri dev
 ### Running Tests
 
 ```bash
-# Run Rust unit and integration tests (Crypto, SQLite FTS5, Session State)
+# Run Rust unit and integration tests (Crypto, SQLite FTS5, Session State, Migration)
 cd src-tauri
 cargo test
 
@@ -141,7 +144,7 @@ npm run build
 cd src-tauri
 cargo build --release
 ```
-The optimized single executable will be located at `src-tauri/target/release/noteflow.exe`.
+The optimized single executable will be located at `src-tauri/target/release/notebox.exe`.
 
 ---
 

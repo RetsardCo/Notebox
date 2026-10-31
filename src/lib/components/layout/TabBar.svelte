@@ -12,7 +12,6 @@
   }
 
   function handleAuxClick(tabId: string, e: MouseEvent) {
-    // Middle click to close tab
     if (e.button === 1) {
       e.preventDefault();
       appState.closeTab(tabId);
@@ -21,27 +20,24 @@
 </script>
 
 <div
-  class="h-10 flex items-center border-b px-2 gap-1.5 select-none shrink-0"
+  class="h-11 flex items-center border-b px-3 gap-2 select-none shrink-0"
   style="background-color: var(--bg-tabbar); border-color: var(--border);"
 >
-  <!-- Pinned Leading: Sidebar Toggle Button (macOS Apple Notes style) -->
-  <button
-    onclick={() => appState.toggleSidebar()}
-    class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
-    title={appState.sidebarCollapsed ? 'Show Sidebar (Ctrl+\\)' : 'Hide Sidebar (Ctrl+\\)'}
-    aria-label={appState.sidebarCollapsed ? 'Show Sidebar' : 'Hide Sidebar'}
-  >
-    {#if appState.sidebarCollapsed}
+  <!-- Pinned Leading: Sidebar Toggle Button -->
+  {#if appState.sidebarCollapsed}
+    <button
+      onclick={() => appState.toggleSidebar()}
+      class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
+      title="Show Sidebar (Ctrl+\)"
+      aria-label="Show Sidebar"
+    >
       <PanelLeftOpen size={16} />
-    {:else}
-      <PanelLeft size={16} />
-    {/if}
-  </button>
+    </button>
+    <div class="w-px h-4 mx-0.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+  {/if}
 
-  <div class="w-px h-4 mx-0.5 opacity-50 shrink-0" style="background-color: var(--border);"></div>
-
-  <!-- Scrollable Middle: Tabs List (never pushes pinned controls off screen) -->
-  <div class="flex-1 flex items-center gap-1.5 overflow-x-auto min-w-0 py-1 no-scrollbar">
+  <!-- Scrollable Middle: Tabs List -->
+  <div class="flex-1 flex items-center gap-2 overflow-x-auto min-w-0 py-1 no-scrollbar">
     {#each appState.tabs as tab (tab.id)}
       {@const isActive = appState.activeTabId === tab.id}
       <div
@@ -53,9 +49,9 @@
         onkeydown={(e) => {
           if (e.key === 'Enter') handleTabClick(tab.id);
         }}
-        class="group relative h-8 px-3 rounded-lg flex items-center gap-2 text-xs transition-colors cursor-pointer shrink-0 max-w-[200px] min-w-[120px] select-none border {isActive ? '' : 'hover:bg-black/5 dark:hover:bg-white/5 hover:text-[var(--text-primary)]'}"
+        class="group relative h-8 px-3.5 rounded-xl flex items-center gap-2 text-xs transition-all cursor-pointer shrink-0 max-w-[220px] min-w-[130px] select-none border {isActive ? 'shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'}"
         style={isActive
-          ? 'background-color: var(--bg-tab-active); border-color: var(--border); color: var(--text-primary); font-weight: 500;'
+          ? 'background-color: var(--bg-tab-active); border-color: var(--border); color: var(--text-primary); font-weight: 600;'
           : 'background-color: transparent; border-color: transparent; color: var(--text-secondary);'}
       >
         <FileText
@@ -66,7 +62,7 @@
         
         <span class="truncate text-[12px] flex-1 text-left">{tab.title || 'Untitled'}</span>
 
-        <!-- Trailing 16x16 slot: FIXED dimensions, never causes layout shift or jitter on hover -->
+        <!-- Trailing slot for dirty indicator / close button -->
         <div class="relative w-4 h-4 flex items-center justify-center shrink-0">
           {#if tab.is_dirty}
             <span
@@ -77,7 +73,7 @@
 
           <button
             onclick={(e) => handleTabClose(tab.id, e)}
-            class="absolute inset-0 flex items-center justify-center rounded transition-opacity duration-150 {tab.is_dirty ? 'opacity-0' : (isActive ? 'opacity-50' : 'opacity-0')} group-hover:opacity-100 hover:!opacity-100 hover:bg-black/10 dark:hover:bg-white/15"
+            class="absolute inset-0 flex items-center justify-center rounded-md transition-opacity duration-150 {tab.is_dirty ? 'opacity-0' : (isActive ? 'opacity-50' : 'opacity-0')} group-hover:opacity-100 hover:!opacity-100 hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer"
             title="Close Tab (Ctrl+W)"
             aria-label="Close Tab"
           >

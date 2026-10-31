@@ -42,7 +42,7 @@ pub struct SessionState {
 
 fn default_sidebar_width() -> u32 { 240 }
 fn default_notelist_width() -> u32 { 290 }
-fn default_theme() -> String { "system".to_string() }
+fn default_theme() -> String { "warm-paper".to_string() }
 fn default_view_mode() -> String { "list".to_string() }
 fn default_word_wrap() -> bool { true }
 fn default_font_size() -> u32 { 15 }

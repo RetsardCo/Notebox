@@ -3,9 +3,9 @@ import { markdownToHtml, htmlToMarkdown } from './markdown';
 
 describe('Markdown Converter', () => {
   it('converts headings and paragraphs to HTML', () => {
-    const md = '# NoteFlow Header\n\nThis is a note.';
+    const md = '# Notebox Header\n\nThis is a note.';
     const html = markdownToHtml(md);
-    expect(html).toContain('<h1>NoteFlow Header</h1>');
+    expect(html).toContain('<h1>Notebox Header</h1>');
     expect(html).toContain('<p>This is a note.</p>');
   });
 

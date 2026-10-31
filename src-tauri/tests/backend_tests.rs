@@ -1,8 +1,8 @@
 #[cfg(test)]
 mod tests {
-    use noteflow_lib::commands::crypto;
-    use noteflow_lib::db::Database;
-    use noteflow_lib::models::SessionState;
+    use notebox_lib::commands::crypto;
+    use notebox_lib::db::Database;
+    use notebox_lib::models::SessionState;
     use std::fs;
     use tempfile::tempdir;
 
@@ -55,7 +55,7 @@ mod tests {
         assert_eq!(has_check, 1);
 
         // Verify FTS table works
-        let fts_count: i64 = conn.query_row("SELECT COUNT(*) FROM notes_fts WHERE notes_fts MATCH 'NoteFlow'", [], |r| r.get(0)).unwrap();
+        let fts_count: i64 = conn.query_row("SELECT COUNT(*) FROM notes_fts WHERE notes_fts MATCH 'Notebox'", [], |r| r.get(0)).unwrap();
         assert!(fts_count >= 1);
     }
 
@@ -159,5 +159,38 @@ mod tests {
         let serialized = serde_json::to_string_pretty(&session).expect("Failed to serialize session");
         let roundtrip: SessionState = serde_json::from_str(&serialized).expect("Failed to deserialize roundtrip");
         assert_eq!(roundtrip.tabs[0].content, "Live unsaved content");
+    }
+
+    #[test]
+    fn test_legacy_noteflow_db_and_session_migration() {
+        let dir = tempdir().expect("Failed to create tempdir");
+        let vault = dir.path().to_path_buf();
+        let legacy_dir = vault.join(".noteflow");
+        fs::create_dir_all(&legacy_dir).unwrap();
+
+        // Create a dummy legacy db with table and data
+        let legacy_db = legacy_dir.join("noteflow.db");
+        {
+            let conn = rusqlite::Connection::open(&legacy_db).unwrap();
+            conn.execute("CREATE TABLE test_legacy (id TEXT)", []).unwrap();
+            conn.execute("INSERT INTO test_legacy (id) VALUES ('migrated-data')", []).unwrap();
+        }
+        let legacy_session = legacy_dir.join("session.json");
+        fs::write(&legacy_session, r#"{"tabs":[],"active_tab_id":null,"sidebar_width":250,"note_list_width":300,"sidebar_collapsed":false,"note_list_collapsed":false,"selected_folder_id":null,"selected_tag":null,"selected_smart_folder":null,"theme":"warm-paper","view_mode":"list","word_wrap":true,"font_size":16}"#).unwrap();
+
+        // Initialize Notebox database
+        let _db = Database::new(vault.clone()).expect("Failed to init database with migration");
+
+        // Verify .notebox/notebox.db exists and contains the legacy table/data
+        let notebox_db = vault.join(".notebox").join("notebox.db");
+        assert!(notebox_db.exists(), "notebox.db must exist after migration");
+
+        let migrated_conn = rusqlite::Connection::open(&notebox_db).unwrap();
+        let test_val: String = migrated_conn.query_row("SELECT id FROM test_legacy LIMIT 1", [], |r| r.get(0)).unwrap();
+        assert_eq!(test_val, "migrated-data");
+
+        // Verify session.json was copied over to .notebox/session.json
+        let notebox_session = vault.join(".notebox").join("session.json");
+        assert!(notebox_session.exists(), "session.json must be migrated to .notebox");
     }
 }

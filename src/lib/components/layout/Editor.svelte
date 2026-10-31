@@ -230,8 +230,8 @@
     appState.updateMetrics(lineNum, colNum, fullText);
   }
 
-  onMount(() => {
-    if (!editorElement) return;
+  function initEditor() {
+    if (!editorElement || editor) return;
 
     editor = new Editor({
       element: editorElement,
@@ -277,10 +277,13 @@
       },
     });
 
-    // Initial load
     if (appState.activeTab) {
       loadTabContent(appState.activeTab.id, appState.activeTab.content);
     }
+  }
+
+  onMount(() => {
+    initEditor();
   });
 
   onDestroy(() => {
@@ -290,7 +293,11 @@
   });
 
   async function loadTabContent(tabId: string, content: string) {
-    if (!editor) return;
+    if (!editor) {
+      initEditor();
+      if (!editor) return;
+    }
+    editor.setEditable(true);
     isInternalUpdate = true;
     lastLoadedTabId = tabId;
     lastLoadedContent = content;
@@ -330,21 +337,41 @@
       return;
     }
 
-    // If clicked on margin or empty area below content, focus editor at end
-    if (editor && !editor.isFocused && (target === editorElement || target.classList.contains('editor-outer-container') || target.classList.contains('editor-page-container'))) {
-      editor.chain().focus('end').run();
+    // Ensure editor is editable and focused whenever user clicks canvas
+    if (editor) {
+      editor.setEditable(true);
+      if (!editor.isFocused) {
+        editor.commands.focus();
+      }
     }
   }
 
   // React to tab switch or note unlock/content sync
   $effect(() => {
+    if (editorElement && !editor) {
+      initEditor();
+    }
     const tab = appState.activeTab;
-    if (tab) {
+    if (tab && editor) {
       if (tab.id !== lastLoadedTabId || (!tab.is_dirty && tab.content !== lastLoadedContent)) {
         loadTabContent(tab.id, tab.content);
       }
     }
   });
+
+  function getNoteMetadata(tab: any): { date: string; folder: string; readTime: string } {
+    const note = tab?.note_id ? appState.notes.find((n) => n.id === tab.note_id) : null;
+    const dateStr = note?.updated_at || new Date().toISOString();
+    let formattedDate = 'Today';
+    try {
+      const d = new Date(dateStr);
+      formattedDate = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+    } catch {}
+    const folder = note?.folder_name || 'Personal';
+    const words = note?.word_count || appState.wordCount || 0;
+    const readTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
+    return { date: formattedDate, folder, readTime };
+  }
 </script>
 
 <input
@@ -355,6 +382,8 @@
   class="hidden"
 />
 
+<!-- svelte-ignore a11y_click_events_have_key_events -->
+<!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="flex-1 h-full overflow-y-auto {appState.wordWrap ? '' : 'overflow-x-auto'} relative select-text editor-outer-container"
   style="background-color: var(--bg-editor); zoom: {appState.zoomLevel}%;"
@@ -362,29 +391,54 @@
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
   onclick={handleEditorClick}
+  role="region"
+  aria-label="Note Editor"
 >
+  <!-- Editor Page Canvas: ALWAYS mounted to ensure TipTap binds cleanly on startup -->
+  <div class="min-h-full w-full flex justify-center editor-page-container {!appState.activeTab ? 'hidden' : ''}">
+    <div
+      class="w-full max-w-3xl px-8 sm:px-12 md:px-16 py-8 md:py-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
+    >
+      {#if appState.activeTab}
+        {@const meta = getNoteMetadata(appState.activeTab)}
+        <div class="note-metadata-line px-1 mb-6 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
+          <span>{meta.date}</span>
+          <span class="opacity-40">•</span>
+          <span class="capitalize">{meta.folder}</span>
+          <span class="opacity-40">•</span>
+          <span>{meta.readTime}</span>
+        </div>
+      {/if}
+
+      <div
+        bind:this={editorElement}
+        class="flex-1 min-h-[400px] flex flex-col cursor-text"
+        style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
+      ></div>
+    </div>
+  </div>
+
+  <!-- Empty state overlay when no tab is open -->
   {#if !appState.activeTab}
-    <div class="h-full flex flex-col items-center justify-center text-center p-8 select-none" style="color: var(--text-tertiary);">
-      <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 shadow-xs" style="background-color: var(--border-subtle);">
-        <FileText size={24} style="color: var(--text-tertiary);" />
+    <div
+      class="absolute inset-0 flex flex-col items-center justify-center text-center p-8 select-none"
+      style="background-color: var(--bg-editor); color: var(--text-tertiary);"
+    >
+      <div
+        class="w-14 h-14 rounded-2xl flex items-center justify-center mb-4 shadow-sm"
+        style="background-color: var(--border-subtle);"
+      >
+        <img src="/notebox-icon.png" class="w-9 h-9 object-contain drop-shadow-xs" alt="Notebox" />
       </div>
-      <p class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">No Note Open</p>
-      <p class="text-xs max-w-xs mb-4">Select a note from the list, or create a new note to start writing.</p>
+      <p class="text-base font-semibold mb-1.5" style="color: var(--text-primary);">No Note Open</p>
+      <p class="text-xs max-w-xs mb-5 leading-relaxed">Select a note from the list, or create a new note to start writing.</p>
       <button
         onclick={() => appState.createNewNote()}
-        class="px-3.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer shadow-xs hover:brightness-105 active:scale-95 transition-all"
+        class="px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer shadow-sm hover:brightness-105 active:scale-95 transition-all"
         style="background-color: var(--accent); color: #000;"
       >
         New Note
       </button>
-    </div>
-  {:else}
-    <div class="min-h-full w-full flex justify-center editor-page-container">
-      <div
-        bind:this={editorElement}
-        class="w-full max-w-3xl px-10 sm:px-14 md:px-16 py-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
-        style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
-      ></div>
     </div>
   {/if}
 </div>
