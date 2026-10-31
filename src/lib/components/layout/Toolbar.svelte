@@ -40,7 +40,7 @@
 </script>
 
 <div
-  class="h-11 px-3.5 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto"
+  class="h-11 px-3.5 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
   style="background-color: var(--bg-toolbar); border-color: var(--border);"
 >
   <!-- Left Formatting Tools -->
@@ -48,7 +48,7 @@
     <!-- Heading / Style Dropdown -->
     <select
       onchange={(e) => onCommand('heading', (e.target as HTMLSelectElement).value)}
-      class="text-xs font-medium rounded-lg px-2.5 py-1 mr-1 outline-none cursor-pointer border shadow-2xs transition-colors"
+      class="text-xs font-medium rounded-lg px-2.5 py-1 mr-1 outline-none cursor-pointer border shadow-xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
     >
       <option value="p">Paragraph</option>
@@ -89,7 +89,7 @@
 
     <button
       onclick={() => onCommand('highlight')}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--accent)]"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Highlight"
       aria-label="Highlight"
     >
@@ -101,7 +101,7 @@
     <!-- Lists & Checklists -->
     <button
       onclick={() => onCommand('taskList')}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--accent)]"
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Checklist"
       aria-label="Checklist"
     >

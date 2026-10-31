@@ -11,6 +11,7 @@
   import { Image } from '@tiptap/extension-image';
   import { Highlight } from '@tiptap/extension-highlight';
   import { Placeholder } from '@tiptap/extension-placeholder';
+  import { FileText } from '@lucide/svelte';
 
   const CustomImage = Image.extend({
     addAttributes() {
@@ -28,9 +29,9 @@
     },
   });
 
-  let editorElement: HTMLDivElement | null = null;
+  let editorElement = $state<HTMLDivElement | null>(null);
   let editor: Editor | null = null;
-  let fileInput: HTMLInputElement | null = null;
+  let fileInput = $state<HTMLInputElement | null>(null);
   let lastLoadedTabId: string | null = null;
   let lastLoadedContent = '';
   let isInternalUpdate = false;
@@ -318,13 +319,20 @@
   }
 
   function handleEditorClick(e: MouseEvent) {
-    const target = (e.target as HTMLElement).closest('.wiki-link');
-    if (target) {
+    const target = e.target as HTMLElement;
+    const wikiTarget = target.closest('.wiki-link');
+    if (wikiTarget) {
       e.preventDefault();
-      const title = target.getAttribute('data-wiki-title') || target.textContent;
+      const title = wikiTarget.getAttribute('data-wiki-title') || wikiTarget.textContent;
       if (title) {
         appState.openNoteByTitle(title);
       }
+      return;
+    }
+
+    // If clicked on margin or empty area below content, focus editor at end
+    if (editor && !editor.isFocused && (target === editorElement || target.classList.contains('editor-outer-container') || target.classList.contains('editor-page-container'))) {
+      editor.chain().focus('end').run();
     }
   }
 
@@ -348,18 +356,35 @@
 />
 
 <div
-  class="flex-1 h-full overflow-y-auto {appState.wordWrap ? '' : 'overflow-x-auto'} relative select-text"
+  class="flex-1 h-full overflow-y-auto {appState.wordWrap ? '' : 'overflow-x-auto'} relative select-text editor-outer-container"
   style="background-color: var(--bg-editor); zoom: {appState.zoomLevel}%;"
   onpaste={handlePaste}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
   onclick={handleEditorClick}
 >
-  <div class="min-h-full w-full flex justify-center">
-    <div
-      bind:this={editorElement}
-      class="w-full max-w-3xl px-8 sm:px-12 md:px-16 py-10 min-h-full {appState.wordWrap ? '' : 'min-w-max'}"
-      style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
-    ></div>
-  </div>
+  {#if !appState.activeTab}
+    <div class="h-full flex flex-col items-center justify-center text-center p-8 select-none" style="color: var(--text-tertiary);">
+      <div class="w-12 h-12 rounded-2xl flex items-center justify-center mb-3 shadow-xs" style="background-color: var(--border-subtle);">
+        <FileText size={24} style="color: var(--text-tertiary);" />
+      </div>
+      <p class="text-sm font-semibold mb-1" style="color: var(--text-secondary);">No Note Open</p>
+      <p class="text-xs max-w-xs mb-4">Select a note from the list, or create a new note to start writing.</p>
+      <button
+        onclick={() => appState.createNewNote()}
+        class="px-3.5 py-1.5 rounded-lg text-xs font-medium cursor-pointer shadow-xs hover:brightness-105 active:scale-95 transition-all"
+        style="background-color: var(--accent); color: #000;"
+      >
+        New Note
+      </button>
+    </div>
+  {:else}
+    <div class="min-h-full w-full flex justify-center editor-page-container">
+      <div
+        bind:this={editorElement}
+        class="w-full max-w-3xl px-10 sm:px-14 md:px-16 py-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
+        style="white-space: {appState.wordWrap ? 'pre-wrap' : 'pre'}; word-break: {appState.wordWrap ? 'break-word' : 'normal'};"
+      ></div>
+    </div>
+  {/if}
 </div>

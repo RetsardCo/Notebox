@@ -10,6 +10,7 @@
     Copy,
     RotateCcw,
     X,
+    PanelLeftOpen,
   } from '@lucide/svelte';
 
   let searchInput = $state('');
@@ -87,9 +88,21 @@
   <!-- Search and Compose Bar with Generous Breathing Room -->
   <div class="p-3 space-y-2.5 border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2">
+      <!-- Show sidebar toggle button if collapsed -->
+      {#if appState.sidebarCollapsed}
+        <button
+          onclick={() => appState.toggleSidebar()}
+          class="w-8 h-8 rounded-lg flex items-center justify-center text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
+          title="Show Sidebar (Ctrl+\)"
+          aria-label="Show Sidebar"
+        >
+          <PanelLeftOpen size={16} />
+        </button>
+      {/if}
+
       <!-- Search Input Pill -->
       <div
-        class="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs shadow-2xs transition-colors"
+        class="flex-1 flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs shadow-xs transition-colors"
         style="background-color: var(--bg-input); border-color: var(--border);"
       >
         <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
@@ -111,7 +124,7 @@
       <!-- New Note Button -->
       <button
         onclick={() => appState.createNewNote()}
-        class="w-8 h-8 rounded-full hover:brightness-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-sm font-semibold"
+        class="w-8 h-8 rounded-full hover:brightness-105 active:scale-95 transition-all cursor-pointer flex items-center justify-center shrink-0 shadow-xs font-semibold"
         style="background-color: var(--accent); color: #000;"
         title="New Note (Ctrl+N)"
         aria-label="New Note"
@@ -166,7 +179,7 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative p-3.5 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
+          class="group relative mx-1 my-1 p-3.5 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
           style={isSelected
             ? 'background-color: var(--bg-notelist-active); border-color: var(--accent);'
             : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle);'}

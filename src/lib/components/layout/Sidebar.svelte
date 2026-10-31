@@ -27,6 +27,10 @@
   let editingFolderId = $state<string | null>(null);
   let editFolderName = $state('');
 
+  function autoFocus(el: HTMLElement) {
+    setTimeout(() => el?.focus(), 10);
+  }
+
   async function handleCreateFolder() {
     if (!newFolderName.trim()) {
       showNewFolderInput = false;
@@ -227,16 +231,19 @@
                 }
               }}
               onblur={() => {
-                if (!newFolderName.trim()) {
+                if (newFolderName.trim()) {
+                  handleCreateFolder();
+                } else {
                   showNewFolderInput = false;
                 }
               }}
               class="w-full bg-transparent text-xs outline-none"
               style="color: var(--text-primary);"
-              autofocus
+              use:autoFocus
             />
             <button
-              onclick={() => {
+              onmousedown={(e) => {
+                e.preventDefault();
                 showNewFolderInput = false;
                 newFolderName = '';
               }}
@@ -277,18 +284,21 @@
                 class="px-2 py-0.5 text-xs rounded-md border outline-none w-28"
                 style="background-color: var(--bg-input); border-color: var(--accent); color: var(--text-primary);"
                 onclick={(e) => e.stopPropagation()}
-                autofocus
+                use:autoFocus
               />
             {:else}
               <span class="truncate">{folder.name}</span>
             {/if}
           </div>
 
-          <div class="flex items-center gap-1">
-            <span class="text-[11px] font-semibold group-hover:hidden" style="color: var(--text-tertiary);">
+          <div class="relative flex items-center justify-end shrink-0 min-w-[44px] h-5">
+            <span
+              class="text-[11px] font-semibold transition-opacity duration-150 group-hover:opacity-0"
+              style="color: var(--text-tertiary);"
+            >
               {folder.note_count || 0}
             </span>
-            <div class="hidden group-hover:flex items-center gap-1">
+            <div class="absolute right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
               <button
                 onclick={(e) => {
                   e.stopPropagation();
@@ -344,16 +354,19 @@
                 }
               }}
               onblur={() => {
-                if (!newTagName.trim()) {
+                if (newTagName.trim()) {
+                  handleCreateTag();
+                } else {
                   showNewTagInput = false;
                 }
               }}
               class="w-full bg-transparent text-xs outline-none"
               style="color: var(--text-primary);"
-              autofocus
+              use:autoFocus
             />
             <button
-              onclick={() => {
+              onmousedown={(e) => {
+                e.preventDefault();
                 showNewTagInput = false;
                 newTagName = '';
               }}
@@ -376,7 +389,7 @@
             : 'color: var(--text-primary);'}
         >
           <div class="flex items-center gap-2.5 truncate">
-            <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-2xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
             <span class="truncate">#{tag.name}</span>
           </div>
           <span class="text-[11px] font-semibold" style="color: var(--text-tertiary);">

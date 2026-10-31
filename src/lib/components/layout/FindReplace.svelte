@@ -42,6 +42,10 @@
       onReplaceAll(findQuery, replaceQuery);
     }
   }
+
+  function autoFocus(el: HTMLElement) {
+    setTimeout(() => el?.focus(), 10);
+  }
 </script>
 
 {#if appState.findReplaceOpen}
@@ -51,7 +55,7 @@
   >
     <!-- Find Group -->
     <div
-      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-2xs"
+      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-xs"
       style="background-color: var(--bg-input); border-color: var(--border);"
     >
       <Search size={14} style="color: var(--text-tertiary);" />
@@ -68,7 +72,7 @@
         }}
         class="bg-transparent outline-none w-32 md:w-48 text-xs"
         style="color: var(--text-primary);"
-        autofocus
+        use:autoFocus
       />
       <button onclick={handleFindPrev} class="p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer" title="Previous match (Shift+Enter)">
         <ChevronUp size={14} />
@@ -80,7 +84,7 @@
 
     <!-- Replace Group -->
     <div
-      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-2xs"
+      class="flex items-center gap-2 px-2.5 py-1.5 rounded-lg border shadow-xs"
       style="background-color: var(--bg-input); border-color: var(--border);"
     >
       <Replace size={14} style="color: var(--text-tertiary);" />

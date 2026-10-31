@@ -36,7 +36,8 @@
       const newWidth = Math.max(160, Math.min(380, e.clientX));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
-      const newWidth = Math.max(200, Math.min(450, e.clientX - appState.sidebarWidth));
+      const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
+      const newWidth = Math.max(200, Math.min(450, e.clientX - currentSidebarWidth));
       appState.noteListWidth = newWidth;
     }
   }
@@ -147,10 +148,12 @@
   <!-- Sidebar Resize Handle -->
   {#if !appState.sidebarCollapsed}
     <div
-      class="w-1 hover:w-1.5 h-full cursor-col-resize hover:bg-amber-400/50 transition-colors z-20 shrink-0"
+      class="w-1 {isDraggingSidebar ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
       onmousedown={onMouseDownSidebarSplitter}
       role="separator"
       tabindex="-1"
+      aria-orientation="vertical"
+      aria-valuenow={appState.sidebarWidth}
     ></div>
   {/if}
 
@@ -165,10 +168,12 @@
   <!-- NoteList Resize Handle -->
   {#if !appState.noteListCollapsed}
     <div
-      class="w-1 hover:w-1.5 h-full cursor-col-resize hover:bg-amber-400/50 transition-colors z-20 shrink-0"
+      class="w-1 {isDraggingNoteList ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
       onmousedown={onMouseDownNoteListSplitter}
       role="separator"
       tabindex="-1"
+      aria-orientation="vertical"
+      aria-valuenow={appState.noteListWidth}
     ></div>
   {/if}
 
