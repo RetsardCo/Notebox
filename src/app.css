@@ -1,0 +1,307 @@
+@import "tailwindcss";
+
+:root {
+  --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-mono: "SF Mono", "Cascadia Code", "Fira Code", Consolas, Menlo, monospace;
+}
+
+/* Light Theme (Apple Notes inspired) */
+:root[data-theme="light"], :root:not([data-theme]) {
+  --bg-sidebar: #f5f5f7;
+  --bg-sidebar-hover: #ebebee;
+  --bg-sidebar-active: #e2e2e7;
+  --bg-notelist: #ffffff;
+  --bg-notelist-card: #ffffff;
+  --bg-notelist-hover: #f5f5f7;
+  --bg-notelist-active: #ffe89e;
+  --bg-editor: #ffffff;
+  --bg-toolbar: #f8f8fa;
+  --bg-tabbar: #e9e9ed;
+  --bg-tab-active: #ffffff;
+  --bg-tab-hover: #dfdfe4;
+  --bg-statusbar: #f5f5f7;
+  --bg-modal: #ffffff;
+  --bg-input: #ffffff;
+
+  --text-primary: #1d1d1f;
+  --text-secondary: #6e6e73;
+  --text-tertiary: #86868b;
+  --text-muted: #a1a1a6;
+
+  --accent: #e5a823;
+  --accent-hover: #d19416;
+  --accent-light: #fef4dc;
+  --accent-text: #784d00;
+
+  --border: #e5e5e7;
+  --border-subtle: #f0f0f2;
+  --border-focus: #e5a823;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.12);
+
+  --scrollbar-thumb: #d1d1d6;
+  --scrollbar-thumb-hover: #b0b0b8;
+}
+
+/* Dark Theme (Apple Notes Dark Mode) */
+:root[data-theme="dark"] {
+  --bg-sidebar: #1e1e20;
+  --bg-sidebar-hover: #2a2a2d;
+  --bg-sidebar-active: #343438;
+  --bg-notelist: #252528;
+  --bg-notelist-card: #252528;
+  --bg-notelist-hover: #2e2e32;
+  --bg-notelist-active: #4a3e1b;
+  --bg-editor: #1c1c1e;
+  --bg-toolbar: #242427;
+  --bg-tabbar: #18181a;
+  --bg-tab-active: #1c1c1e;
+  --bg-tab-hover: #242427;
+  --bg-statusbar: #18181a;
+  --bg-modal: #252528;
+  --bg-input: #2d2d31;
+
+  --text-primary: #f5f5f7;
+  --text-secondary: #a1a1a6;
+  --text-tertiary: #6e6e73;
+  --text-muted: #545458;
+
+  --accent: #ffd60a;
+  --accent-hover: #ffcc00;
+  --accent-light: rgba(255, 214, 10, 0.15);
+  --accent-text: #ffd60a;
+
+  --border: #38383c;
+  --border-subtle: #2c2c30;
+  --border-focus: #ffd60a;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 12px 32px rgba(0, 0, 0, 0.6);
+
+  --scrollbar-thumb: #444448;
+  --scrollbar-thumb-hover: #58585e;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--bg-editor);
+  color: var(--text-primary);
+  overflow: hidden;
+  user-select: none;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 7px;
+  height: 7px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* TipTap Editor ProseMirror Styling */
+.ProseMirror {
+  outline: none !important;
+  min-height: 100%;
+  color: var(--text-primary);
+  user-select: text;
+}
+
+.ProseMirror p {
+  margin-bottom: 0.75em;
+  line-height: 1.6;
+}
+
+.ProseMirror h1 {
+  font-size: 1.85em;
+  font-weight: 700;
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.ProseMirror h2 {
+  font-size: 1.45em;
+  font-weight: 600;
+  margin-top: 0.8em;
+  margin-bottom: 0.4em;
+  color: var(--text-primary);
+}
+
+.ProseMirror h3 {
+  font-size: 1.2em;
+  font-weight: 600;
+  margin-top: 0.8em;
+  margin-bottom: 0.3em;
+  color: var(--text-primary);
+}
+
+.ProseMirror ul,
+.ProseMirror ol {
+  padding-left: 1.5em;
+  margin-bottom: 0.75em;
+}
+
+.ProseMirror li {
+  margin-bottom: 0.25em;
+  line-height: 1.5;
+}
+
+/* Task lists / Checklists */
+ul[data-type="taskList"] {
+  list-style: none;
+  padding-left: 0.25em;
+  margin-bottom: 0.75em;
+}
+
+ul[data-type="taskList"] li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.55em;
+  margin-bottom: 0.4em;
+}
+
+ul[data-type="taskList"] li > label {
+  user-select: none;
+  margin-top: 0.2em;
+}
+
+ul[data-type="taskList"] li > label input[type="checkbox"] {
+  cursor: pointer;
+  width: 17px;
+  height: 17px;
+  accent-color: var(--accent);
+  border-radius: 4px;
+}
+
+ul[data-type="taskList"] li[data-checked="true"] > div {
+  text-decoration: line-through;
+  opacity: 0.55;
+}
+
+/* Blockquotes */
+.ProseMirror blockquote {
+  border-left: 3px solid var(--accent);
+  padding-left: 1em;
+  margin: 0.8em 0;
+  color: var(--text-secondary);
+  font-style: italic;
+}
+
+/* Code blocks & inline code */
+.ProseMirror code {
+  font-family: var(--font-mono);
+  font-size: 0.88em;
+  background-color: var(--border-subtle);
+  color: var(--accent-text);
+  padding: 0.15em 0.35em;
+  border-radius: 4px;
+}
+
+.ProseMirror pre {
+  background-color: var(--bg-toolbar);
+  border: 1px solid var(--border);
+  padding: 0.85em 1em;
+  border-radius: 6px;
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+  overflow-x: auto;
+  margin: 0.8em 0;
+}
+
+.ProseMirror pre code {
+  background: none;
+  padding: 0;
+  color: var(--text-primary);
+}
+
+/* Tables */
+.ProseMirror table {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 1em 0;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+}
+
+.ProseMirror th,
+.ProseMirror td {
+  border: 1px solid var(--border);
+  padding: 8px 12px;
+  text-align: left;
+}
+
+.ProseMirror th {
+  background-color: var(--bg-toolbar);
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.ProseMirror tr:nth-child(even) {
+  background-color: var(--border-subtle);
+}
+
+/* Images */
+.ProseMirror img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 6px;
+  margin: 0.8em 0;
+  box-shadow: var(--shadow-sm);
+  display: block;
+}
+
+/* Horizontal Rule */
+.ProseMirror hr {
+  border: none;
+  border-top: 1px solid var(--border);
+  margin: 1.5em 0;
+}
+
+/* Highlight */
+.ProseMirror mark {
+  background-color: #ffeb3b;
+  color: #000000;
+  padding: 0.1em 0.25em;
+  border-radius: 2px;
+}
+
+/* Placeholders */
+.ProseMirror p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  color: var(--text-muted);
+  pointer-events: none;
+  height: 0;
+}
+
+/* Wiki Links */
+.wiki-link {
+  color: var(--accent);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 500;
+}
