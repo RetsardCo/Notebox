@@ -150,6 +150,21 @@ class AppStore {
         this.fontSize = savedSession.font_size || 15;
         this.applyTheme(this.theme);
         restored = true;
+      } else if (savedSession) {
+        this.sidebarWidth = savedSession.sidebar_width || 280;
+        this.noteListWidth = savedSession.note_list_width || 340;
+        if (this.sidebarWidth < 260) this.sidebarWidth = 280;
+        if (this.noteListWidth < 300) this.noteListWidth = 340;
+        this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
+        this.noteListCollapsed = savedSession.note_list_collapsed || false;
+        this.selectedFolderId = savedSession.selected_folder_id;
+        this.selectedTag = savedSession.selected_tag;
+        this.selectedSmartFolder = savedSession.selected_smart_folder || 'all';
+        this.theme = savedSession.theme || 'warm-paper';
+        this.viewMode = savedSession.view_mode || 'list';
+        this.wordWrap = savedSession.word_wrap !== false;
+        this.fontSize = savedSession.font_size || 15;
+        this.applyTheme(this.theme);
       }
     } catch (e) {
       console.warn('Failed to load session:', e);

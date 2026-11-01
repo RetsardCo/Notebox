@@ -38,17 +38,26 @@ fn extract_tags(content: &str) -> Vec<String> {
 }
 
 fn extract_preview(content: &str) -> String {
-    let lines: Vec<&str> = content
+    let lines: Vec<String> = content
         .lines()
         .map(|l| l.trim())
-        .filter(|l| !l.is_empty() && !l.starts_with('#'))
+        .filter(|l| !l.is_empty() && !l.starts_with('#') && !l.starts_with("!["))
+        .map(|l| {
+            l.trim_start_matches('>')
+                .trim()
+                .replace("**", "")
+                .replace('*', "")
+                .replace('`', "")
+        })
+        .filter(|l| !l.is_empty())
         .collect();
     
     let text = lines.join(" ");
+    let text = text.trim();
     if text.chars().count() > 120 {
         text.chars().take(120).collect::<String>() + "..."
     } else {
-        text
+        text.to_string()
     }
 }
 

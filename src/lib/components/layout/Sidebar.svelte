@@ -176,10 +176,10 @@
       <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
+        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'all'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
           <FileText size={15} style="color: var(--accent);" />
@@ -193,10 +193,10 @@
       <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
+        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'pinned'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
           <Pin size={15} style="color: var(--accent);" />
@@ -210,10 +210,10 @@
       <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
+        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'checklist'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
           <CheckSquare size={15} style="color: var(--accent);" />
@@ -227,10 +227,10 @@
       <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
+        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'trash'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
-          : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+          : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
           <Trash2 size={15} style="color: var(--text-tertiary);" />
@@ -259,7 +259,7 @@
       <!-- New Folder Input -->
       {#if showNewFolderInput}
         <div class="mx-3 my-1">
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
+          <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
             <FolderIcon size={14} style="color: var(--accent);" class="shrink-0" />
             <input
               type="text"
@@ -301,10 +301,10 @@
       {#each appState.folders as folder (folder.id)}
         {@const isSelected = appState.selectedFolderId === folder.id}
         <div
-          class="group h-9 mx-3 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
+          class="group w-[calc(100%-1.5rem)] h-9 mx-3 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isSelected ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
           style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
-            : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+            : 'color: var(--text-primary);'}
           onclick={() => appState.selectFolder(folder.id)}
           role="button"
           tabindex="0"
@@ -382,7 +382,7 @@
       <!-- New Tag Input -->
       {#if showNewTagInput}
         <div class="mx-3 my-1">
-          <div class="flex items-center gap-2 px-3 py-1.5 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
+          <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
             <TagIcon size={14} style="color: var(--accent);" class="shrink-0" />
             <input
               type="text"
@@ -425,10 +425,10 @@
         {@const isSelected = appState.selectedTag === tag.name}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
+          class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isSelected ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
           style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
-            : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
+            : 'color: var(--text-primary);'}
         >
           <div class="flex items-center gap-2.5 truncate">
             <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>

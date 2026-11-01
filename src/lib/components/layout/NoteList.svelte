@@ -37,6 +37,14 @@
     }
   }
 
+  function cleanPreview(preview: string): string {
+    if (!preview) return 'No additional text';
+    let cleaned = preview.replace(/!\[.*?\](?:\(.*?\))?/g, '');
+    cleaned = cleaned.replace(/^[>\s*`#]+/gm, '').replace(/[*`_]/g, '');
+    cleaned = cleaned.trim();
+    return cleaned || 'No additional text';
+  }
+
   function handleContextMenu(e: MouseEvent, note: NoteSummary) {
     e.preventDefault();
     activeContextMenuNoteId = note.id;
@@ -205,7 +213,7 @@
             class="text-[11.5px] line-clamp-2 leading-relaxed mb-3 opacity-90"
             style="color: var(--text-secondary);"
           >
-            {note.preview || 'No additional text'}
+            {cleanPreview(note.preview)}
           </p>
 
           <!-- Card Footer: Date on left, Folder/Tags on right -->

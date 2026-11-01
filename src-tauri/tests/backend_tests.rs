@@ -247,6 +247,13 @@ mod tests {
         let conn = db.lock();
         let title: String = conn.query_row("SELECT title FROM notes WHERE id = (SELECT id FROM notes LIMIT 1)", [], |r| r.get(0)).unwrap();
         assert_eq!(title, "Welcome to Notebox");
+
+        let preview: String = conn.query_row("SELECT preview FROM notes WHERE id = (SELECT id FROM notes LIMIT 1)", [], |r| r.get(0)).unwrap();
+        assert!(
+            !preview.contains("!["),
+            "Preview should not contain raw markdown image tag, got: {}",
+            preview
+        );
     }
 }
 

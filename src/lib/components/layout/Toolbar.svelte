@@ -187,7 +187,7 @@
   </div>
 
   <!-- Right Utility Tools -->
-  <div class="flex items-center gap-1">
+  <div class="flex items-center gap-1.5">
     <!-- Word wrap toggle -->
     <button
       onclick={() => {
