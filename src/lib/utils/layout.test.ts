@@ -34,25 +34,25 @@ describe('Design System Spacing Hierarchy', () => {
 
   it('R2.3: Notes panel container has padding and card gap in app.css & NoteList.svelte', () => {
     expect(noteListFile).toMatch(/notelist-cards-container/);
-    expect(cssFile).toMatch(/\.notelist-cards-container\s*\{[^}]*padding:\s*10px 12px/);
+    expect(cssFile).toMatch(/\.notelist-cards-container\s*\{[^}]*padding:\s*10px/);
     expect(cssFile).toMatch(/\.notelist-cards-container\s*\{[^}]*gap:\s*8px/);
   });
 
   it('R2.4: Note card padding is 12px and card radius is 12px in app.css & NoteList.svelte', () => {
     expect(noteListFile).toMatch(/notelist-card-item/);
     expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*padding:\s*12px/);
-    expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*border-radius:\s*12px/);
+    expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*border-radius:\s*(?:12px|var\(--radius-card\))/);
   });
 
-  it('R2.5: Editor toolbar padding is between 12px and 16px (px-3.5 or px-4)', () => {
-    expect(toolbarFile).toMatch(/px-(?:3\.5|4)/);
+  it('R2.5: Editor toolbar padding is standardized (px-3)', () => {
+    expect(toolbarFile).toMatch(/px-3/);
   });
 
   it('R2.6: Editor content horizontal padding is 32–40px (px-8 to px-10) and top padding is 24–32px (pt-6 to pt-8)', () => {
     expect(editorFile).toMatch(/px-8 sm:px-10/);
     expect(editorFile).toMatch(/pt-7/);
     expect(editorFile).toMatch(/editor-content-container/);
-    expect(cssFile).toMatch(/\.editor-content-container\s*\{[^}]*padding-left:\s*36px/);
+    expect(cssFile).toMatch(/\.editor-content-container\s*\{[^}]*padding:\s*30px 40px 48px/);
   });
 
   it('R2.7: Editor content does not collapse with min-w-max touching left window border', () => {

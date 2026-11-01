@@ -35,11 +35,11 @@
 
   function onMouseMoveSplitter(e: MouseEvent) {
     if (isDraggingSidebar) {
-      const newWidth = Math.max(200, Math.min(380, e.clientX));
+      const newWidth = Math.max(220, Math.min(380, e.clientX));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
       const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
-      const newWidth = Math.max(240, Math.min(480, e.clientX - currentSidebarWidth));
+      const newWidth = Math.max(280, Math.min(480, e.clientX - currentSidebarWidth));
       appState.noteListWidth = newWidth;
     }
   }
@@ -159,7 +159,7 @@
   <!-- Custom macOS Window Titlebar with 3 Interactive Dots -->
   <TitleBar />
 
-  <!-- 3-Column Connected Layout (Contiguous, cohesive panels matching Image 1 & Image 2) -->
+  <!-- Three-panel workspace with consistent island gutters -->
   <main class="flex-1 flex flex-row overflow-hidden min-h-0 workspace-container">
     <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
     {#if !appState.sidebarCollapsed}
@@ -170,7 +170,7 @@
         <Sidebar />
       </aside>
 
-      <!-- Sidebar Resize Splitter Handle (Sleek divider line) -->
+      <!-- Sidebar resize gutter -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="splitter-handle transition-colors {isDraggingSidebar ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
@@ -191,7 +191,7 @@
         <NoteList />
       </section>
 
-      <!-- NoteList Resize Splitter Handle (Sleek divider line) -->
+      <!-- Notes-list resize gutter -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
         class="splitter-handle transition-colors {isDraggingNoteList ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
