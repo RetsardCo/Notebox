@@ -34,11 +34,11 @@
 
   function onMouseMoveSplitter(e: MouseEvent) {
     if (isDraggingSidebar) {
-      const newWidth = Math.max(160, Math.min(380, e.clientX));
+      const newWidth = Math.max(240, Math.min(420, e.clientX));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
       const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
-      const newWidth = Math.max(200, Math.min(450, e.clientX - currentSidebarWidth));
+      const newWidth = Math.max(300, Math.min(500, e.clientX - currentSidebarWidth));
       appState.noteListWidth = newWidth;
     }
   }

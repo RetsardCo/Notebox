@@ -50,7 +50,7 @@
 
 {#if appState.findReplaceOpen}
   <div
-    class="px-3.5 py-2 border-b flex flex-wrap items-center gap-2.5 text-xs select-none shadow-xs"
+    class="px-6 py-2 border-b flex flex-wrap items-center gap-2.5 text-xs select-none shadow-xs"
     style="background-color: var(--bg-toolbar); border-color: var(--border);"
   >
     <!-- Find Group -->

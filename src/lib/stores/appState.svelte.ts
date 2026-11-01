@@ -44,8 +44,8 @@ class AppStore {
   activeTabId = $state<string | null>(null);
 
   // UI State
-  sidebarWidth = $state<number>(240);
-  noteListWidth = $state<number>(290);
+  sidebarWidth = $state<number>(280);
+  noteListWidth = $state<number>(340);
   sidebarCollapsed = $state<boolean>(false);
   noteListCollapsed = $state<boolean>(false);
   theme = $state<string>('warm-paper');
@@ -135,8 +135,10 @@ class AppStore {
       if (savedSession && savedSession.tabs && savedSession.tabs.length > 0) {
         this.tabs = savedSession.tabs;
         this.activeTabId = savedSession.active_tab_id || savedSession.tabs[0].id;
-        this.sidebarWidth = savedSession.sidebar_width || 240;
-        this.noteListWidth = savedSession.note_list_width || 290;
+        this.sidebarWidth = savedSession.sidebar_width || 280;
+        this.noteListWidth = savedSession.note_list_width || 340;
+        if (this.sidebarWidth < 260) this.sidebarWidth = 280;
+        if (this.noteListWidth < 300) this.noteListWidth = 340;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;

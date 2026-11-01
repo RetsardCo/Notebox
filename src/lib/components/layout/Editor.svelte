@@ -451,7 +451,7 @@
   <!-- Editor Page Canvas: ALWAYS mounted to ensure TipTap binds cleanly on startup -->
   <div class="min-h-full w-full flex justify-center editor-page-container {!appState.activeTab ? 'hidden' : ''}">
     <div
-      class="w-full max-w-3xl px-8 sm:px-12 md:px-16 py-8 md:py-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
+      class="w-full max-w-3xl px-12 sm:px-16 py-8 md:py-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}

@@ -20,14 +20,14 @@
 </script>
 
 <div
-  class="h-11 flex items-center border-b px-3.5 gap-2 select-none shrink-0"
+  class="h-11 flex items-center border-b px-5 gap-2.5 select-none shrink-0"
   style="background-color: var(--bg-tabbar); border-color: var(--border);"
 >
   <!-- Pinned Leading: Sidebar Toggle Button -->
   {#if appState.sidebarCollapsed}
     <button
       onclick={() => appState.toggleSidebar()}
-      class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
+      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
       title="Show Sidebar (Ctrl+\)"
       aria-label="Show Sidebar"
     >
@@ -37,7 +37,7 @@
   {/if}
 
   <!-- Scrollable Middle: Tabs List -->
-  <div class="flex-1 flex items-center gap-2 overflow-x-auto min-w-0 py-1 no-scrollbar">
+  <div class="flex-1 flex items-center gap-2.5 overflow-x-auto min-w-0 py-1 no-scrollbar">
     {#each appState.tabs as tab (tab.id)}
       {@const isActive = appState.activeTabId === tab.id}
       <div
@@ -49,7 +49,7 @@
         onkeydown={(e) => {
           if (e.key === 'Enter') handleTabClick(tab.id);
         }}
-        class="group relative h-8 px-3.5 rounded-xl flex items-center gap-2 text-xs transition-all cursor-pointer shrink-0 max-w-[220px] min-w-[130px] select-none border {isActive ? 'shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'}"
+        class="group relative h-8 px-4 rounded-xl flex items-center gap-2.5 text-xs transition-all cursor-pointer shrink-0 max-w-[220px] min-w-[140px] select-none border {isActive ? 'shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'}"
         style={isActive
           ? 'background-color: var(--bg-tab-active); border-color: var(--border); color: var(--text-primary); font-weight: 600;'
           : 'background-color: transparent; border-color: transparent; color: var(--text-secondary);'}
@@ -87,7 +87,7 @@
   <!-- Pinned Trailing: Add Tab Button -->
   <button
     onclick={() => appState.createScratchTab()}
-    class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
+    class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
     title="New Tab (Ctrl+T)"
     aria-label="New Tab"
   >
