@@ -95,7 +95,10 @@
 
     <!-- Word Wrap -->
     <button
-      onclick={() => (appState.wordWrap = !appState.wordWrap)}
+      onclick={() => {
+        appState.wordWrap = !appState.wordWrap;
+        appState.scheduleSessionSave();
+      }}
       class="hover:underline cursor-pointer"
       title="Toggle Word Wrap"
     >

@@ -57,9 +57,20 @@
     const ctrl = e.ctrlKey || e.metaKey;
 
     if (ctrl && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'c') {
-      const sel = window.getSelection()?.toString();
-      if (sel && sel.length > 0) {
-        navigator.clipboard.writeText(sel).catch(() => {});
+      const activeEl = document.activeElement;
+      let text = '';
+      if (activeEl instanceof HTMLInputElement || activeEl instanceof HTMLTextAreaElement) {
+        const start = activeEl.selectionStart ?? 0;
+        const end = activeEl.selectionEnd ?? 0;
+        if (start !== end) {
+          text = activeEl.value.substring(start, end);
+        }
+      }
+      if (!text) {
+        text = window.getSelection()?.toString() || '';
+      }
+      if (text && text.length > 0) {
+        navigator.clipboard.writeText(text).catch(() => {});
       }
     } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'n') {
       e.preventDefault();

@@ -444,9 +444,25 @@
   function handleEditorKeyDown(e: KeyboardEvent) {
     const ctrl = e.ctrlKey || e.metaKey;
     if (ctrl && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'c') {
-      const sel = window.getSelection()?.toString();
-      if (sel && sel.length > 0) {
-        navigator.clipboard.writeText(sel).catch(() => {});
+      let text = '';
+      if (document.activeElement === titleInputElement && titleInputElement) {
+        const start = titleInputElement.selectionStart ?? 0;
+        const end = titleInputElement.selectionEnd ?? 0;
+        if (start !== end) {
+          text = titleInputElement.value.substring(start, end);
+        }
+      }
+      if (!text) {
+        text = window.getSelection()?.toString() || '';
+      }
+      if (!text && editor && editor.state) {
+        const { from, to } = editor.state.selection;
+        if (from !== to) {
+          text = editor.state.doc.textBetween(from, to, '\n');
+        }
+      }
+      if (text && text.length > 0) {
+        navigator.clipboard.writeText(text).catch(() => {});
       }
     }
   }
@@ -498,6 +514,7 @@
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}
+        <!-- svelte-ignore a11y_no_static_element_interactions -->
         <div class="note-header-area shrink-0 select-text" onclick={(e) => e.stopPropagation()} onmousedown={(e) => e.stopPropagation()}>
           <!-- Dedicated Large Note Title Input (Fully editable) -->
           <input
@@ -513,7 +530,7 @@
             style="color: var(--text-primary);"
           />
 
-          <div class="note-metadata-line px-0.5 mb-3 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
+          <div class="note-metadata-line mb-3 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
             <span>{meta.date}</span>
             <span class="opacity-40">•</span>
             <span class="capitalize">{meta.folder}</span>
@@ -528,7 +545,7 @@
 
       <div
         bind:this={editorElement}
-        class="flex-1 min-h-[500px] cursor-text select-text {!appState.wordWrap ? 'editor-no-wrap overflow-x-auto' : ''}"
+        class="flex-1 min-h-[500px] cursor-text select-text"
       ></div>
     </div>
   </div>
@@ -550,7 +567,7 @@
       <button
         onclick={() => appState.createNewNote()}
         class="px-4 py-2 rounded-xl text-xs font-semibold cursor-pointer shadow-sm hover:brightness-105 active:scale-95 transition-all"
-        style="background-color: var(--accent); color: #000;"
+        style="background-color: var(--accent); color: var(--accent-contrast, #ffffff);"
       >
         New Note
       </button>

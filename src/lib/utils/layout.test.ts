@@ -13,6 +13,7 @@ describe('Design System Spacing Hierarchy', () => {
   const editorFile = fs.readFileSync(path.join(PROJECT_ROOT, 'src/lib/components/layout/Editor.svelte'), 'utf8');
   const toolbarFile = fs.readFileSync(path.join(PROJECT_ROOT, 'src/lib/components/layout/Toolbar.svelte'), 'utf8');
   const statusBarFile = fs.readFileSync(path.join(PROJECT_ROOT, 'src/lib/components/layout/StatusBar.svelte'), 'utf8');
+  const tabBarFile = fs.readFileSync(path.join(PROJECT_ROOT, 'src/lib/components/layout/TabBar.svelte'), 'utf8');
 
   it('R2.1: Unified contiguous 3-panel layout in +page.svelte & app.css without disconnected island gutters', () => {
     // Should have workspace-container class with contiguous connected panels
@@ -67,5 +68,25 @@ describe('Design System Spacing Hierarchy', () => {
     expect(cssFile).toMatch(/--bg-canvas:\s*#ECE0F8;/);
     expect(cssFile).toMatch(/--panel-radius:\s*16px;/);
     expect(cssFile).toMatch(/\.editor-no-wrap \.ProseMirror/);
+  });
+
+  it('R2.10: Active and inactive note card color tokens and hover deletion in NoteList.svelte', () => {
+    expect(cssFile).toMatch(/--bg-notelist-card:\s*#FCF8FE;/);
+    expect(cssFile).toMatch(/--bg-notelist-active:\s*#F1E8FA;/);
+    expect(cssFile).toMatch(/--border-card-active:\s*#9D76F5;/);
+    // Verify hover delete action exists and calls deleteNote
+    expect(noteListFile).toMatch(/appState\.deleteNote\(note\.id,\s*false\)/);
+  });
+
+  it('R2.11: Distinct white floating pill active tab and visible close button in TabBar.svelte', () => {
+    expect(cssFile).toMatch(/--bg-tab-active:\s*#FFFFFF;/);
+    expect(cssFile).toMatch(/--border-tab-active:\s*#DDD3EE;/);
+    expect(tabBarFile).toMatch(/handleTabClose\(tab\.id,\s*e\)/);
+    expect(tabBarFile).toMatch(/e\.stopPropagation\(\)/);
+  });
+
+  it('R2.12: Keyboard copy (Ctrl+C) handler in +page.svelte and Editor.svelte', () => {
+    expect(pageFile).toMatch(/navigator\.clipboard\.writeText/);
+    expect(editorFile).toMatch(/navigator\.clipboard\.writeText/);
   });
 });

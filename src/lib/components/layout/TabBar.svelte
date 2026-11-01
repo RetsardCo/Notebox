@@ -140,17 +140,18 @@
         <span class="truncate text-[11.5px] flex-1 text-left">{tab.title || 'Untitled'}</span>
 
         <!-- Trailing slot for dirty indicator / close button -->
-        <div class="relative w-4 h-4 flex items-center justify-center shrink-0">
+        <div class="flex items-center gap-1 shrink-0">
           {#if tab.is_dirty}
             <span
-              class="w-1.5 h-1.5 rounded-full transition-opacity duration-150 group-hover:opacity-0"
+              class="w-1.5 h-1.5 rounded-full pointer-events-none shrink-0"
               style="background-color: var(--accent);"
+              title="Unsaved changes"
             ></span>
           {/if}
 
           <button
             onclick={(e) => handleTabClose(tab.id, e)}
-            class="flex items-center justify-center p-0.5 rounded transition-opacity duration-150 {tab.is_dirty ? 'opacity-0 group-hover:opacity-100' : (isActive ? 'opacity-70 hover:opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100')} hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
+            class="w-4 h-4 flex items-center justify-center p-0.5 rounded transition-opacity duration-150 {isActive ? 'opacity-70 hover:opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'} hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] shrink-0"
             title="Close Tab (Ctrl+W)"
             aria-label="Close Tab"
           >

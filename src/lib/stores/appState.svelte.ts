@@ -511,10 +511,10 @@ class AppStore {
   async deleteNote(noteId: string, permanent: boolean = false) {
     try {
       await noteService.deleteNote(noteId, permanent);
-      // Close tab if open
-      const tab = this.tabs.find((t) => t.note_id === noteId);
-      if (tab) {
-        this.closeTab(tab.id);
+      // Close any open tabs for this note
+      const matchingTabs = this.tabs.filter((t) => t.note_id === noteId);
+      for (const t of matchingTabs) {
+        this.closeTab(t.id);
       }
       await this.loadNotes();
       await this.loadFolders();

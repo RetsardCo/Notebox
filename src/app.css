@@ -244,6 +244,7 @@
   --accent-hover: #793DE3;
   --accent-light: #E4D1FA;
   --accent-text: #2C1A4A;
+  --accent-contrast: #FFFFFF;
 
   --border: #DDD3EE;
   --border-subtle: #E6DCF5;
@@ -725,7 +726,7 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 /* Notes list: consistent header inset, card rhythm and readable card content. */
 .panel-header-bar {
-  min-height: 48px;
+  min-height: 44px;
   padding: 0 14px;
   box-sizing: border-box;
 }
@@ -754,6 +755,10 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   cursor: pointer;
   user-select: none;
   transition: background-color 140ms ease, border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.notelist-cards-container > .notelist-card-item {
+  margin-bottom: 0;
 }
 
 .notelist-card-item:hover {
@@ -800,12 +805,29 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 /* Word Wrap Override for Windows 11 Notepad behavior */
 .editor-no-wrap .ProseMirror,
-.editor-no-wrap .ProseMirror p {
+.editor-no-wrap .ProseMirror p,
+.editor-no-wrap .ProseMirror h1,
+.editor-no-wrap .ProseMirror h2,
+.editor-no-wrap .ProseMirror h3,
+.editor-no-wrap .ProseMirror li,
+.editor-no-wrap .ProseMirror blockquote,
+.editor-no-wrap .ProseMirror pre {
   white-space: pre !important;
   word-break: normal !important;
   overflow-wrap: normal !important;
   width: max-content !important;
   min-width: 100% !important;
+}
+
+.editor-no-wrap .editor-page-container {
+  width: max-content !important;
+  min-width: 100% !important;
+}
+
+.editor-no-wrap .editor-content-container {
+  width: max-content !important;
+  min-width: 100% !important;
+  max-width: none !important;
 }
 
 .note-header-area {

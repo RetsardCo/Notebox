@@ -168,7 +168,7 @@
         <button
           onclick={() => appState.createNewNote()}
           class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:brightness-105 active:scale-95 transition-all cursor-pointer shadow-xs"
-          style="background-color: var(--accent); color: #000;"
+          style="background-color: var(--accent); color: var(--accent-contrast, #ffffff);"
         >
           New Note
         </button>
@@ -205,12 +205,12 @@
               <button
                 onclick={(e) => {
                   e.stopPropagation();
-                  const isTrash = note.is_trash;
-                  const promptMsg = isTrash
-                    ? `Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`
-                    : `Move "${note.title || 'Untitled Note'}" to trash?`;
-                  if (confirm(promptMsg)) {
-                    appState.deleteNote(note.id, isTrash);
+                  if (note.is_trash) {
+                    if (confirm(`Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`)) {
+                      appState.deleteNote(note.id, true);
+                    }
+                  } else {
+                    appState.deleteNote(note.id, false);
                   }
                 }}
                 class="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-[var(--text-tertiary)] hover:text-red-500 transition-opacity cursor-pointer shrink-0"

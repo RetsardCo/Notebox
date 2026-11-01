@@ -23,13 +23,19 @@
 </script>
 
 {#if appState.settingsOpen}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm select-none"
     onclick={() => (appState.settingsOpen = false)}
+    onkeydown={(e) => {
+      if (e.key === 'Escape') appState.settingsOpen = false;
+    }}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
     aria-labelledby="settings-modal-title"
   >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="w-full max-w-xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col max-h-[88vh]"
       style="background-color: var(--bg-modal); border-color: var(--border);"

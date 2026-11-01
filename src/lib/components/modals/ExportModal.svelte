@@ -76,13 +76,18 @@
 </script>
 
 {#if open}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm select-none"
     onclick={onClose}
+    onkeydown={(e) => {
+      if (e.key === 'Escape') onClose();
+    }}
     role="dialog"
     aria-modal="true"
     tabindex="-1"
   >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4"
       style="background-color: var(--bg-modal); border-color: var(--border);"

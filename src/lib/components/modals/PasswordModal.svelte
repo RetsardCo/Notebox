@@ -108,16 +108,24 @@
 </script>
 
 {#if appState.passwordModalOpen}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
   <div
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm select-none"
     onclick={() => {
       appState.passwordModalOpen = false;
       resetForm();
     }}
+    onkeydown={(e) => {
+      if (e.key === 'Escape') {
+        appState.passwordModalOpen = false;
+        resetForm();
+      }
+    }}
     role="dialog"
     aria-modal="true"
     tabindex="-1"
   >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       class="w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4"
       style="background-color: var(--bg-modal); border-color: var(--border);"
@@ -162,8 +170,9 @@
       <!-- Input Form -->
       <div class="space-y-3">
         <div>
-          <label class="text-[11px] font-medium" style="color: var(--text-primary);">Password</label>
+          <label for="note-password-input" class="text-[11px] font-medium" style="color: var(--text-primary);">Password</label>
           <input
+            id="note-password-input"
             type="password"
             bind:value={password}
             placeholder="Enter password..."
@@ -176,14 +185,14 @@
             }}
             class="w-full px-3 py-2 mt-1 rounded-xl border text-xs outline-none"
             style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
-            autofocus
           />
         </div>
 
         {#if appState.passwordModalMode === 'lock'}
           <div>
-            <label class="text-[11px] font-medium" style="color: var(--text-primary);">Confirm Password</label>
+            <label for="note-confirm-password-input" class="text-[11px] font-medium" style="color: var(--text-primary);">Confirm Password</label>
             <input
+              id="note-confirm-password-input"
               type="password"
               bind:value={confirmPassword}
               placeholder="Confirm password..."
@@ -225,7 +234,7 @@
           }}
           disabled={isSubmitting}
           class="px-3.5 py-1.5 rounded-xl text-xs font-medium hover:opacity-90 transition cursor-pointer shadow-xs"
-          style="background-color: var(--accent); color: #000;"
+          style="background-color: var(--accent); color: var(--accent-contrast, #ffffff);"
         >
           {appState.passwordModalMode === 'lock'
             ? 'Lock Note'
