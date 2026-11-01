@@ -270,9 +270,10 @@
         },
       },
       onUpdate: ({ editor: ed }) => {
-        if (isInternalUpdate) return;
+        if (isInternalUpdate || !ed.isFocused) return;
         const html = ed.getHTML();
         const md = htmlToMarkdown(html);
+        if (md === lastLoadedContent) return;
         lastLoadedContent = md;
         appState.updateTabContent(md);
         updateMetricsFromEditor();
@@ -322,6 +323,13 @@
       cleanedContent = cleanedContent.replace(genericH1Regex, '');
     }
 
+    // Keep tab.content and lastLoadedContent synchronized with cleanedContent
+    // without marking dirty, ensuring onUpdate or reactivity effects never trigger a false auto-save
+    if (appState.activeTab && appState.activeTab.id === tabId && appState.activeTab.content !== cleanedContent) {
+      appState.activeTab.content = cleanedContent;
+    }
+    lastLoadedContent = cleanedContent;
+
     let html = markdownToHtml(cleanedContent);
 
     // Resolve any relative image paths (e.g. .assets/images/...)
@@ -341,13 +349,19 @@
       }
     }
 
-    editor.commands.setContent(html);
-    isInternalUpdate = false;
+    editor.commands.setContent(html, { emitUpdate: false });
+    setTimeout(() => { isInternalUpdate = false; }, 300);
     updateMetricsFromEditor();
   }
 
   function handleEditorClick(e: MouseEvent) {
     const target = e.target as HTMLElement;
+
+    // Never steal focus or interfere if clicking title input, buttons, inputs, links, or header area
+    if (target.closest('input, textarea, button, a, select, [contenteditable="true"], .note-metadata-line, .note-header-area')) {
+      return;
+    }
+
     const wikiTarget = target.closest('.wiki-link');
     if (wikiTarget) {
       e.preventDefault();
@@ -358,10 +372,11 @@
       return;
     }
 
-    // Ensure editor is editable; if clicked outside text content, focus at end
-    if (editor) {
-      editor.setEditable(true);
-      if (!target.closest('.ProseMirror')) {
+    // Only focus editor if clicked inside or below the ProseMirror editor element, never in header/title area
+    if (editor && editorElement) {
+      const editorRect = editorElement.getBoundingClientRect();
+      if (e.clientY >= editorRect.top && !target.closest('.ProseMirror')) {
+        editor.setEditable(true);
         editor.chain().focus('end').run();
       }
     }
@@ -451,28 +466,35 @@
   <!-- Editor Page Canvas: ALWAYS mounted to ensure TipTap binds cleanly on startup -->
   <div class="min-h-full w-full flex justify-center editor-page-container {!appState.activeTab ? 'hidden' : ''}">
     <div
-      class="w-full max-w-3xl px-12 sm:px-16 py-8 md:py-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
+      class="w-full max-w-3xl px-8 sm:px-10 pt-7 pb-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}
-        <!-- Dedicated Large Note Title Input (Image 1 Style) -->
-        <input
-          bind:this={titleInputElement}
-          type="text"
-          value={currentNoteTitle}
-          oninput={handleTitleInput}
-          onkeydown={handleTitleKeyDown}
-          placeholder="Untitled Note"
-          class="w-full text-3xl font-bold tracking-tight bg-transparent border-none outline-none mb-2 select-text"
-          style="color: var(--text-primary);"
-        />
+        <div class="note-header-area shrink-0 select-text" onclick={(e) => e.stopPropagation()} onmousedown={(e) => e.stopPropagation()}>
+          <!-- Dedicated Large Note Title Input (Fully editable) -->
+          <input
+            bind:this={titleInputElement}
+            type="text"
+            bind:value={currentNoteTitle}
+            oninput={handleTitleInput}
+            onkeydown={handleTitleKeyDown}
+            onmousedown={(e) => e.stopPropagation()}
+            onclick={(e) => e.stopPropagation()}
+            placeholder="Untitled Note"
+            class="w-full text-3xl font-bold tracking-tight bg-transparent border-none outline-none mb-2 select-text cursor-text"
+            style="color: var(--text-primary);"
+          />
 
-        <div class="note-metadata-line px-0.5 mb-6 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
-          <span>{meta.date}</span>
-          <span class="opacity-40">•</span>
-          <span class="capitalize">{meta.folder}</span>
-          <span class="opacity-40">•</span>
-          <span>{meta.readTime}</span>
+          <div class="note-metadata-line px-0.5 mb-4 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
+            <span>{meta.date}</span>
+            <span class="opacity-40">•</span>
+            <span class="capitalize">{meta.folder}</span>
+            <span class="opacity-40">•</span>
+            <span>{meta.readTime}</span>
+          </div>
+
+          <!-- Subtle horizontal divider line beneath metadata matching Image 3 -->
+          <div class="border-b mb-6" style="border-color: var(--border-subtle);"></div>
         </div>
       {/if}
 

@@ -30,9 +30,7 @@
    ========================================================================== */
 
 /* 1. Warm Paper (Warm cream/parchment light theme - Default) */
-:root[data-theme="warm-paper"],
-:root[data-theme="light"],
-:root:not([data-theme]) {
+:root[data-theme="warm-paper"] {
   --bg-titlebar: #ede5d8;
   --bg-canvas: #ede5d8;
   --bg-sidebar: #fbf8f2;
@@ -213,12 +211,14 @@
 }
 
 /* 5. Lavender (Soft creative lilac light theme) */
-:root[data-theme="lavender"] {
+:root[data-theme="lavender"],
+:root[data-theme="light"],
+:root:not([data-theme]) {
   --bg-titlebar: #e7dcf1;
   --bg-canvas: #ded2ea;
-  --bg-sidebar: #f8f4fb;
-  --bg-sidebar-hover: #f0e8f5;
-  --bg-sidebar-active: #e5d7ee;
+  --bg-sidebar: #ece4f4;
+  --bg-sidebar-hover: #e1d4eb;
+  --bg-sidebar-active: #dcc8ec;
   --bg-notelist: #ece4f4;
   --bg-notelist-card: #ffffff;
   --bg-notelist-hover: #e1d4eb;
@@ -597,3 +597,4 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   margin: 1.25em 0;
   box-shadow: var(--shadow-sm);
 }
+

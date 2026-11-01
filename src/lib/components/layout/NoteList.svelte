@@ -97,7 +97,7 @@
   style="background-color: var(--bg-notelist);"
 >
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
-  <div class="h-10 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-10 px-3 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
       {#if appState.sidebarCollapsed}
         <button
@@ -111,7 +111,7 @@
       {/if}
 
       <div class="truncate">
-        <h2 class="font-semibold text-xs leading-tight truncate" style="color: var(--text-primary);">
+        <h2 class="font-semibold text-xs leading-tight truncate uppercase tracking-wider" style="color: var(--text-tertiary);">
           {currentViewTitle}
         </h2>
         <span class="text-[10px] font-medium" style="color: var(--text-tertiary);">
@@ -184,10 +184,8 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative w-full p-3.5 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-xs ring-1.5 ring-[var(--accent)] border-transparent' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
-          style={isSelected
-            ? 'background-color: var(--bg-notelist-active);'
-            : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle);'}
+          class="group relative w-full p-3 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm ring-2 ring-[var(--accent)] border-transparent' : 'border-[var(--border-subtle)] hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
+          style="background-color: var(--bg-notelist-card);"
         >
           <!-- Card Header: Title & Badges -->
           <div class="flex items-start justify-between gap-2 mb-2">

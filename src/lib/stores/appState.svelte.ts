@@ -44,11 +44,11 @@ class AppStore {
   activeTabId = $state<string | null>(null);
 
   // UI State
-  sidebarWidth = $state<number>(280);
-  noteListWidth = $state<number>(340);
+  sidebarWidth = $state<number>(240);
+  noteListWidth = $state<number>(300);
   sidebarCollapsed = $state<boolean>(false);
   noteListCollapsed = $state<boolean>(false);
-  theme = $state<string>('warm-paper');
+  theme = $state<string>('lavender');
   wordWrap = $state<boolean>(true);
   fontSize = $state<number>(15);
   zoomLevel = $state<number>(100);
@@ -135,32 +135,32 @@ class AppStore {
       if (savedSession && savedSession.tabs && savedSession.tabs.length > 0) {
         this.tabs = savedSession.tabs;
         this.activeTabId = savedSession.active_tab_id || savedSession.tabs[0].id;
-        this.sidebarWidth = savedSession.sidebar_width || 280;
-        this.noteListWidth = savedSession.note_list_width || 340;
-        if (this.sidebarWidth < 260) this.sidebarWidth = 280;
-        if (this.noteListWidth < 300) this.noteListWidth = 340;
+        this.sidebarWidth = savedSession.sidebar_width || 240;
+        this.noteListWidth = savedSession.note_list_width || 300;
+        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 240;
+        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 300;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;
         this.selectedTag = savedSession.selected_tag;
         this.selectedSmartFolder = savedSession.selected_smart_folder || 'all';
-        this.theme = savedSession.theme || 'warm-paper';
+        this.theme = savedSession.theme || 'lavender';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
         this.fontSize = savedSession.font_size || 15;
         this.applyTheme(this.theme);
         restored = true;
       } else if (savedSession) {
-        this.sidebarWidth = savedSession.sidebar_width || 280;
-        this.noteListWidth = savedSession.note_list_width || 340;
-        if (this.sidebarWidth < 260) this.sidebarWidth = 280;
-        if (this.noteListWidth < 300) this.noteListWidth = 340;
+        this.sidebarWidth = savedSession.sidebar_width || 240;
+        this.noteListWidth = savedSession.note_list_width || 300;
+        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 240;
+        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 300;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;
         this.selectedTag = savedSession.selected_tag;
         this.selectedSmartFolder = savedSession.selected_smart_folder || 'all';
-        this.theme = savedSession.theme || 'warm-paper';
+        this.theme = savedSession.theme || 'lavender';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
         this.fontSize = savedSession.font_size || 15;
@@ -189,7 +189,7 @@ class AppStore {
       if (typeof window !== 'undefined' && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
         resolved = 'midnight';
       } else {
-        resolved = 'warm-paper';
+        resolved = 'lavender';
       }
     } else if (theme === 'dark') {
       resolved = 'midnight';
@@ -394,6 +394,7 @@ class AppStore {
   updateActiveNoteTitle(newTitle: string) {
     const tab = this.activeTab;
     if (!tab) return;
+    if (tab.title === newTitle) return;
 
     tab.title = newTitle;
     tab.is_dirty = true;
@@ -418,14 +419,19 @@ class AppStore {
     const tab = this.activeTab;
     if (!tab) return;
 
+    // Guard: ignore if content and title have not changed
+    if (tab.content === content && (!newTitle || tab.title === newTitle)) {
+      return;
+    }
+
     tab.content = content;
     tab.is_dirty = true;
     this.saveStatus = 'dirty';
 
     if (newTitle) {
       tab.title = newTitle;
-    } else if (!tab.title || tab.title === 'Untitled' || tab.title.trim() === '') {
-      // Auto-extract first non-empty heading or line as title only if no title yet
+    } else if (!tab.note_id && (!tab.title || tab.title === 'Untitled' || tab.title.trim() === '')) {
+      // Auto-extract first non-empty heading or line as title only if no title yet on brand new scratch tabs
       const firstLine = content.split('\n').find((l) => l.trim().length > 0);
       if (firstLine) {
         tab.title = firstLine.replace(/^#+\s*/, '').trim().substring(0, 50) || 'Untitled';
@@ -444,7 +450,7 @@ class AppStore {
 
   async saveActiveNote() {
     const tab = this.activeTab;
-    if (!tab) return;
+    if (!tab || !tab.is_dirty) return;
 
     this.saveStatus = 'saving';
 
