@@ -36,10 +36,10 @@
       return [
         ...this.parent?.() || [],
         wrappingInputRule({
-          find: /^\s*([-*+]\s+\[([( |x|X])?\])\s$/,
+          find: /^\s*(?:[-*+]\s+)?\[([ xX]?)\]\s$/,
           type: this.type,
           getAttributes: (match) => ({
-            checked: match[match.length - 1]?.toLowerCase() === 'x',
+            checked: match[1]?.toLowerCase() === 'x',
           }),
         }),
       ];

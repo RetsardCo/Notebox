@@ -83,7 +83,7 @@ class AppStore {
 
   // Filtered Notes Derived
   get displayedNotes(): NoteSummary[] {
-    if (this.searchQuery.trim().length > 0 && this.searchResults.length > 0) {
+    if (this.searchQuery.trim().length > 0) {
       const matchIds = new Set(this.searchResults.map((r) => r.note_id));
       return this.notes.filter((n) => matchIds.has(n.id));
     }

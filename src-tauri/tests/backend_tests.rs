@@ -117,6 +117,19 @@ mod tests {
             |r| r.get(0),
         ).unwrap();
         assert_eq!(has_check, 1, "sync_checklist_flags must backfill has_checklist = 1 for notes with checklists");
+
+        // Now remove the checklist from the markdown file and run sync again
+        fs::write(&check_note_file, "# My Tasks\nAll done! No remaining tasks.").unwrap();
+        drop(conn);
+        db.sync_checklist_flags();
+
+        let conn = db.lock();
+        let has_check_after: i64 = conn.query_row(
+            "SELECT has_checklist FROM notes WHERE id = 'check-note-1'",
+            [],
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(has_check_after, 0, "sync_checklist_flags must clear has_checklist = 0 when checklist is removed");
     }
 
     #[test]

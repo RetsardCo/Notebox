@@ -55,6 +55,14 @@ describe('Markdown Converter', () => {
     expect(md).toContain('- [x] Task two');
   });
 
+  it('preserves rich inline formatting (bold, code, italic) inside checklist items', () => {
+    const md = '- [ ] Buy **whole** milk and `fresh` bread\n- [x] Read *Chapter 1*';
+    const html = markdownToHtml(md);
+    const roundtrip = htmlToMarkdown(html);
+    expect(roundtrip).toContain('- [ ] Buy **whole** milk and `fresh` bread');
+    expect(roundtrip).toContain('- [x] Read *Chapter 1*');
+  });
+
   it('converts wiki-links [[Note Title]] and roundtrips', () => {
     const md = 'Check out [[Project Roadmap]] and [[Meeting Notes|notes]].';
     const html = markdownToHtml(md);

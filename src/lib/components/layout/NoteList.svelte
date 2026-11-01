@@ -5,6 +5,7 @@
     Plus,
     Pin,
     Lock,
+    CheckSquare,
     Trash2,
     Copy,
     RotateCcw,
@@ -216,6 +217,9 @@
             <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
               {#if note.pinned}
                 <Pin size={12} style="color: var(--accent);" class="fill-current" />
+              {/if}
+              {#if note.has_checklist}
+                <CheckSquare size={12} style="color: var(--accent);" class="opacity-80" />
               {/if}
               {#if note.locked}
                 <Lock size={12} style="color: var(--text-secondary);" />

@@ -168,6 +168,7 @@ pub fn create_note(
         pinned: false,
         locked: false,
         is_trash: false,
+        has_checklist,
         preview,
         word_count,
         char_count,
@@ -181,7 +182,7 @@ pub fn read_note(state: State<'_, AppState>, id: String) -> Result<NoteDetail, S
 
     let mut stmt = conn.prepare(
         "SELECT n.id, n.title, n.folder_id, f.name, n.file_path, n.created_at, n.updated_at,
-                n.pinned, n.locked, n.is_trash, n.word_count, n.char_count
+                n.pinned, n.locked, n.is_trash, n.word_count, n.char_count, n.has_checklist
          FROM notes n
          LEFT JOIN folders f ON n.folder_id = f.id
          WHERE n.id = ?1",
@@ -201,10 +202,11 @@ pub fn read_note(state: State<'_, AppState>, id: String) -> Result<NoteDetail, S
             r.get::<_, bool>(9)?,
             r.get::<_, i64>(10)?,
             r.get::<_, i64>(11)?,
+            r.get::<_, bool>(12)?,
         ))
     }).map_err(|e| format!("Note not found: {}", e))?;
 
-    let (nid, title, folder_id, folder_name, rel_file_path, created_at, updated_at, pinned, locked, is_trash, word_count, char_count) = row;
+    let (nid, title, folder_id, folder_name, rel_file_path, created_at, updated_at, pinned, locked, is_trash, word_count, char_count, has_checklist) = row;
 
     let full_path = state.db.get_vault_path().join(&rel_file_path);
     let content = if locked {
@@ -247,6 +249,7 @@ pub fn read_note(state: State<'_, AppState>, id: String) -> Result<NoteDetail, S
         pinned,
         locked,
         is_trash,
+        has_checklist,
         word_count: word_count as usize,
         char_count: char_count as usize,
         tags,
@@ -350,6 +353,7 @@ pub fn save_note(
         pinned,
         locked,
         is_trash,
+        has_checklist,
         preview,
         word_count,
         char_count,
@@ -551,7 +555,7 @@ pub fn get_notes(
 
     let mut query = String::from(
         "SELECT n.id, n.title, n.folder_id, f.name, n.file_path, n.created_at, n.updated_at,
-                n.pinned, n.locked, n.is_trash, n.word_count, n.char_count, n.preview
+                n.pinned, n.locked, n.is_trash, n.word_count, n.char_count, n.preview, n.has_checklist
          FROM notes n
          LEFT JOIN folders f ON n.folder_id = f.id ",
     );
@@ -615,6 +619,7 @@ pub fn get_notes(
             word_count: r.get::<_, i64>(10)? as usize,
             char_count: r.get::<_, i64>(11)? as usize,
             preview: r.get(12)?,
+            has_checklist: r.get::<_, bool>(13).unwrap_or(false),
             tags: Vec::new(),
         })
     }).map_err(|e| e.to_string())?;

@@ -113,20 +113,21 @@ impl Database {
 
     pub fn sync_checklist_flags(&self) {
         let conn = self.lock();
-        let mut stmt = match conn.prepare("SELECT id, file_path FROM notes WHERE has_checklist = 0 AND is_trash = 0") {
+        let mut stmt = match conn.prepare("SELECT id, file_path, has_checklist FROM notes WHERE is_trash = 0") {
             Ok(s) => s,
             Err(_) => return,
         };
-        let rows = match stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?))) {
+        let rows = match stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?, r.get::<_, i64>(2)?))) {
             Ok(r) => r,
             Err(_) => return,
         };
-        let mut to_update = Vec::new();
+        let mut to_mark_has = Vec::new();
+        let mut to_mark_none = Vec::new();
         for r in rows.flatten() {
             let full_path = self.vault_path.join(&r.1);
             if let Ok(content) = fs::read_to_string(&full_path) {
                 let lower = content.to_lowercase();
-                if lower.contains("- [ ]")
+                let has = lower.contains("- [ ]")
                     || lower.contains("- [x]")
                     || lower.contains("* [ ]")
                     || lower.contains("* [x]")
@@ -136,14 +137,19 @@ impl Database {
                     || lower.contains("[x]")
                     || lower.contains("data-type=\"taskitem\"")
                     || lower.contains("data-type=\"tasklist\"")
-                    || lower.contains("task-list-item")
-                {
-                    to_update.push(r.0);
+                    || lower.contains("task-list-item");
+                if has && r.2 == 0 {
+                    to_mark_has.push(r.0);
+                } else if !has && r.2 != 0 {
+                    to_mark_none.push(r.0);
                 }
             }
         }
-        for id in to_update {
+        for id in to_mark_has {
             let _ = conn.execute("UPDATE notes SET has_checklist = 1 WHERE id = ?1", [&id]);
+        }
+        for id in to_mark_none {
+            let _ = conn.execute("UPDATE notes SET has_checklist = 0 WHERE id = ?1", [&id]);
         }
     }
 
@@ -258,8 +264,16 @@ Notebox helps you capture thoughts quickly, keep them organized, and turn ideas 
 
 ---
 
-### 🚀 Interactive Checklist Example
+### 🚀 How to Use Checklists in Notebox
+Checklists let you track tasks, action items, and todos seamlessly:
+- **Toolbar Button**: Click the checklist checkbox icon in the editor formatting bar.
+- **Keyboard Shortcut**: Press **Ctrl+Shift+C** (or **Cmd+Shift+C** on macOS) anywhere on a line.
+- **Markdown Shorthand**: Type `- [ ] ` or `[ ] ` followed by your task.
+- **Interactive Toggling**: Click directly on any checkbox in the editor to toggle it done.
+- **Smart Folder & Note Card Badge**: Notes with checklists display a **CheckSquare** badge on their cards and appear in **Quick Access > Checklists** in the sidebar.
+
 - [x] Download and open Notebox
+- [ ] Try creating a checklist with **Ctrl+Shift+C**
 - [ ] Try creating a new scratch tab with **Ctrl+T**
 - [ ] Select your favorite theme palette from the switcher
 - [ ] Pin your most important notes with **Ctrl+Shift+P**

@@ -109,7 +109,7 @@ export function htmlToMarkdown(html: string): string {
     const clean = innerContent
       .replace(/<label[^>]*>[\s\S]*?<\/label>/gi, '')
       .replace(/<input[^>]*>/gi, '')
-      .replace(/<[^>]+>/g, '')
+      .replace(/<\/?(p|div|span)[^>]*>/gi, '')
       .trim();
 
     return `- [${isChecked ? 'x' : ' '}] ${clean}\n`;
@@ -149,7 +149,10 @@ export function htmlToMarkdown(html: string): string {
   md = md.replace(/<p[^>]*>([\s\S]*?)<\/p>/gi, '$1\n\n');
 
   // 9. Standard unordered / ordered list items
-  md = md.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, c) => `- ${c.replace(/<[^>]+>/g, '').trim()}\n`);
+  md = md.replace(/<li[^>]*>([\s\S]*?)<\/li>/gi, (_, c) => {
+    const clean = c.replace(/<\/?(p|div|span)[^>]*>/gi, '').trim();
+    return `- ${clean}\n`;
+  });
 
   // 10. Inline formatting
   md = md.replace(/<(strong|b)[^>]*>([\s\S]*?)<\/\1>/gi, '**$2**');
@@ -166,7 +169,10 @@ export function htmlToMarkdown(html: string): string {
   // 12. Strip remaining wrapper tags
   md = md.replace(/<\/?(ul|ol|div|span)[^>]*>/gi, '');
 
-  // 13. Decode HTML entities & normalize newlines
+  // 13. Strip any residual unhandled HTML tags except <u>
+  md = md.replace(/<(?!\/?u\b)[^>]+>/gi, '');
+
+  // 14. Decode HTML entities & normalize newlines
   md = unescapeHtml(md);
   return md.replace(/\n{3,}/g, '\n\n').trim();
 }

@@ -45,7 +45,7 @@
     } else if (isDraggingNoteList) {
       const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
       const sidebarGutter = appState.sidebarCollapsed ? 0 : panelGutter;
-      const newWidth = Math.max(250, Math.min(480, e.clientX - workspaceLeft - outerGutter - currentSidebarWidth - sidebarGutter - panelGutter));
+      const newWidth = Math.max(250, Math.min(480, e.clientX - workspaceLeft - outerGutter - currentSidebarWidth - sidebarGutter));
       appState.noteListWidth = newWidth;
     }
   }

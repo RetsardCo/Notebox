@@ -9,6 +9,7 @@ export interface NoteSummary {
   pinned: boolean;
   locked: boolean;
   is_trash: boolean;
+  has_checklist: boolean;
   preview: string;
   word_count: number;
   char_count: number;
@@ -27,6 +28,7 @@ export interface NoteDetail {
   pinned: boolean;
   locked: boolean;
   is_trash: boolean;
+  has_checklist: boolean;
   word_count: number;
   char_count: number;
   tags: string[];
