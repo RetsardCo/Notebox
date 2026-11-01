@@ -364,6 +364,33 @@
     }
   });
 
+  let currentNoteTitle = $state('');
+
+  // Synchronize title with active tab
+  $effect(() => {
+    const tab = appState.activeTab;
+    if (tab) {
+      currentNoteTitle = tab.title || '';
+    } else {
+      currentNoteTitle = '';
+    }
+  });
+
+  function handleTitleInput(e: Event) {
+    const val = (e.target as HTMLInputElement).value;
+    currentNoteTitle = val;
+    appState.updateActiveNoteTitle(val);
+  }
+
+  function handleTitleKeyDown(e: KeyboardEvent) {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (editor) {
+        editor.chain().focus('start').run();
+      }
+    }
+  }
+
   function getNoteMetadata(tab: any): { date: string; folder: string; readTime: string } {
     const note = tab?.note_id ? appState.notes.find((n) => n.id === tab.note_id) : null;
     const dateStr = note?.updated_at || new Date().toISOString();
@@ -406,7 +433,18 @@
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}
-        <div class="note-metadata-line px-1 mb-6 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
+        <!-- Dedicated Large Note Title Input (Image 1 Style) -->
+        <input
+          type="text"
+          value={currentNoteTitle}
+          oninput={handleTitleInput}
+          onkeydown={handleTitleKeyDown}
+          placeholder="Untitled Note"
+          class="w-full text-3xl font-bold tracking-tight bg-transparent border-none outline-none mb-2 select-text"
+          style="color: var(--text-primary);"
+        />
+
+        <div class="note-metadata-line px-0.5 mb-6 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
           <span>{meta.date}</span>
           <span class="opacity-40">•</span>
           <span class="capitalize">{meta.folder}</span>

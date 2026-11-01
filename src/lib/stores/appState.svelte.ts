@@ -374,6 +374,29 @@ class AppStore {
     this.scheduleSessionSave();
   }
 
+  updateActiveNoteTitle(newTitle: string) {
+    const tab = this.activeTab;
+    if (!tab) return;
+
+    tab.title = newTitle;
+    tab.is_dirty = true;
+    this.saveStatus = 'dirty';
+
+    if (tab.note_id) {
+      const note = this.notes.find((n) => n.id === tab.note_id);
+      if (note) {
+        note.title = newTitle || 'Untitled Note';
+      }
+    }
+
+    clearTimeout(autoSaveTimer);
+    autoSaveTimer = setTimeout(() => {
+      this.saveActiveNote();
+    }, 400);
+
+    this.scheduleSessionSave();
+  }
+
   updateTabContent(content: string, newTitle?: string) {
     const tab = this.activeTab;
     if (!tab) return;
@@ -384,8 +407,8 @@ class AppStore {
 
     if (newTitle) {
       tab.title = newTitle;
-    } else {
-      // Auto-extract first non-empty heading or line as title
+    } else if (!tab.title || tab.title === 'Untitled' || tab.title.trim() === '') {
+      // Auto-extract first non-empty heading or line as title only if no title yet
       const firstLine = content.split('\n').find((l) => l.trim().length > 0);
       if (firstLine) {
         tab.title = firstLine.replace(/^#+\s*/, '').trim().substring(0, 50) || 'Untitled';

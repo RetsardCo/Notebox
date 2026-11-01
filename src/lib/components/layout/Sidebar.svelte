@@ -121,33 +121,23 @@
   class="flex flex-col h-full select-none border-r shrink-0 overflow-hidden"
   style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar); border-color: var(--border);"
 >
-  <!-- Window Header / Brand (Image 1 Style) -->
-  <div class="h-13 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
-    <div class="flex items-center gap-2.5">
-      <img
-        src="/notebox-icon.png"
-        class="w-7 h-7 rounded-lg object-contain shadow-xs"
-        alt="Notebox"
-      />
-      <span class="font-semibold text-sm tracking-tight" style="color: var(--text-primary);">Notebox</span>
-    </div>
-
-    <div class="flex items-center gap-1">
-      <button
-        onclick={() => appState.toggleSidebar()}
-        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-        title="Hide Sidebar (Ctrl+\)"
-        aria-label="Hide Sidebar"
-      >
-        <PanelLeftClose size={16} />
-      </button>
-    </div>
+  <!-- Sidebar Header Aligned with Column 2 and Column 3 -->
+  <div class="h-11 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+    <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">Sidebar</span>
+    <button
+      onclick={() => appState.toggleSidebar()}
+      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      title="Hide Sidebar (Ctrl+\)"
+      aria-label="Hide Sidebar"
+    >
+      <PanelLeftClose size={15} />
+    </button>
   </div>
 
-  <!-- Search Pill with Ctrl K Shortcut (Image 1 Style) -->
-  <div class="px-3 pt-3 pb-2 shrink-0">
+  <!-- Inset Search Pill with Ctrl K Shortcut (Image 1 Style) -->
+  <div class="px-4 pt-3 pb-2 shrink-0">
     <div
-      class="flex items-center gap-2 px-3 py-1.5 rounded-full border text-xs shadow-xs transition-colors"
+      class="flex items-center gap-2 mx-1 my-2.5 px-3.5 py-2 rounded-full border text-xs shadow-xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border);"
     >
       <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
@@ -175,18 +165,18 @@
     </div>
   </div>
 
-  <!-- Scrollable Navigation Section with Generous Breathing Room -->
-  <div class="flex-1 overflow-y-auto px-3 py-2 space-y-4">
+  <!-- Scrollable Navigation Section with Generous Insets -->
+  <div class="flex-1 overflow-y-auto px-4 pt-3 pb-3 space-y-4">
     <!-- Quick Access Section -->
-    <div class="space-y-1">
-      <div class="px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div>
+      <div class="px-1 mt-6 mb-2.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         Quick Access
       </div>
 
       <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
+        class="w-full h-9 px-3 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'all'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
@@ -203,7 +193,7 @@
       <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
+        class="w-full h-9 px-3 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'pinned'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
@@ -220,7 +210,7 @@
       <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
+        class="w-full h-9 px-3 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'checklist'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
@@ -237,7 +227,7 @@
       <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
+        class="w-full h-9 px-3 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
         style={appState.selectedSmartFolder === 'trash'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
@@ -253,8 +243,8 @@
     </div>
 
     <!-- Folders Section -->
-    <div class="space-y-1 pt-1">
-      <div class="flex items-center justify-between px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div>
+      <div class="flex items-center justify-between px-1 mt-6 mb-2.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Folders</span>
         <button
           onclick={() => (showNewFolderInput = true)}
@@ -311,7 +301,7 @@
       {#each appState.folders as folder (folder.id)}
         {@const isSelected = appState.selectedFolderId === folder.id}
         <div
-          class="group flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
+          class="group h-9 px-3 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
           style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
             : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
@@ -376,8 +366,8 @@
     </div>
 
     <!-- Tags Section -->
-    <div class="space-y-1 pt-1">
-      <div class="flex items-center justify-between px-2.5 pb-1 text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+    <div>
+      <div class="flex items-center justify-between px-1 mt-6 mb-2.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Tags</span>
         <button
           onclick={() => (showNewTagInput = true)}
@@ -435,7 +425,7 @@
         {@const isSelected = appState.selectedTag === tag.name}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-full flex items-center justify-between px-3 py-2 rounded-xl text-xs font-medium transition-all cursor-pointer"
+          class="w-full h-9 px-3 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer"
           style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
             : 'color: var(--text-primary); hover:background-color: var(--bg-sidebar-hover);'}
@@ -452,8 +442,8 @@
     </div>
   </div>
 
-  <!-- Bottom Bar: Settings and Palette Library Switcher (Image 1 Style) -->
-  <div class="p-2.5 px-3.5 border-t flex items-center justify-between text-xs shrink-0 relative" style="border-color: var(--border-subtle); background-color: var(--bg-sidebar);">
+  <!-- Bottom Floating Footer Card for Settings and Palette Switcher (Image 1 Style) -->
+  <div class="m-3 p-2 rounded-2xl border shadow-xs flex items-center justify-between text-xs shrink-0 relative transition-colors" style="border-color: var(--border-subtle); background-color: var(--bg-notelist-card);">
     <!-- Settings Button (Image 1 bottom left) -->
     <button
       onclick={() => (appState.settingsOpen = true)}
@@ -475,7 +465,7 @@
         title="Personalization: Color Palette Library"
         aria-label="Color Palette Switcher"
       >
-        <span class="w-4 h-4 rounded-full border shadow-xs shrink-0" style="background-color: var(--accent); border-color: var(--border);"></span>
+        <span class="w-4 h-4 rounded-full border shadow-2xs shrink-0" style="background-color: var(--accent); border-color: rgba(0,0,0,0.15);"></span>
       </button>
 
       <!-- Palette Dropdown Popover (Exact 6 themes from Image 1) -->

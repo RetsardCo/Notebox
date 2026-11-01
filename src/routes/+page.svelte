@@ -1,6 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { appState } from '$lib/stores/appState.svelte';
+  import TitleBar from '$lib/components/layout/TitleBar.svelte';
   import Sidebar from '$lib/components/layout/Sidebar.svelte';
   import NoteList from '$lib/components/layout/NoteList.svelte';
   import TabBar from '$lib/components/layout/TabBar.svelte';
@@ -148,75 +149,81 @@
   <title>Notebox — {appState.activeTab?.title || 'Notes'}</title>
 </svelte:head>
 
-<main class="w-screen h-screen flex flex-row overflow-hidden">
-  <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
-  <div
-    class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
-    style="width: {appState.sidebarCollapsed ? 0 : appState.sidebarWidth}px;"
-  >
-    <Sidebar />
-  </div>
+<div class="w-screen h-screen flex flex-col overflow-hidden select-none" style="background-color: var(--bg-titlebar);">
+  <!-- Custom macOS Window Titlebar with 3 Interactive Dots -->
+  <TitleBar />
 
-  <!-- Sidebar Resize Handle -->
-  {#if !appState.sidebarCollapsed}
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+  <!-- 3-Column Work Area -->
+  <main class="flex-1 flex flex-row overflow-hidden min-h-0">
+    <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
     <div
-      class="w-1 {isDraggingSidebar ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
-      onmousedown={onMouseDownSidebarSplitter}
-      role="separator"
-      tabindex="-1"
-      aria-orientation="vertical"
-      aria-valuenow={appState.sidebarWidth}
-    ></div>
-  {/if}
+      class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
+      style="width: {appState.sidebarCollapsed ? 0 : appState.sidebarWidth}px;"
+    >
+      <Sidebar />
+    </div>
 
-  <!-- Column 2: Note Cards List -->
-  <div
-    class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
-    style="width: {appState.noteListCollapsed ? 0 : appState.noteListWidth}px;"
-  >
-    <NoteList />
-  </div>
+    <!-- Sidebar Resize Handle -->
+    {#if !appState.sidebarCollapsed}
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="w-1 {isDraggingSidebar ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
+        onmousedown={onMouseDownSidebarSplitter}
+        role="separator"
+        tabindex="-1"
+        aria-orientation="vertical"
+        aria-valuenow={appState.sidebarWidth}
+      ></div>
+    {/if}
 
-  <!-- NoteList Resize Handle -->
-  {#if !appState.noteListCollapsed}
-    <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+    <!-- Column 2: Note Cards List -->
     <div
-      class="w-1 {isDraggingNoteList ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
-      onmousedown={onMouseDownNoteListSplitter}
-      role="separator"
-      tabindex="-1"
-      aria-orientation="vertical"
-      aria-valuenow={appState.noteListWidth}
-    ></div>
-  {/if}
+      class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
+      style="width: {appState.noteListCollapsed ? 0 : appState.noteListWidth}px;"
+    >
+      <NoteList />
+    </div>
 
-  <!-- Column 3: Main Area (Tabs, Toolbar, Editor, Status Bar) -->
-  <section class="flex-1 flex flex-col h-full overflow-hidden min-w-[320px]">
-    <!-- Tab Bar (Windows 11 Notepad-style Tabs) -->
-    <TabBar />
+    <!-- NoteList Resize Handle -->
+    {#if !appState.noteListCollapsed}
+      <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+      <div
+        class="w-1 {isDraggingNoteList ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
+        onmousedown={onMouseDownNoteListSplitter}
+        role="separator"
+        tabindex="-1"
+        aria-orientation="vertical"
+        aria-valuenow={appState.noteListWidth}
+      ></div>
+    {/if}
 
-    <!-- Apple Notes Formatting Toolbar -->
-    <Toolbar
-      onCommand={(cmd, arg) => editorComponent?.executeCommand(cmd, arg)}
-      onImageUpload={() => editorComponent?.triggerImageUpload()}
-      onExport={() => (exportModalOpen = true)}
-    />
+    <!-- Column 3: Main Area (Tabs, Toolbar, Editor, Status Bar) -->
+    <section class="flex-1 flex flex-col h-full overflow-hidden min-w-[320px]">
+      <!-- Tab Bar (Windows 11 Notepad-style Tabs) -->
+      <TabBar />
 
-    <!-- In-Note Find & Replace Bar (Ctrl+H) -->
-    <FindReplace
-      onFind={(q, f) => editorComponent?.findText(q, f)}
-      onReplace={(s, r) => editorComponent?.replaceText(s, r)}
-      onReplaceAll={(s, r) => editorComponent?.replaceAllText(s, r)}
-    />
+      <!-- Apple Notes Formatting Toolbar -->
+      <Toolbar
+        onCommand={(cmd, arg) => editorComponent?.executeCommand(cmd, arg)}
+        onImageUpload={() => editorComponent?.triggerImageUpload()}
+        onExport={() => (exportModalOpen = true)}
+      />
 
-    <!-- TipTap Markdown Editor -->
-    <Editor bind:this={editorComponent} />
+      <!-- In-Note Find & Replace Bar (Ctrl+H) -->
+      <FindReplace
+        onFind={(q, f) => editorComponent?.findText(q, f)}
+        onReplace={(s, r) => editorComponent?.replaceText(s, r)}
+        onReplaceAll={(s, r) => editorComponent?.replaceAllText(s, r)}
+      />
 
-    <!-- Windows 11 Notepad Status Bar -->
-    <StatusBar />
-  </section>
-</main>
+      <!-- TipTap Markdown Editor -->
+      <Editor bind:this={editorComponent} />
+
+      <!-- Windows 11 Notepad Status Bar -->
+      <StatusBar />
+    </section>
+  </main>
+</div>
 
 <!-- Modals -->
 <SettingsModal />

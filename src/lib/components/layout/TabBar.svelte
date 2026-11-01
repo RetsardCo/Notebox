@@ -20,7 +20,7 @@
 </script>
 
 <div
-  class="h-12 flex items-center border-b px-4 gap-2.5 select-none shrink-0"
+  class="h-11 flex items-center border-b px-3.5 gap-2 select-none shrink-0"
   style="background-color: var(--bg-tabbar); border-color: var(--border);"
 >
   <!-- Pinned Leading: Sidebar Toggle Button -->

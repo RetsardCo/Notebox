@@ -13,6 +13,7 @@
 :root[data-theme="warm-paper"],
 :root[data-theme="light"],
 :root:not([data-theme]) {
+  --bg-titlebar: #ede5d8;
   --bg-sidebar: #fbf8f2;
   --bg-sidebar-hover: #f3ede2;
   --bg-sidebar-active: #ebdccb;
@@ -39,8 +40,8 @@
   --accent-light: rgba(196, 129, 55, 0.14);
   --accent-text: #8a4f15;
 
-  --border: rgba(44, 34, 30, 0.10);
-  --border-subtle: rgba(44, 34, 30, 0.05);
+  --border: rgba(44, 34, 30, 0.12);
+  --border-subtle: rgba(44, 34, 30, 0.06);
   --border-focus: #c48137;
 
   --callout-bg: #f4ecdf;
@@ -57,13 +58,14 @@
 /* 2. Midnight (Sleek deep slate/navy dark theme) */
 :root[data-theme="midnight"],
 :root[data-theme="dark"] {
+  --bg-titlebar: #0d1218;
   --bg-sidebar: #121820;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(56, 189, 248, 0.14);
-  --bg-notelist: #161e28;
-  --bg-notelist-card: #1c2633;
-  --bg-notelist-hover: #232f3e;
-  --bg-notelist-active: #1d334a;
+  --bg-notelist: #141b24;
+  --bg-notelist-card: #1f2a38;
+  --bg-notelist-hover: #273647;
+  --bg-notelist-active: #1d3652;
   --bg-editor: #121820;
   --bg-toolbar: #121820;
   --bg-tabbar: #0d1218;
@@ -83,8 +85,8 @@
   --accent-light: rgba(56, 189, 248, 0.15);
   --accent-text: #38bdf8;
 
-  --border: rgba(255, 255, 255, 0.09);
-  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-subtle: rgba(255, 255, 255, 0.06);
   --border-focus: #38bdf8;
 
   --callout-bg: #192534;
@@ -100,13 +102,14 @@
 
 /* 3. Forest (Refreshing nature green dark theme) */
 :root[data-theme="forest"] {
+  --bg-titlebar: #0b1510;
   --bg-sidebar: #101c16;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(16, 185, 129, 0.16);
-  --bg-notelist: #14241c;
-  --bg-notelist-card: #1a2e24;
-  --bg-notelist-hover: #21382c;
-  --bg-notelist-active: #1e4131;
+  --bg-notelist: #13221b;
+  --bg-notelist-card: #1d3328;
+  --bg-notelist-hover: #254233;
+  --bg-notelist-active: #1e4d36;
   --bg-editor: #101c16;
   --bg-toolbar: #101c16;
   --bg-tabbar: #0b1510;
@@ -126,8 +129,8 @@
   --accent-light: rgba(16, 185, 129, 0.18);
   --accent-text: #34d399;
 
-  --border: rgba(255, 255, 255, 0.09);
-  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-subtle: rgba(255, 255, 255, 0.06);
   --border-focus: #10b981;
 
   --callout-bg: #152b20;
@@ -143,6 +146,7 @@
 
 /* 4. Ocean (Clean airy light blue theme) */
 :root[data-theme="ocean"] {
+  --bg-titlebar: #dce7f2;
   --bg-sidebar: #f0f5fa;
   --bg-sidebar-hover: #e4ecf3;
   --bg-sidebar-active: #d4e3ef;
@@ -169,8 +173,8 @@
   --accent-light: rgba(2, 132, 199, 0.15);
   --accent-text: #0369a1;
 
-  --border: rgba(12, 35, 56, 0.10);
-  --border-subtle: rgba(12, 35, 56, 0.05);
+  --border: rgba(12, 35, 56, 0.12);
+  --border-subtle: rgba(12, 35, 56, 0.06);
   --border-focus: #0284c7;
 
   --callout-bg: #e2ecf6;
@@ -186,6 +190,7 @@
 
 /* 5. Lavender (Soft creative lilac light theme) */
 :root[data-theme="lavender"] {
+  --bg-titlebar: #e7dcf1;
   --bg-sidebar: #f8f4fb;
   --bg-sidebar-hover: #f0e8f5;
   --bg-sidebar-active: #e5d7ee;
@@ -212,8 +217,8 @@
   --accent-light: rgba(139, 92, 246, 0.15);
   --accent-text: #7c3aed;
 
-  --border: rgba(40, 20, 56, 0.10);
-  --border-subtle: rgba(40, 20, 56, 0.05);
+  --border: rgba(40, 20, 56, 0.12);
+  --border-subtle: rgba(40, 20, 56, 0.06);
   --border-focus: #8b5cf6;
 
   --callout-bg: #efe5f8;
@@ -229,13 +234,14 @@
 
 /* 6. Sunset (Warm vibrant plum dark theme) */
 :root[data-theme="sunset"] {
+  --bg-titlebar: #1a1215;
   --bg-sidebar: #22181c;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(249, 115, 22, 0.16);
-  --bg-notelist: #2a1e23;
-  --bg-notelist-card: #35252c;
-  --bg-notelist-hover: #3f2d35;
-  --bg-notelist-active: #4a2f3a;
+  --bg-notelist: #271c21;
+  --bg-notelist-card: #3a2730;
+  --bg-notelist-hover: #48313c;
+  --bg-notelist-active: #4d2737;
   --bg-editor: #22181c;
   --bg-toolbar: #22181c;
   --bg-tabbar: #1a1215;
@@ -255,8 +261,8 @@
   --accent-light: rgba(249, 115, 22, 0.18);
   --accent-text: #fb923c;
 
-  --border: rgba(255, 255, 255, 0.09);
-  --border-subtle: rgba(255, 255, 255, 0.05);
+  --border: rgba(255, 255, 255, 0.10);
+  --border-subtle: rgba(255, 255, 255, 0.06);
   --border-focus: #f97316;
 
   --callout-bg: #302027;

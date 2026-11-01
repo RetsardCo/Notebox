@@ -89,7 +89,7 @@
   style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist); border-color: var(--border);"
 >
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
-  <div class="h-13 px-4 py-2 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-11 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
       {#if appState.sidebarCollapsed}
         <button
@@ -103,10 +103,10 @@
       {/if}
 
       <div class="truncate">
-        <h2 class="font-semibold text-sm leading-tight truncate" style="color: var(--text-primary);">
+        <h2 class="font-semibold text-xs leading-tight truncate" style="color: var(--text-primary);">
           {currentViewTitle}
         </h2>
-        <span class="text-[11px] font-medium" style="color: var(--text-tertiary);">
+        <span class="text-[10px] font-medium" style="color: var(--text-tertiary);">
           {appState.displayedNotes.length} {appState.displayedNotes.length === 1 ? 'note' : 'notes'}
         </span>
       </div>
@@ -152,7 +152,7 @@
   </div>
 
   <!-- Notes List / Cards Container with Generous Breathing Room -->
-  <div class="flex-1 overflow-y-auto px-3.5 py-3 space-y-2.5">
+  <div class="flex-1 overflow-y-auto px-1 py-1.5">
     {#if appState.displayedNotes.length === 0}
       <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
         <p class="font-medium mb-1">No notes found</p>
@@ -176,9 +176,9 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative mx-1 my-2 p-4.5 rounded-2xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm ring-1 ring-[var(--accent)]' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
+          class="group relative mx-3 my-2.5 p-4 rounded-2xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-md ring-2 ring-[var(--accent)] border-transparent' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
           style={isSelected
-            ? 'background-color: var(--bg-notelist-active); border-color: var(--accent);'
+            ? 'background-color: var(--bg-notelist-active);'
             : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle);'}
         >
           <!-- Card Header: Title & Badges -->
