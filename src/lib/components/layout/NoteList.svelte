@@ -122,40 +122,58 @@
 
     <!-- Header Actions -->
     <div class="flex items-center gap-1.5 shrink-0">
-      <!-- Sort Select -->
-      <div class="relative flex items-center">
-        <select
-          value={appState.sortBy}
-          onchange={(e) => {
-            appState.sortBy = (e.target as HTMLSelectElement).value as SortOption;
-            appState.loadNotes();
-          }}
-          class="opacity-0 absolute inset-0 cursor-pointer w-full h-full z-10"
-          title="Sort notes"
-          aria-label="Sort notes"
-        >
-          <option value="updated">Date Edited</option>
-          <option value="created">Date Created</option>
-          <option value="title">Title</option>
-        </select>
-        <button
-          class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
-          title="Sort Options"
-          aria-label="Sort Options"
-        >
-          <SlidersHorizontal size={15} />
-        </button>
-      </div>
+      {#if appState.selectedSmartFolder === 'trash'}
+        {#if appState.displayedNotes.length > 0}
+          <button
+            onclick={() => {
+              if (confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.')) {
+                appState.emptyTrash();
+              }
+            }}
+            class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs text-white bg-red-500 hover:bg-red-600"
+            title="Permanently Delete All Notes in Recently Deleted"
+            aria-label="Delete All Notes in Recently Deleted"
+          >
+            <Trash2 size={13} />
+            <span>Delete All</span>
+          </button>
+        {/if}
+      {:else}
+        <!-- Sort Select -->
+        <div class="relative flex items-center">
+          <select
+            value={appState.sortBy}
+            onchange={(e) => {
+              appState.sortBy = (e.target as HTMLSelectElement).value as SortOption;
+              appState.loadNotes();
+            }}
+            class="opacity-0 absolute inset-0 cursor-pointer w-full h-full z-10"
+            title="Sort notes"
+            aria-label="Sort notes"
+          >
+            <option value="updated">Date Edited</option>
+            <option value="created">Date Created</option>
+            <option value="title">Title</option>
+          </select>
+          <button
+            class="p-1.5 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer"
+            title="Sort Options"
+            aria-label="Sort Options"
+          >
+            <SlidersHorizontal size={15} />
+          </button>
+        </div>
 
-      <!-- Compose / New Note Button -->
-      <button
-        onclick={() => appState.createNewNote()}
-        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-primary)]"
-        title="New Note (Ctrl+N)"
-        aria-label="New Note"
-      >
-        <SquarePen size={16} style="color: var(--accent);" />
-      </button>
+        <!-- Compose / New Note Button -->
+        <button
+          onclick={() => appState.createNewNote()}
+          class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-primary)]"
+          title="New Note (Ctrl+N)"
+          aria-label="New Note"
+        >
+          <SquarePen size={16} style="color: var(--accent);" />
+        </button>
+      {/if}
     </div>
   </div>
 
@@ -262,19 +280,22 @@
   </div>
 
   <!-- Trash Bar if in trash mode -->
-  {#if appState.selectedSmartFolder === 'trash' && appState.notes.length > 0}
-    <div class="px-4 py-2.5 border-t flex items-center justify-between shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-notelist);">
-      <span class="text-xs font-medium" style="color: var(--text-secondary);">Recently Deleted</span>
+  {#if appState.selectedSmartFolder === 'trash' && appState.displayedNotes.length > 0}
+    <div class="px-3.5 py-2 border-t flex items-center justify-between shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-notelist);">
+      <span class="text-[11px] font-medium" style="color: var(--text-secondary);">
+        {appState.displayedNotes.length} {appState.displayedNotes.length === 1 ? 'note' : 'notes'} in Recently Deleted
+      </span>
       <button
         onclick={() => {
-          if (confirm('Permanently delete all notes in Trash? This cannot be undone.')) {
+          if (confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.')) {
             appState.emptyTrash();
           }
         }}
-        class="px-3 py-1.5 text-xs rounded-xl hover:opacity-90 active:scale-95 transition-all cursor-pointer font-semibold shadow-xs"
-        style="background-color: #ef4444; color: #fff;"
+        class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-xl hover:opacity-90 active:scale-95 transition-all cursor-pointer font-semibold shadow-xs text-white bg-red-500 hover:bg-red-600"
+        title="Permanently Delete All Notes"
       >
-        Empty Trash
+        <Trash2 size={13} />
+        <span>Delete All Notes</span>
       </button>
     </div>
   {/if}

@@ -27,6 +27,18 @@
   let newFolderName = $state('');
   let showNewTagInput = $state(false);
   let newTagName = $state('');
+  let newTagColor = $state('#8b5cf6');
+
+  const TAG_COLORS = [
+    '#8b5cf6', // Purple
+    '#3b82f6', // Blue
+    '#10b981', // Green
+    '#f59e0b', // Amber / Yellow
+    '#ef4444', // Red
+    '#ec4899', // Pink
+    '#06b6d4', // Cyan
+    '#f97316', // Orange
+  ];
 
   let editingFolderId = $state<string | null>(null);
   let editFolderName = $state('');
@@ -70,9 +82,10 @@
       return;
     }
     try {
-      await tagService.createTag(newTagName.trim());
+      await tagService.createTag(newTagName.trim(), newTagColor);
       await appState.loadTags();
       newTagName = '';
+      newTagColor = '#8b5cf6';
       showNewTagInput = false;
     } catch (e) {
       console.error('Failed to create tag:', e);
@@ -382,11 +395,11 @@
         </button>
       </div>
 
-      <!-- New Tag Input -->
+      <!-- New Tag Input & Color Selector -->
       {#if showNewTagInput}
-        <div class="mx-3 my-1">
-          <div class="flex items-center gap-2.5 px-4 py-2 rounded-xl border shadow-xs" style="background-color: var(--bg-input); border-color: var(--accent);">
-            <TagIcon size={14} style="color: var(--accent);" class="shrink-0" />
+        <div class="mx-3 my-1.5 p-2.5 rounded-xl border shadow-xs space-y-2" style="background-color: var(--bg-input); border-color: var(--accent);">
+          <div class="flex items-center gap-2">
+            <span class="w-3 h-3 rounded-full shrink-0 shadow-2xs" style="background-color: {newTagColor};"></span>
             <input
               type="text"
               bind:value={newTagName}
@@ -398,14 +411,7 @@
                   newTagName = '';
                 }
               }}
-              onblur={() => {
-                if (newTagName.trim()) {
-                  handleCreateTag();
-                } else {
-                  showNewTagInput = false;
-                }
-              }}
-              class="w-full bg-transparent text-xs outline-none"
+              class="w-full bg-transparent text-xs outline-none font-medium"
               style="color: var(--text-primary);"
               use:autoFocus
             />
@@ -419,6 +425,36 @@
               title="Cancel"
             >
               <X size={12} />
+            </button>
+          </div>
+
+          <!-- Color Swatches & Add Button -->
+          <div class="flex items-center justify-between pt-1 border-t border-[var(--border-subtle)]">
+            <div class="flex items-center gap-1.5">
+              {#each TAG_COLORS as col}
+                <button
+                  type="button"
+                  onmousedown={(e) => {
+                    e.preventDefault();
+                    newTagColor = col;
+                  }}
+                  class="w-3.5 h-3.5 rounded-full transition-all cursor-pointer {newTagColor === col ? 'ring-2 ring-offset-1 ring-[var(--accent)] scale-110' : 'hover:scale-110 opacity-75 hover:opacity-100'}"
+                  style="background-color: {col};"
+                  title={col}
+                  aria-label={`Select color ${col}`}
+                ></button>
+              {/each}
+            </div>
+
+            <button
+              type="button"
+              onmousedown={(e) => {
+                e.preventDefault();
+                handleCreateTag();
+              }}
+              class="px-2.5 py-0.5 rounded-md text-[11px] font-semibold text-white bg-[var(--accent)] hover:brightness-105 transition cursor-pointer shadow-2xs"
+            >
+              Add
             </button>
           </div>
         </div>

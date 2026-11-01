@@ -252,6 +252,7 @@ class AppStore {
       this.checklistCount = check.length;
       const trash = await noteService.getNotes(null, null, 'trash');
       this.trashCount = trash.length;
+      await this.loadTags();
     } catch (e) {
       console.warn('Failed to load counts:', e);
     }
@@ -462,6 +463,7 @@ class AppStore {
         tab.is_dirty = false;
         this.saveStatus = 'saved';
         await this.loadNotes();
+        await this.loadTags();
       } else if (tab.content.trim().length > 0 || (tab.title && tab.title !== 'Untitled' && tab.title.trim().length > 0)) {
         await this.convertScratchToNote();
         this.saveStatus = 'saved';
@@ -491,6 +493,7 @@ class AppStore {
       tab.is_dirty = false;
       await this.loadNotes();
       await this.loadFolders();
+      await this.loadTags();
       this.scheduleSessionSave();
     } catch (e) {
       console.error('Failed to convert scratch to note:', e);
