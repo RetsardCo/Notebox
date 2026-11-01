@@ -107,7 +107,7 @@
     <div class="flex items-center gap-2 pointer-events-none">
       <img
         src="/notebox-icon.png"
-        class="w-4.5 h-4.5 rounded-md object-contain shadow-2xs"
+        class="w-5 h-5 object-contain"
         alt="Notebox"
       />
       <span class="text-xs font-semibold tracking-tight" style="color: var(--text-primary);">
