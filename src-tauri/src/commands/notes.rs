@@ -76,7 +76,7 @@ pub fn create_note(
     content: Option<String>,
 ) -> Result<NoteSummary, String> {
     let id = Uuid::new_v4().to_string();
-    let initial_content = content.unwrap_or_else(|| "# Untitled Note\n\nStart typing here...".to_string());
+    let initial_content = content.unwrap_or_default();
     let note_title = sanitize_title(&title.unwrap_or_default(), &initial_content);
     let preview = extract_preview(&initial_content);
     let word_count = initial_content.split_whitespace().count();

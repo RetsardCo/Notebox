@@ -191,9 +191,7 @@ impl Database {
             let welcome_rel_path = "Personal/Welcome to Notebox.md";
             let welcome_file_path = self.vault_path.join(welcome_rel_path);
 
-            let welcome_content = r#"# Welcome to Notebox
-
-![Welcome to Notebox](/welcome-banner.jpg)
+            let welcome_content = r#"![Welcome to Notebox](/welcome-banner.jpg)
 
 > 🪶 *Your notes, ideas, and knowledge in one place.*
 

@@ -306,7 +306,23 @@
     isInternalUpdate = true;
     lastLoadedTabId = tabId;
     lastLoadedContent = content;
-    let html = markdownToHtml(content);
+
+    // Clean leading duplicate H1 heading matching note title (so title is not rendered twice)
+    let cleanedContent = content;
+    const tabTitle = appState.activeTab?.title;
+    if (tabTitle && tabTitle.trim().length > 0) {
+      const escaped = tabTitle.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const leadingH1Regex = new RegExp(`^#\\s+${escaped}\\s*\\r?\\n+`, 'i');
+      if (leadingH1Regex.test(cleanedContent)) {
+        cleanedContent = cleanedContent.replace(leadingH1Regex, '');
+      }
+    }
+    const genericH1Regex = /^#\s+(?:Untitled Note|Untitled)\s*\r?\n+/i;
+    if (genericH1Regex.test(cleanedContent)) {
+      cleanedContent = cleanedContent.replace(genericH1Regex, '');
+    }
+
+    let html = markdownToHtml(cleanedContent);
 
     // Resolve any relative image paths (e.g. .assets/images/...)
     if (isTauri && html.includes('.assets/images/')) {
@@ -365,13 +381,19 @@
   });
 
   let currentNoteTitle = $state('');
+  let titleInputElement = $state<HTMLInputElement | null>(null);
+  let lastActiveTabId: string | null = null;
 
-  // Synchronize title with active tab
+  // Synchronize title with active tab safely without resetting cursor when typing
   $effect(() => {
     const tab = appState.activeTab;
-    if (tab) {
+    const tabId = tab?.id ?? null;
+    if (tabId !== lastActiveTabId) {
+      lastActiveTabId = tabId;
+      currentNoteTitle = tab?.title || '';
+    } else if (tab && document.activeElement !== titleInputElement) {
       currentNoteTitle = tab.title || '';
-    } else {
+    } else if (!tab) {
       currentNoteTitle = '';
     }
   });
@@ -400,7 +422,7 @@
       formattedDate = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
     } catch {}
     const folder = note?.folder_name || 'Personal';
-    const words = note?.word_count || appState.wordCount || 0;
+    const words = appState.wordCount || note?.word_count || 0;
     const readTime = `${Math.max(1, Math.ceil(words / 200))} min read`;
     return { date: formattedDate, folder, readTime };
   }
@@ -435,6 +457,7 @@
         {@const meta = getNoteMetadata(appState.activeTab)}
         <!-- Dedicated Large Note Title Input (Image 1 Style) -->
         <input
+          bind:this={titleInputElement}
           type="text"
           value={currentNoteTitle}
           oninput={handleTitleInput}

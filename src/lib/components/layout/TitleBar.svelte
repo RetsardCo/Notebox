@@ -49,13 +49,6 @@
     }
   }
 
-  function handleTitlebarDoubleClick(e: MouseEvent) {
-    // Only toggle maximize if double clicked on the background titlebar region
-    const target = e.target as HTMLElement;
-    if (target.closest('button') || target.closest('[role="dialog"]')) return;
-    handleToggleMaximize();
-  }
-
   function closeThemePicker() {
     showThemePicker = false;
   }
@@ -67,16 +60,15 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <header
   data-tauri-drag-region
-  ondblclick={handleTitlebarDoubleClick}
   class="h-10.5 px-3.5 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
   style="background-color: var(--bg-titlebar); border-color: var(--border-subtle);"
   role="region"
   aria-label="Window Title Bar"
 >
   <!-- Left Side: macOS 3 Interactive Traffic Lights & App Brand -->
-  <div class="flex items-center gap-3">
+  <div class="flex items-center gap-3 h-full">
     <!-- 3 Interactive Dots (macOS style with subtle hover glyphs) -->
-    <div class="flex items-center gap-2 group/dots py-1 px-0.5" data-tauri-drag-region="false">
+    <div class="flex items-center gap-2 group/dots h-full py-1 px-1" data-tauri-drag-region="false">
       <!-- Red: Close -->
       <button
         onclick={handleClose}

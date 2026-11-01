@@ -438,9 +438,11 @@ class AppStore {
         tab.is_dirty = false;
         this.saveStatus = 'saved';
         await this.loadNotes();
+      } else if (tab.content.trim().length > 0 || (tab.title && tab.title !== 'Untitled' && tab.title.trim().length > 0)) {
+        await this.convertScratchToNote();
+        this.saveStatus = 'saved';
       } else {
-        // Scratch tab auto-promoted to saved note if content exists and user wants to save
-        // Or leave in session.json scratchpad!
+        // Scratch tab with no custom content yet
         this.saveStatus = 'saved';
       }
     } catch (e) {

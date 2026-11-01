@@ -223,4 +223,30 @@ mod tests {
         let notebox_session = vault.join(".notebox").join("session.json");
         assert!(notebox_session.exists(), "session.json must be migrated from .vellum to .notebox");
     }
+
+    #[test]
+    fn test_welcome_note_body_starts_with_media_banner() {
+        let dir = tempdir().expect("Failed to create tempdir");
+        let vault = dir.path().to_path_buf();
+        let db = Database::new(vault.clone()).expect("Failed to init database");
+
+        let welcome_file = vault.join("Personal/Welcome to Notebox.md");
+        assert!(welcome_file.exists(), "Welcome note file must exist");
+
+        let content = fs::read_to_string(&welcome_file).expect("Failed to read welcome note");
+        // Must NOT start with duplicate '# Welcome to Notebox' heading
+        assert!(
+            !content.starts_with("# Welcome to Notebox"),
+            "Welcome note content should start with media banner, not duplicate H1"
+        );
+        assert!(
+            content.starts_with("![Welcome to Notebox]"),
+            "Welcome note content must start with the hero banner image matching Image 1"
+        );
+
+        let conn = db.lock();
+        let title: String = conn.query_row("SELECT title FROM notes WHERE id = (SELECT id FROM notes LIMIT 1)", [], |r| r.get(0)).unwrap();
+        assert_eq!(title, "Welcome to Notebox");
+    }
 }
+
