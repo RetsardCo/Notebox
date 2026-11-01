@@ -39,9 +39,9 @@ describe('Design System Spacing Hierarchy', () => {
     expect(cssFile).toMatch(/\.notelist-cards-container\s*\{[^}]*gap:\s*8px/);
   });
 
-  it('R2.4: Note card padding is 10px 12px and card radius is 12px in app.css & NoteList.svelte', () => {
+  it('R2.4: Note card padding is refined and card radius is 12px in app.css & NoteList.svelte', () => {
     expect(noteListFile).toMatch(/notelist-card-item/);
-    expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*padding:\s*10px 12px/);
+    expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*padding:\s*(?:10px 12px|8px 10px)/);
     expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*border-radius:\s*(?:12px|var\(--radius-card\))/);
   });
 

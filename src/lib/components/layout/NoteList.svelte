@@ -130,7 +130,7 @@
                 appState.emptyTrash();
               }
             }}
-            class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-semibold hover:opacity-90 active:scale-95 transition-all cursor-pointer shadow-xs text-white bg-red-500 hover:bg-red-600"
+            class="flex items-center gap-1.5 h-7 px-2 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border border-red-200/80 text-red-600 bg-red-50/70 hover:bg-red-100 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/15"
             title="Permanently Delete All Notes in Recently Deleted"
             aria-label="Delete All Notes in Recently Deleted"
           >
@@ -205,7 +205,7 @@
           class="notelist-card-item group {isSelected ? 'is-selected' : ''}"
         >
           <!-- Card Header: Title & Badges -->
-          <div class="flex items-start justify-between gap-2 mb-2">
+          <div class="flex items-start justify-between gap-2 mb-1">
             <span
               class="font-semibold text-xs leading-snug line-clamp-1 flex-1"
               style="color: var(--text-primary);"
@@ -242,7 +242,7 @@
 
           <!-- Card Body: 2-line Snippet (Image 1 Style) -->
           <p
-            class="text-[11.5px] line-clamp-2 leading-relaxed mb-3 opacity-90"
+            class="text-[11px] line-clamp-2 leading-relaxed mb-1 opacity-90"
             style="color: var(--text-secondary);"
           >
             {cleanPreview(note.preview)}
@@ -279,24 +279,11 @@
     {/if}
   </div>
 
-  <!-- Trash Bar if in trash mode -->
+  <!-- Recently Deleted summary footer; destructive action is intentionally kept in the header. -->
   {#if appState.selectedSmartFolder === 'trash' && appState.displayedNotes.length > 0}
-    <div class="px-3.5 py-2 border-t flex items-center justify-between shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-notelist);">
-      <span class="text-[11px] font-medium" style="color: var(--text-secondary);">
-        {appState.displayedNotes.length} {appState.displayedNotes.length === 1 ? 'note' : 'notes'} in Recently Deleted
-      </span>
-      <button
-        onclick={() => {
-          if (confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.')) {
-            appState.emptyTrash();
-          }
-        }}
-        class="flex items-center gap-1.5 px-3 py-1.5 text-xs rounded-xl hover:opacity-90 active:scale-95 transition-all cursor-pointer font-semibold shadow-xs text-white bg-red-500 hover:bg-red-600"
-        title="Permanently Delete All Notes"
-      >
-        <Trash2 size={13} />
-        <span>Delete All Notes</span>
-      </button>
+    <div class="trash-summary-footer flex items-center justify-between shrink-0" style="background-color: var(--bg-notelist);">
+      <span>{appState.displayedNotes.length} {appState.displayedNotes.length === 1 ? 'note' : 'notes'} in Recently Deleted</span>
+      <span class="text-[10px]">Restore from the note menu</span>
     </div>
   {/if}
 </section>

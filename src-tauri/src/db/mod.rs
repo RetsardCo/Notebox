@@ -84,6 +84,7 @@ impl Database {
 
         db.purge_old_trash();
         db.seed_defaults()?;
+        db.sync_checklist_flags();
         Ok(db)
     }
 
@@ -108,6 +109,42 @@ impl Database {
             count += 1;
         }
         count
+    }
+
+    pub fn sync_checklist_flags(&self) {
+        let conn = self.lock();
+        let mut stmt = match conn.prepare("SELECT id, file_path FROM notes WHERE has_checklist = 0 AND is_trash = 0") {
+            Ok(s) => s,
+            Err(_) => return,
+        };
+        let rows = match stmt.query_map([], |r| Ok((r.get::<_, String>(0)?, r.get::<_, String>(1)?))) {
+            Ok(r) => r,
+            Err(_) => return,
+        };
+        let mut to_update = Vec::new();
+        for r in rows.flatten() {
+            let full_path = self.vault_path.join(&r.1);
+            if let Ok(content) = fs::read_to_string(&full_path) {
+                let lower = content.to_lowercase();
+                if lower.contains("- [ ]")
+                    || lower.contains("- [x]")
+                    || lower.contains("* [ ]")
+                    || lower.contains("* [x]")
+                    || lower.contains("+ [ ]")
+                    || lower.contains("+ [x]")
+                    || lower.contains("[ ]")
+                    || lower.contains("[x]")
+                    || lower.contains("data-type=\"taskitem\"")
+                    || lower.contains("data-type=\"tasklist\"")
+                    || lower.contains("task-list-item")
+                {
+                    to_update.push(r.0);
+                }
+            }
+        }
+        for id in to_update {
+            let _ = conn.execute("UPDATE notes SET has_checklist = 1 WHERE id = ?1", [&id]);
+        }
     }
 
     pub fn get_vault_path(&self) -> PathBuf {

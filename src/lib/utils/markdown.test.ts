@@ -41,6 +41,20 @@ describe('Markdown Converter', () => {
     expect(resultMd).toContain('- [ ] Pending task');
   });
 
+  it('converts TipTap HTML with reversed attribute ordering (data-checked before data-type)', () => {
+    const tiptapHtml = '<ul data-type="taskList"><li data-checked="false" data-type="taskItem"><label><input type="checkbox"><span></span></label><div><p>Buy milk</p></div></li><li data-checked="true" data-type="taskItem"><label><input type="checkbox" checked="checked"><span></span></label><div><p>Call mom</p></div></li></ul>';
+    const md = htmlToMarkdown(tiptapHtml);
+    expect(md).toContain('- [ ] Buy milk');
+    expect(md).toContain('- [x] Call mom');
+  });
+
+  it('converts task items with class task-list-item and raw inputs', () => {
+    const rawHtml = '<ul class="task-list"><li class="task-list-item"><input type="checkbox"> Task one</li><li class="task-list-item"><input type="checkbox" checked> Task two</li></ul>';
+    const md = htmlToMarkdown(rawHtml);
+    expect(md).toContain('- [ ] Task one');
+    expect(md).toContain('- [x] Task two');
+  });
+
   it('converts wiki-links [[Note Title]] and roundtrips', () => {
     const md = 'Check out [[Project Roadmap]] and [[Meeting Notes|notes]].';
     const html = markdownToHtml(md);

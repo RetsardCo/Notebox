@@ -90,6 +90,36 @@ mod tests {
     }
 
     #[test]
+    fn test_sync_checklist_flags_backfill() {
+        let dir = tempdir().expect("Failed to create tempdir");
+        let vault = dir.path().to_path_buf();
+        let db = Database::new(vault.clone()).expect("Failed to init database");
+
+        // Create a note with has_checklist = 0 in DB but markdown content containing checklist
+        let check_note_file = vault.join("tasks.md");
+        fs::write(&check_note_file, "# My Tasks\n- [ ] Buy groceries\n- [x] Walk dog").unwrap();
+
+        {
+            let conn = db.lock();
+            let _ = conn.execute(
+                "INSERT INTO notes (id, title, file_path, has_checklist, is_trash) VALUES ('check-note-1', 'Tasks', 'tasks.md', 0, 0)",
+                [],
+            );
+        }
+
+        // Run sync_checklist_flags
+        db.sync_checklist_flags();
+
+        let conn = db.lock();
+        let has_check: i64 = conn.query_row(
+            "SELECT has_checklist FROM notes WHERE id = 'check-note-1'",
+            [],
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(has_check, 1, "sync_checklist_flags must backfill has_checklist = 1 for notes with checklists");
+    }
+
+    #[test]
     fn test_trash_auto_purge() {
         let dir = tempdir().expect("Failed to create tempdir");
         let vault = dir.path().to_path_buf();

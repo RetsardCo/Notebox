@@ -79,7 +79,7 @@
 </script>
 
 <div
-  class="h-9 flex items-center border-b px-2.5 gap-1.5 select-none shrink-0"
+  class="h-9.5 flex items-center border-b px-2.5 gap-1.5 select-none shrink-0"
   style="background-color: var(--bg-tabbar); border-color: var(--border-subtle);"
 >
   <!-- Pinned Leading: Sidebar Toggle Button -->

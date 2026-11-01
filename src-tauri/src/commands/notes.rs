@@ -14,10 +14,18 @@ pub struct AppState {
 }
 
 fn has_checklist_syntax(content: &str) -> bool {
-    content.contains("- [ ]")
-        || content.contains("- [x]")
-        || content.contains("data-type=\"taskList\"")
-        || content.contains("data-type=\"taskItem\"")
+    let lower = content.to_lowercase();
+    lower.contains("- [ ]")
+        || lower.contains("- [x]")
+        || lower.contains("* [ ]")
+        || lower.contains("* [x]")
+        || lower.contains("+ [ ]")
+        || lower.contains("+ [x]")
+        || lower.contains("[ ]")
+        || lower.contains("[x]")
+        || lower.contains("data-type=\"taskitem\"")
+        || lower.contains("data-type=\"tasklist\"")
+        || lower.contains("task-list-item")
 }
 
 fn extract_tags(content: &str) -> Vec<String> {

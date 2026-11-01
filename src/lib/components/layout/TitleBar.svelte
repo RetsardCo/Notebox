@@ -60,7 +60,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <header
   data-tauri-drag-region
-  class="h-9.5 px-4 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
+  class="h-11 px-4 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
   style="background-color: var(--bg-titlebar); border-color: var(--border-subtle);"
   role="region"
   aria-label="Window Title Bar"

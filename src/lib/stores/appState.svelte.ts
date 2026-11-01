@@ -45,8 +45,8 @@ class AppStore {
   activeTabId = $state<string | null>(null);
 
   // UI State
-  sidebarWidth = $state<number>(240);
-  noteListWidth = $state<number>(300);
+  sidebarWidth = $state<number>(210);
+  noteListWidth = $state<number>(260);
   sidebarCollapsed = $state<boolean>(false);
   noteListCollapsed = $state<boolean>(false);
   theme = $state<string>('lavender');
@@ -136,10 +136,10 @@ class AppStore {
       if (savedSession && savedSession.tabs && savedSession.tabs.length > 0) {
         this.tabs = savedSession.tabs;
         this.activeTabId = savedSession.active_tab_id || savedSession.tabs[0].id;
-        this.sidebarWidth = savedSession.sidebar_width || 240;
-        this.noteListWidth = savedSession.note_list_width || 300;
-        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 240;
-        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 300;
+        this.sidebarWidth = savedSession.sidebar_width === 240 ? 210 : (savedSession.sidebar_width || 210);
+        this.noteListWidth = savedSession.note_list_width === 300 ? 260 : (savedSession.note_list_width || 260);
+        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 210;
+        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 260;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;
@@ -152,10 +152,10 @@ class AppStore {
         this.applyTheme(this.theme);
         restored = true;
       } else if (savedSession) {
-        this.sidebarWidth = savedSession.sidebar_width || 240;
-        this.noteListWidth = savedSession.note_list_width || 300;
-        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 240;
-        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 300;
+        this.sidebarWidth = savedSession.sidebar_width === 240 ? 210 : (savedSession.sidebar_width || 210);
+        this.noteListWidth = savedSession.note_list_width === 300 ? 260 : (savedSession.note_list_width || 260);
+        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 210;
+        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 260;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;

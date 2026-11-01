@@ -3,7 +3,7 @@
   import { appState } from '$lib/stores/appState.svelte';
   import { imageService, isTauri } from '$lib/services/ipc';
   import { markdownToHtml, htmlToMarkdown } from '$lib/utils/markdown';
-  import { Editor } from '@tiptap/core';
+  import { Editor, wrappingInputRule } from '@tiptap/core';
   import { StarterKit } from '@tiptap/starter-kit';
   import { Table, TableRow, TableCell, TableHeader } from '@tiptap/extension-table';
   import { TaskList } from '@tiptap/extension-task-list';
@@ -28,6 +28,21 @@
           },
         },
       };
+    },
+  });
+
+  const CustomTaskItem = TaskItem.extend({
+    addInputRules() {
+      return [
+        ...this.parent?.() || [],
+        wrappingInputRule({
+          find: /^\s*([-*+]\s+\[([( |x|X])?\])\s$/,
+          type: this.type,
+          getAttributes: (match) => ({
+            checked: match[match.length - 1]?.toLowerCase() === 'x',
+          }),
+        }),
+      ];
     },
   });
 
@@ -255,7 +270,7 @@
         TableHeader,
         TableCell,
         TaskList,
-        TaskItem.configure({
+        CustomTaskItem.configure({
           nested: true,
         }),
         Highlight,
@@ -271,7 +286,7 @@
         },
       },
       onUpdate: ({ editor: ed }) => {
-        if (isInternalUpdate || !ed.isFocused) return;
+        if (isInternalUpdate) return;
         const html = ed.getHTML();
         const md = htmlToMarkdown(html);
         if (md === lastLoadedContent) return;
@@ -526,7 +541,7 @@
             onmousedown={(e) => e.stopPropagation()}
             onclick={(e) => e.stopPropagation()}
             placeholder="Untitled Note"
-            class="w-full text-2xl font-bold tracking-tight bg-transparent border-none outline-none mb-1.5 select-text cursor-text"
+            class="w-full text-[30px] font-bold tracking-tight bg-transparent border-none outline-none mb-1.5 select-text cursor-text"
             style="color: var(--text-primary);"
           />
 

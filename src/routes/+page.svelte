@@ -34,12 +34,18 @@
   }
 
   function onMouseMoveSplitter(e: MouseEvent) {
+    const workspace = document.querySelector('.workspace-container');
+    const workspaceLeft = workspace?.getBoundingClientRect().left ?? 0;
+    const outerGutter = 10;
+    const panelGutter = 10;
+
     if (isDraggingSidebar) {
-      const newWidth = Math.max(200, Math.min(380, e.clientX));
+      const newWidth = Math.max(200, Math.min(380, e.clientX - workspaceLeft - outerGutter));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
       const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
-      const newWidth = Math.max(250, Math.min(480, e.clientX - currentSidebarWidth));
+      const sidebarGutter = appState.sidebarCollapsed ? 0 : panelGutter;
+      const newWidth = Math.max(250, Math.min(480, e.clientX - workspaceLeft - outerGutter - currentSidebarWidth - sidebarGutter - panelGutter));
       appState.noteListWidth = newWidth;
     }
   }

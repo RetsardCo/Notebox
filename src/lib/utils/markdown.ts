@@ -38,15 +38,20 @@ export function markdownToHtml(md: string): string {
     let html = marked.parse(withWikiLinks) as string;
 
     // 2. Convert standard marked checklist HTML into TipTap TaskList schema
-    // Matches <li><input checked="" disabled="" type="checkbox"> Text</li>
-    html = html.replace(/<li><input([^>]*type=["']checkbox["'][^>]*)>\s*([\s\S]*?)<\/li>/gi, (_, inputAttrs, text) => {
+    // Matches <li> or <li class="..."> with checkbox input
+    html = html.replace(/<li\b([^>]*)><input([^>]*type=["']checkbox["'][^>]*)>\s*([\s\S]*?)<\/li>/gi, (_, _liAttrs, inputAttrs, text) => {
       const isChecked = /checked/i.test(inputAttrs);
-      const cleanText = text.trim();
+      const cleanText = text.replace(/^<p>([\s\S]*)<\/p>$/i, '$1').trim();
       return `<li data-type="taskItem" data-checked="${isChecked ? 'true' : 'false'}"><label><input type="checkbox"${isChecked ? ' checked' : ''}><span></span></label><div><p>${cleanText}</p></div></li>`;
     });
 
     // If html contains task items, ensure parent <ul> has data-type="taskList"
-    html = html.replace(/<ul>([\s\S]*?<li data-type="taskItem"[\s\S]*?)<\/ul>/gi, '<ul data-type="taskList">$1</ul>');
+    html = html.replace(/<ul([^>]*)>([\s\S]*?)<\/ul>/gi, (match, attrs, content) => {
+      if (content.includes('data-type="taskItem"') && !attrs.includes('data-type="taskList"')) {
+        return `<ul data-type="taskList"${attrs}>${content}</ul>`;
+      }
+      return match;
+    });
 
     return html;
   } catch (e) {
@@ -86,20 +91,27 @@ export function htmlToMarkdown(html: string): string {
     return tableMd + '\n';
   });
 
-  // 2. TipTap Task items: <li data-type="taskItem" data-checked="true|false">...</li>
-  md = md.replace(/<li[^>]*data-type=["']taskItem["'][^>]*data-checked=["'](true|false)["'][^>]*>([\s\S]*?)<\/li>/gi, (_, checked, content) => {
-    const isChecked = checked.toLowerCase() === 'true';
-    const clean = content
+  // 2. Task items (TipTap, Marked, GFM, HTML checkboxes in any attribute order)
+  md = md.replace(/<li\b([^>]*)>([\s\S]*?)<\/li>/gi, (fullMatch, attrs, innerContent) => {
+    const isTaskItem =
+      /data-type=["']taskItem["']/i.test(attrs) ||
+      /class=["'][^"']*task-list-item[^"']*["']/i.test(attrs) ||
+      /<input[^>]*type=["']checkbox["']/i.test(innerContent);
+
+    if (!isTaskItem) {
+      return fullMatch;
+    }
+
+    const isChecked =
+      /data-checked=["']true["']/i.test(attrs) ||
+      /<input[^>]*\bchecked\b/i.test(innerContent);
+
+    const clean = innerContent
       .replace(/<label[^>]*>[\s\S]*?<\/label>/gi, '')
+      .replace(/<input[^>]*>/gi, '')
       .replace(/<[^>]+>/g, '')
       .trim();
-    return `- [${isChecked ? 'x' : ' '}] ${clean}\n`;
-  });
 
-  // Also handle marked task items: <li><input ... type="checkbox"[^>]*> text</li>
-  md = md.replace(/<li[^>]*>\s*<input[^>]*type=["']checkbox["'][^>]*>\s*([\s\S]*?)<\/li>/gi, (match, text) => {
-    const isChecked = /checked/i.test(match);
-    const clean = text.replace(/<[^>]+>/g, '').trim();
     return `- [${isChecked ? 'x' : ' '}] ${clean}\n`;
   });
 

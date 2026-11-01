@@ -127,7 +127,7 @@
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4"
+      class="w-full max-w-sm rounded-[16px] border shadow-2xl p-5 space-y-4"
       style="background-color: var(--bg-modal); border-color: var(--border);"
       onclick={(e) => e.stopPropagation()}
     >

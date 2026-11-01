@@ -17,7 +17,7 @@
 </script>
 
 <footer
-  class="h-7.5 px-4 flex items-center justify-between border-t text-[11px] select-none shrink-0"
+  class="h-[30px] px-4 flex items-center justify-between text-[11px] select-none shrink-0"
   style="background-color: var(--bg-statusbar); border-color: var(--border-subtle); color: var(--text-tertiary);"
 >
   <!-- Left Side: Status & Counts (Image 1 Style) -->

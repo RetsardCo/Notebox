@@ -37,7 +37,7 @@
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="w-full max-w-xl rounded-2xl border shadow-2xl overflow-hidden flex flex-col max-h-[88vh]"
+      class="w-full max-w-xl rounded-[16px] border shadow-2xl overflow-hidden flex flex-col max-h-[88vh]"
       style="background-color: var(--bg-modal); border-color: var(--border);"
       onclick={(e) => e.stopPropagation()}
     >
@@ -77,7 +77,7 @@
               {@const isSelected = appState.theme === pal.id}
               <button
                 onclick={() => appState.setTheme(pal.id)}
-                class="p-3 rounded-2xl border text-left cursor-pointer transition-all duration-150 flex flex-col justify-between {isSelected ? 'shadow-sm ring-2 ring-[var(--accent)] ring-offset-1 ring-offset-[var(--bg-modal)]' : 'hover:border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5'}"
+                class="p-3 rounded-xl border text-left cursor-pointer transition-all duration-150 flex flex-col justify-between {isSelected ? 'shadow-sm ring-1 ring-[var(--accent)] ring-offset-1 ring-offset-[var(--bg-modal)]' : 'hover:border-[var(--border)] hover:bg-black/5 dark:hover:bg-white/5'}"
                 style={isSelected
                   ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent);'
                   : 'background-color: var(--bg-input); border-color: var(--border-subtle);'}
