@@ -97,7 +97,7 @@
   style="background-color: var(--bg-notelist);"
 >
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
-  <div class="h-10 px-2.5 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-10 panel-header-bar flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
       {#if appState.sidebarCollapsed}
         <button
@@ -160,7 +160,7 @@
   </div>
 
   <!-- Notes List / Cards Container with Generous Breathing Room -->
-  <div class="flex-1 overflow-y-auto p-2.5 space-y-2">
+  <div class="notelist-cards-container">
     {#if appState.displayedNotes.length === 0}
       <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
         <p class="font-medium mb-1">No notes found</p>
@@ -184,8 +184,7 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative w-full p-3 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-sm ring-2 ring-[var(--accent)] border-transparent' : 'border-[var(--border-subtle)] hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
-          style="background-color: var(--bg-notelist-card);"
+          class="notelist-card-item {isSelected ? 'is-selected' : ''}"
         >
           <!-- Card Header: Title & Badges -->
           <div class="flex items-start justify-between gap-2 mb-2">

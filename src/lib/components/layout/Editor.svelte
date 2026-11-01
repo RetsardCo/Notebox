@@ -483,7 +483,7 @@
     style="zoom: {appState.zoomLevel}%;"
   >
     <div
-      class="w-full max-w-4xl px-8 sm:px-10 pt-7 pb-12 min-h-full flex flex-col"
+      class="w-full max-w-4xl px-8 sm:px-10 pt-7 pb-12 min-h-full flex flex-col editor-content-container"
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}

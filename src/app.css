@@ -598,3 +598,135 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   box-shadow: var(--shadow-sm);
 }
 
+
+
+/* ==========================================================================
+   Design System Spacing Hierarchy & Unified 3-Panel Desktop Layout
+   Guaranteed CSS Rules (Immune to Tailwind arbitrary class scanning issues)
+   ========================================================================== */
+
+/* Unified contiguous 3-panel layout (Contiguous panels connected side-by-side) */
+.workspace-container {
+  display: flex !important;
+  flex-direction: row !important;
+  overflow: hidden !important;
+  min-height: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  flex: 1 1 0% !important;
+  background-color: var(--bg-editor) !important;
+}
+
+/* Sidebar Column */
+.sidebar-panel {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-sidebar) !important;
+  box-sizing: border-box !important;
+}
+
+/* Middle Column: Note Cards List Panel */
+.notelist-panel {
+  height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  flex-shrink: 0 !important;
+  overflow: hidden !important;
+  border-right: 1px solid var(--border-subtle) !important;
+  background-color: var(--bg-notelist) !important;
+  box-sizing: border-box !important;
+}
+
+/* Right Column: Editor Panel */
+.editor-panel {
+  flex: 1 1 0% !important;
+  display: flex !important;
+  flex-direction: column !important;
+  height: 100% !important;
+  overflow: hidden !important;
+  min-width: 360px !important;
+  background-color: var(--bg-editor) !important;
+  box-sizing: border-box !important;
+}
+
+/* Sleek 1.5px Splitter Handle */
+.splitter-handle {
+  width: 6px !important;
+  margin-left: -3px !important;
+  margin-right: -3px !important;
+  height: 100% !important;
+  cursor: col-resize !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 20 !important;
+  flex-shrink: 0 !important;
+  user-select: none !important;
+}
+
+/* Middle Panel: Note Cards List Container with 10px 12px Outer Padding & 8px Card Gap */
+.notelist-cards-container {
+  padding: 10px 12px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  overflow-y: auto !important;
+  flex: 1 1 0% !important;
+  box-sizing: border-box !important;
+}
+
+/* Distinct Freestanding Note Card (Image 1 & Image 6 Style) */
+.notelist-card-item {
+  width: 100% !important;
+  box-sizing: border-box !important;
+  padding: 12px 14px !important;
+  border-radius: 12px !important;
+  background-color: var(--bg-notelist-card) !important;
+  border: 1px solid var(--border-subtle) !important;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04) !important;
+  transition: all 0.15s ease !important;
+  cursor: pointer !important;
+  user-select: none !important;
+  text-align: left !important;
+}
+
+.notelist-card-item:hover {
+  background-color: var(--bg-notelist-hover) !important;
+  border-color: var(--border) !important;
+}
+
+.notelist-card-item.is-selected {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 0 2px var(--accent-light), 0 2px 5px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* Panel Header & Navigation Insets */
+.panel-header-bar {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  box-sizing: border-box !important;
+}
+
+.sidebar-nav-container {
+  padding-left: 12px !important;
+  padding-right: 12px !important;
+  box-sizing: border-box !important;
+}
+
+/* Editor Page Content with Generous 36px Insets matching Windows Notepad */
+.editor-content-container {
+  padding-left: 36px !important;
+  padding-right: 36px !important;
+  padding-top: 28px !important;
+  padding-bottom: 48px !important;
+  box-sizing: border-box !important;
+  width: 100% !important;
+  max-width: 56rem !important;
+  min-height: 100% !important;
+  display: flex !important;
+  flex-direction: column !important;
+}

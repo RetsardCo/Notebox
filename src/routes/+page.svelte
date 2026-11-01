@@ -35,13 +35,11 @@
 
   function onMouseMoveSplitter(e: MouseEvent) {
     if (isDraggingSidebar) {
-      // 10px workspace gutter offset
-      const newWidth = Math.max(200, Math.min(380, e.clientX - 10));
+      const newWidth = Math.max(200, Math.min(380, e.clientX));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
-      // 10px workspace gutter + 10px panel gutter
-      const currentSidebarWidth = appState.sidebarCollapsed ? 0 : (appState.sidebarWidth + 10);
-      const newWidth = Math.max(240, Math.min(480, e.clientX - currentSidebarWidth - 10));
+      const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
+      const newWidth = Math.max(240, Math.min(480, e.clientX - currentSidebarWidth));
       appState.noteListWidth = newWidth;
     }
   }
@@ -157,63 +155,56 @@
   <title>Notebox — {appState.activeTab?.title || 'Notes'}</title>
 </svelte:head>
 
-<div class="w-screen h-screen flex flex-col overflow-hidden" style="background-color: var(--bg-canvas);">
+<div class="w-screen h-screen flex flex-col overflow-hidden" style="background-color: var(--bg-titlebar);">
   <!-- Custom macOS Window Titlebar with 3 Interactive Dots -->
   <TitleBar />
 
-  <!-- 3-Column Layout with 10px Workspace Gutter & 10px Panel-to-Panel Gutter -->
-  <main class="flex-1 flex flex-row overflow-hidden min-h-0 p-[10px] gap-[10px]" style="background-color: var(--bg-canvas);">
+  <!-- 3-Column Connected Layout (Contiguous, cohesive panels matching Image 1 & Image 2) -->
+  <main class="flex-1 flex flex-row overflow-hidden min-h-0 workspace-container">
     <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
     {#if !appState.sidebarCollapsed}
       <aside
-        class="h-full flex flex-col shrink-0 rounded-[12px] border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-[width] duration-200 ease-in-out"
-        style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar);"
+        class="sidebar-panel transition-[width] duration-200 ease-in-out"
+        style="width: {appState.sidebarWidth}px;"
       >
         <Sidebar />
       </aside>
 
-      <!-- Sidebar Resize Splitter Handle (10px gutter centered handle) -->
+      <!-- Sidebar Resize Splitter Handle (Sleek divider line) -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="w-[10px] -mx-[5px] h-full cursor-col-resize flex items-center justify-center group z-20 shrink-0 select-none"
+        class="splitter-handle transition-colors {isDraggingSidebar ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
         onmousedown={onMouseDownSidebarSplitter}
         role="separator"
         tabindex="-1"
         aria-orientation="vertical"
         aria-valuenow={appState.sidebarWidth}
-      >
-        <div class="w-1 h-8 rounded-full transition-all group-hover:h-14 group-hover:bg-[var(--accent)] bg-black/10 dark:bg-white/10 {isDraggingSidebar ? '!h-16 !bg-[var(--accent)]' : ''}"></div>
-      </div>
+      ></div>
     {/if}
 
     <!-- Column 2: Note Cards List -->
     {#if !appState.noteListCollapsed}
       <section
-        class="h-full flex flex-col shrink-0 rounded-[12px] border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-[width] duration-200 ease-in-out"
-        style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist);"
+        class="notelist-panel transition-[width] duration-200 ease-in-out"
+        style="width: {appState.noteListWidth}px;"
       >
         <NoteList />
       </section>
 
-      <!-- NoteList Resize Splitter Handle (10px gutter centered handle) -->
+      <!-- NoteList Resize Splitter Handle (Sleek divider line) -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="w-[10px] -mx-[5px] h-full cursor-col-resize flex items-center justify-center group z-20 shrink-0 select-none"
+        class="splitter-handle transition-colors {isDraggingNoteList ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
         onmousedown={onMouseDownNoteListSplitter}
         role="separator"
         tabindex="-1"
         aria-orientation="vertical"
         aria-valuenow={appState.noteListWidth}
-      >
-        <div class="w-1 h-8 rounded-full transition-all group-hover:h-14 group-hover:bg-[var(--accent)] bg-black/10 dark:bg-white/10 {isDraggingNoteList ? '!h-16 !bg-[var(--accent)]' : ''}"></div>
-      </div>
+      ></div>
     {/if}
 
     <!-- Column 3: Main Editor Area (Tabs, Toolbar, Editor, Status Bar) -->
-    <section
-      class="flex-1 flex flex-col h-full rounded-[12px] border border-[var(--border-subtle)] shadow-xs overflow-hidden min-w-[360px]"
-      style="background-color: var(--bg-editor);"
-    >
+    <section class="editor-panel">
       <!-- Tab Bar (Horizontal mouse-wheel scrolling, conditional chevrons, pinned + button) -->
       <TabBar />
 

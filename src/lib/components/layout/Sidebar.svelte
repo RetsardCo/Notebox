@@ -176,8 +176,8 @@
       <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'all'
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
       >
@@ -193,8 +193,8 @@
       <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'pinned'
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
       >
@@ -210,8 +210,8 @@
       <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'checklist'
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
       >
@@ -227,8 +227,8 @@
       <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'trash'
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
       >
@@ -302,10 +302,10 @@
       {/if}
 
       {#each appState.folders as folder (folder.id)}
-        {@const isSelected = appState.selectedFolderId === folder.id}
+        {@const isFolderActive = appState.selectedFolderId === folder.id && !appState.selectedTag && !appState.searchQuery}
         <div
-          class="group w-full h-8 px-2.5 py-1.5 rounded-xl mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isSelected ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-          style={isSelected
+          class="group w-full h-8 px-2.5 py-1.5 rounded-xl mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isFolderActive ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          style={isFolderActive
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
             : 'color: var(--text-primary);'}
           onclick={() => appState.selectFolder(folder.id)}
@@ -425,11 +425,11 @@
       {/if}
 
       {#each appState.tags as tag (tag.id)}
-        {@const isSelected = appState.selectedTag === tag.name}
+        {@const isTagActive = appState.selectedTag === tag.name && !appState.selectedFolderId && !appState.searchQuery}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isSelected ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-          style={isSelected
+          class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTagActive ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          style={isTagActive
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
             : 'color: var(--text-primary);'}
         >

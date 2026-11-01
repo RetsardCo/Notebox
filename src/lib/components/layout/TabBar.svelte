@@ -93,12 +93,11 @@
     <div class="w-px h-3.5 mx-0.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
   {/if}
 
-  <!-- Conditional Left Scroll Chevron (Only rendered when tabs overflow) -->
-  {#if hasOverflow}
+  <!-- Conditional Left Scroll Chevron (Only rendered when tabs overflow and can scroll left) -->
+  {#if hasOverflow && canScrollLeft}
     <button
       onclick={() => scrollTabs('left')}
-      disabled={!canScrollLeft}
-      class="w-6 h-7 flex items-center justify-center rounded-md transition-all shrink-0 cursor-pointer text-[var(--text-secondary)] {canScrollLeft ? 'hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 active:scale-95' : 'opacity-25 cursor-default pointer-events-none'}"
+      class="w-6 h-7 flex items-center justify-center rounded-md transition-all shrink-0 cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
       title="Scroll tabs left"
       aria-label="Scroll tabs left"
     >
@@ -160,12 +159,11 @@
     {/each}
   </div>
 
-  <!-- Conditional Right Scroll Chevron (Only rendered when tabs overflow) -->
-  {#if hasOverflow}
+  <!-- Conditional Right Scroll Chevron (Only rendered when tabs overflow and can scroll right) -->
+  {#if hasOverflow && canScrollRight}
     <button
       onclick={() => scrollTabs('right')}
-      disabled={!canScrollRight}
-      class="w-6 h-7 flex items-center justify-center rounded-md transition-all shrink-0 cursor-pointer text-[var(--text-secondary)] {canScrollRight ? 'hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 active:scale-95' : 'opacity-25 cursor-default pointer-events-none'}"
+      class="w-6 h-7 flex items-center justify-center rounded-md transition-all shrink-0 cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 active:scale-95"
       title="Scroll tabs right"
       aria-label="Scroll tabs right"
     >

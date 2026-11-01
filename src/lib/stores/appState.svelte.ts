@@ -144,7 +144,7 @@ class AppStore {
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;
         this.selectedTag = savedSession.selected_tag;
-        this.selectedSmartFolder = savedSession.selected_smart_folder || 'all';
+        this.selectedSmartFolder = (savedSession.selected_folder_id || savedSession.selected_tag) ? null : (savedSession.selected_smart_folder || 'all');
         this.theme = savedSession.theme || 'lavender';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
@@ -160,7 +160,7 @@ class AppStore {
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
         this.selectedFolderId = savedSession.selected_folder_id;
         this.selectedTag = savedSession.selected_tag;
-        this.selectedSmartFolder = savedSession.selected_smart_folder || 'all';
+        this.selectedSmartFolder = (savedSession.selected_folder_id || savedSession.selected_tag) ? null : (savedSession.selected_smart_folder || 'all');
         this.theme = savedSession.theme || 'lavender';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
