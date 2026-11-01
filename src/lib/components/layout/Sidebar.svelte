@@ -118,11 +118,11 @@
 <svelte:window onclick={closeThemePicker} />
 
 <aside
-  class="flex flex-col h-full select-none border-r shrink-0 overflow-hidden"
-  style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar); border-color: var(--border);"
+  class="flex flex-col h-full w-full select-none overflow-hidden"
+  style="background-color: var(--bg-sidebar);"
 >
   <!-- Sidebar Header Aligned with Column 2 and Column 3 -->
-  <div class="h-11 px-6 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-10 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">Sidebar</span>
     <button
       onclick={() => appState.toggleSidebar()}
@@ -134,11 +134,11 @@
     </button>
   </div>
 
-  <!-- Inset Search Pill with Ctrl K Shortcut (Image 1 Style) -->
-  <div class="pt-3 pb-1.5 shrink-0">
+  <!-- Inset Search Box (Image 5 Style) -->
+  <div class="px-3 pt-2.5 pb-1 shrink-0">
     <div
-      class="flex items-center gap-2.5 mx-4 px-4 py-2 rounded-full border text-xs shadow-xs transition-colors"
-      style="background-color: var(--bg-input); border-color: var(--border);"
+      class="flex items-center gap-2 px-3 py-2 rounded-xl border text-xs shadow-2xs transition-colors"
+      style="background-color: var(--bg-input); border-color: var(--border-subtle);"
     >
       <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
       <input
@@ -146,7 +146,7 @@
         type="text"
         value={searchInput}
         oninput={handleSearchInput}
-        placeholder="Search notes..."
+        placeholder="Search..."
         class="w-full bg-transparent outline-none text-xs"
         style="color: var(--text-primary);"
       />
@@ -156,7 +156,7 @@
         </button>
       {:else}
         <kbd
-          class="px-1.5 py-0.5 rounded text-[10px] font-mono border select-none shrink-0"
+          class="px-1.5 py-0.5 rounded text-[9.5px] font-mono border select-none shrink-0"
           style="background-color: var(--border-subtle); border-color: var(--border); color: var(--text-tertiary);"
         >
           Ctrl K
@@ -166,17 +166,17 @@
   </div>
 
   <!-- Scrollable Navigation Section with Generous Insets -->
-  <div class="flex-1 overflow-y-auto pt-1 pb-3 space-y-4">
+  <div class="flex-1 overflow-y-auto px-2.5 py-2 space-y-3.5">
     <!-- Quick Access Section -->
     <div>
-      <div class="px-6 mt-4 mb-2 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="px-2.5 mt-2.5 mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         Quick Access
       </div>
 
       <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'all'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
@@ -193,7 +193,7 @@
       <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'pinned'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
@@ -210,7 +210,7 @@
       <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'checklist'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
@@ -227,7 +227,7 @@
       <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'trash'
           ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
           : 'color: var(--text-primary);'}
@@ -244,7 +244,7 @@
 
     <!-- Folders Section -->
     <div>
-      <div class="flex items-center justify-between px-6 mt-5 mb-2 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="flex items-center justify-between px-2.5 mt-3 mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Folders</span>
         <button
           onclick={() => (showNewFolderInput = true)}
@@ -367,7 +367,7 @@
 
     <!-- Tags Section -->
     <div>
-      <div class="flex items-center justify-between px-6 mt-5 mb-2 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="flex items-center justify-between px-2.5 mt-3 mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Tags</span>
         <button
           onclick={() => (showNewTagInput = true)}
@@ -425,7 +425,7 @@
         {@const isSelected = appState.selectedTag === tag.name}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-[calc(100%-1.5rem)] mx-3 h-9 px-4 py-2.5 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isSelected ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isSelected ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
           style={isSelected
             ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
             : 'color: var(--text-primary);'}
@@ -443,7 +443,7 @@
   </div>
 
   <!-- Bottom Floating Footer Card for Settings and Palette Switcher (Image 1 Style) -->
-  <div class="mx-4 mb-4 p-3.5 rounded-2xl border shadow-xs flex items-center justify-between text-xs shrink-0 relative transition-colors" style="border-color: var(--border-subtle); background-color: var(--bg-notelist-card);">
+  <div class="m-2.5 p-2 rounded-xl border shadow-2xs flex items-center justify-between text-xs shrink-0 relative transition-colors" style="border-color: var(--border-subtle); background-color: var(--bg-notelist-card);">
     <!-- Settings Button (Image 1 bottom left) -->
     <button
       onclick={() => (appState.settingsOpen = true)}

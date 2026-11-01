@@ -93,11 +93,11 @@
 <svelte:window onclick={closeContextMenu} />
 
 <section
-  class="flex flex-col h-full select-none border-r shrink-0 overflow-hidden"
-  style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist); border-color: var(--border);"
+  class="flex flex-col h-full w-full select-none overflow-hidden"
+  style="background-color: var(--bg-notelist);"
 >
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
-  <div class="h-11 px-6 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-10 px-4 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
       {#if appState.sidebarCollapsed}
         <button
@@ -160,7 +160,7 @@
   </div>
 
   <!-- Notes List / Cards Container with Generous Breathing Room -->
-  <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3">
+  <div class="flex-1 overflow-y-auto p-2.5 space-y-2">
     {#if appState.displayedNotes.length === 0}
       <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
         <p class="font-medium mb-1">No notes found</p>
@@ -184,7 +184,7 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="group relative mx-1 my-2 p-4.5 rounded-2xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-md ring-2 ring-[var(--accent)] border-transparent' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
+          class="group relative w-full p-3.5 rounded-xl text-left transition-all duration-150 cursor-pointer border select-none {isSelected ? 'shadow-xs ring-1.5 ring-[var(--accent)] border-transparent' : 'hover:border-[var(--border)] hover:bg-[var(--bg-notelist-hover)]'}"
           style={isSelected
             ? 'background-color: var(--bg-notelist-active);'
             : 'background-color: var(--bg-notelist-card); border-color: var(--border-subtle);'}
@@ -249,7 +249,7 @@
 
   <!-- Trash Bar if in trash mode -->
   {#if appState.selectedSmartFolder === 'trash' && appState.notes.length > 0}
-    <div class="px-6 py-3 border-t flex items-center justify-between shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-notelist);">
+    <div class="px-4 py-2.5 border-t flex items-center justify-between shrink-0" style="border-color: var(--border-subtle); background-color: var(--bg-notelist);">
       <span class="text-xs font-medium" style="color: var(--text-secondary);">Recently Deleted</span>
       <button
         onclick={() => {

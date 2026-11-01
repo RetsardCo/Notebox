@@ -419,7 +419,7 @@
     let formattedDate = 'Today';
     try {
       const d = new Date(dateStr);
-      formattedDate = d.toLocaleDateString([], { month: 'short', day: 'numeric', year: 'numeric' });
+      formattedDate = d.toLocaleDateString([], { month: 'long', day: 'numeric' });
     } catch {}
     const folder = note?.folder_name || 'Personal';
     const words = appState.wordCount || note?.word_count || 0;

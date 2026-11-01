@@ -149,57 +149,64 @@
   <title>Notebox — {appState.activeTab?.title || 'Notes'}</title>
 </svelte:head>
 
-<div class="w-screen h-screen flex flex-col overflow-hidden select-none" style="background-color: var(--bg-titlebar);">
+<div class="w-screen h-screen flex flex-col overflow-hidden select-none" style="background-color: var(--bg-canvas);">
   <!-- Custom macOS Window Titlebar with 3 Interactive Dots -->
   <TitleBar />
 
-  <!-- 3-Column Work Area -->
-  <main class="flex-1 flex flex-row overflow-hidden min-h-0">
-    <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
-    <div
-      class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
-      style="width: {appState.sidebarCollapsed ? 0 : appState.sidebarWidth}px;"
-    >
-      <Sidebar />
-    </div>
-
-    <!-- Sidebar Resize Handle -->
+  <!-- 3-Column Floating Island Canvas (10px canvas gutter, 10px panel separation) -->
+  <main class="flex-1 flex flex-row overflow-hidden min-h-0 p-2.5 gap-2.5" style="background-color: var(--bg-canvas);">
+    <!-- Column 1: Sidebar Island -->
     {#if !appState.sidebarCollapsed}
+      <div
+        class="h-full flex flex-col shrink-0 rounded-2xl border shadow-xs overflow-hidden {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
+        style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar); border-color: var(--border);"
+      >
+        <Sidebar />
+      </div>
+
+      <!-- Sidebar Resize Splitter Handle -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="w-1 {isDraggingSidebar ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
+        class="w-2.5 -mx-1.25 h-full cursor-col-resize flex items-center justify-center group z-20 shrink-0 select-none"
         onmousedown={onMouseDownSidebarSplitter}
         role="separator"
         tabindex="-1"
         aria-orientation="vertical"
         aria-valuenow={appState.sidebarWidth}
-      ></div>
+      >
+        <div class="w-0.5 h-6 rounded-full transition-all group-hover:h-12 group-hover:w-1 group-hover:bg-[var(--accent)] bg-black/10 dark:bg-white/10 {isDraggingSidebar ? '!h-14 !w-1 !bg-[var(--accent)]' : ''}"></div>
+      </div>
     {/if}
 
-    <!-- Column 2: Note Cards List -->
-    <div
-      class="h-full flex flex-row shrink-0 overflow-hidden {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
-      style="width: {appState.noteListCollapsed ? 0 : appState.noteListWidth}px;"
-    >
-      <NoteList />
-    </div>
-
-    <!-- NoteList Resize Handle -->
+    <!-- Column 2: Note Cards List Island -->
     {#if !appState.noteListCollapsed}
+      <div
+        class="h-full flex flex-col shrink-0 rounded-2xl border shadow-xs overflow-hidden {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
+        style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist); border-color: var(--border);"
+      >
+        <NoteList />
+      </div>
+
+      <!-- NoteList Resize Splitter Handle -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="w-1 {isDraggingNoteList ? 'w-1.5 bg-amber-400' : 'hover:w-1.5 hover:bg-amber-400/50'} h-full cursor-col-resize transition-colors z-20 shrink-0"
+        class="w-2.5 -mx-1.25 h-full cursor-col-resize flex items-center justify-center group z-20 shrink-0 select-none"
         onmousedown={onMouseDownNoteListSplitter}
         role="separator"
         tabindex="-1"
         aria-orientation="vertical"
         aria-valuenow={appState.noteListWidth}
-      ></div>
+      >
+        <div class="w-0.5 h-6 rounded-full transition-all group-hover:h-12 group-hover:w-1 group-hover:bg-[var(--accent)] bg-black/10 dark:bg-white/10 {isDraggingNoteList ? '!h-14 !w-1 !bg-[var(--accent)]' : ''}"></div>
+      </div>
     {/if}
 
-    <!-- Column 3: Main Area (Tabs, Toolbar, Editor, Status Bar) -->
-    <section class="flex-1 flex flex-col h-full overflow-hidden min-w-[320px]">
-      <!-- Tab Bar (Windows 11 Notepad-style Tabs) -->
+    <!-- Column 3: Main Area Island (Tabs, Toolbar, Editor, Status Bar) -->
+    <section
+      class="flex-1 flex flex-col h-full rounded-2xl border shadow-xs overflow-hidden min-w-[320px]"
+      style="background-color: var(--bg-editor); border-color: var(--border);"
+    >
+      <!-- Tab Bar (Windows 11 Notepad-style Tabs with Scroll Controls) -->
       <TabBar />
 
       <!-- Apple Notes Formatting Toolbar -->

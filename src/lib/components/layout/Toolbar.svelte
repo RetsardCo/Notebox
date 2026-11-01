@@ -41,8 +41,8 @@
 </script>
 
 <div
-  class="h-11 px-6 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
-  style="background-color: var(--bg-toolbar); border-color: var(--border);"
+  class="h-10 px-4 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto no-scrollbar {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
+  style="background-color: var(--bg-toolbar); border-color: var(--border-subtle);"
 >
   <!-- Left Formatting Tools (Image 1 Style) -->
   <div class="flex items-center gap-2">

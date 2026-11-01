@@ -1,6 +1,20 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
   import { appState } from '$lib/stores/appState.svelte';
-  import { Plus, X, FileText, PanelLeft, PanelLeftOpen } from '@lucide/svelte';
+  import { Plus, X, FileText, PanelLeftOpen, ChevronLeft, ChevronRight } from '@lucide/svelte';
+
+  let scrollContainer = $state<HTMLDivElement | null>(null);
+  let hasOverflow = $state(false);
+  let canScrollLeft = $state(false);
+  let canScrollRight = $state(false);
+
+  function checkOverflow() {
+    if (!scrollContainer) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollContainer;
+    hasOverflow = scrollWidth > clientWidth + 2;
+    canScrollLeft = scrollLeft > 2;
+    canScrollRight = scrollLeft + clientWidth < scrollWidth - 2;
+  }
 
   function handleTabClick(tabId: string) {
     appState.setActiveTab(tabId);
@@ -9,88 +23,168 @@
   function handleTabClose(tabId: string, e: MouseEvent) {
     e.stopPropagation();
     appState.closeTab(tabId);
+    setTimeout(checkOverflow, 50);
   }
 
   function handleAuxClick(tabId: string, e: MouseEvent) {
     if (e.button === 1) {
       e.preventDefault();
       appState.closeTab(tabId);
+      setTimeout(checkOverflow, 50);
     }
   }
+
+  function handleWheel(e: WheelEvent) {
+    if (!scrollContainer) return;
+    // Support horizontal wheel or standard vertical wheel
+    const delta = e.deltaX !== 0 ? e.deltaX : e.deltaY;
+    if (delta !== 0) {
+      e.preventDefault();
+      scrollContainer.scrollLeft += delta;
+      checkOverflow();
+    }
+  }
+
+  function scrollTabs(direction: 'left' | 'right') {
+    if (!scrollContainer) return;
+    const offset = direction === 'left' ? -200 : 200;
+    scrollContainer.scrollBy({ left: offset, behavior: 'smooth' });
+    setTimeout(checkOverflow, 250);
+  }
+
+  // Scroll active tab into view whenever it changes or tabs are loaded
+  $effect(() => {
+    const activeId = appState.activeTabId;
+    const tabCount = appState.tabs.length;
+    if (activeId && scrollContainer) {
+      setTimeout(() => {
+        if (!scrollContainer) return;
+        const activeEl = scrollContainer.querySelector(`[data-tab-id="${activeId}"]`) as HTMLElement | null;
+        if (activeEl) {
+          activeEl.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+        }
+        checkOverflow();
+      }, 30);
+    }
+  });
+
+  onMount(() => {
+    checkOverflow();
+    const ro = new ResizeObserver(() => checkOverflow());
+    if (scrollContainer) ro.observe(scrollContainer);
+    return () => ro.disconnect();
+  });
 </script>
 
 <div
-  class="h-11 flex items-center border-b px-5 gap-2.5 select-none shrink-0"
-  style="background-color: var(--bg-tabbar); border-color: var(--border);"
+  class="h-10 flex items-center border-b px-3 gap-1.5 select-none shrink-0"
+  style="background-color: var(--bg-tabbar); border-color: var(--border-subtle);"
 >
   <!-- Pinned Leading: Sidebar Toggle Button -->
   {#if appState.sidebarCollapsed}
     <button
       onclick={() => appState.toggleSidebar()}
-      class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
+      class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
       title="Show Sidebar (Ctrl+\)"
       aria-label="Show Sidebar"
     >
-      <PanelLeftOpen size={16} />
+      <PanelLeftOpen size={15} />
     </button>
-    <div class="w-px h-4 mx-0.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+    <div class="w-px h-3.5 mx-0.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
+  {/if}
+
+  <!-- Conditional Left Scroll Chevron (Only rendered when tabs overflow) -->
+  {#if hasOverflow}
+    <button
+      onclick={() => scrollTabs('left')}
+      disabled={!canScrollLeft}
+      class="w-6 h-7 flex items-center justify-center rounded-md transition-all shrink-0 cursor-pointer text-[var(--text-secondary)] {canScrollLeft ? 'hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 active:scale-95' : 'opacity-25 cursor-default pointer-events-none'}"
+      title="Scroll tabs left"
+      aria-label="Scroll tabs left"
+    >
+      <ChevronLeft size={14} />
+    </button>
   {/if}
 
   <!-- Scrollable Middle: Tabs List -->
-  <div class="flex-1 flex items-center gap-2.5 overflow-x-auto min-w-0 py-1 no-scrollbar">
+  <div
+    bind:this={scrollContainer}
+    onwheel={handleWheel}
+    onscroll={checkOverflow}
+    class="flex-1 flex items-center gap-1.5 overflow-x-auto min-w-0 py-1 no-scrollbar scroll-smooth"
+  >
     {#each appState.tabs as tab (tab.id)}
       {@const isActive = appState.activeTabId === tab.id}
       <div
         role="tab"
         tabindex="0"
+        data-tab-id={tab.id}
         aria-selected={isActive}
         onclick={() => handleTabClick(tab.id)}
         onauxclick={(e) => handleAuxClick(tab.id, e)}
         onkeydown={(e) => {
           if (e.key === 'Enter') handleTabClick(tab.id);
         }}
-        class="group relative h-8 px-4 rounded-xl flex items-center gap-2.5 text-xs transition-all cursor-pointer shrink-0 max-w-[220px] min-w-[140px] select-none border {isActive ? 'shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'}"
+        class="group relative h-7.5 px-3 rounded-lg flex items-center gap-2 text-xs transition-all cursor-pointer shrink-0 max-w-[200px] min-w-[120px] select-none border {isActive ? 'shadow-xs font-semibold' : 'hover:bg-black/5 dark:hover:bg-white/5 font-normal'}"
         style={isActive
-          ? 'background-color: var(--bg-tab-active); border-color: var(--border); color: var(--text-primary); font-weight: 600;'
+          ? 'background-color: var(--bg-tab-active); border-color: var(--border); color: var(--text-primary);'
           : 'background-color: transparent; border-color: transparent; color: var(--text-secondary);'}
       >
         <FileText
-          size={14}
+          size={13}
           style="color: {isActive ? 'var(--accent)' : 'var(--text-tertiary)'};"
           class="shrink-0"
         />
         
-        <span class="truncate text-[12px] flex-1 text-left">{tab.title || 'Untitled'}</span>
+        <span class="truncate text-[11.5px] flex-1 text-left">{tab.title || 'Untitled'}</span>
 
         <!-- Trailing slot for dirty indicator / close button -->
-        <div class="relative w-4 h-4 flex items-center justify-center shrink-0">
+        <div class="relative w-3.5 h-3.5 flex items-center justify-center shrink-0">
           {#if tab.is_dirty}
             <span
-              class="w-2 h-2 rounded-full transition-opacity duration-150 group-hover:opacity-0"
+              class="w-1.5 h-1.5 rounded-full transition-opacity duration-150 group-hover:opacity-0"
               style="background-color: var(--accent);"
             ></span>
           {/if}
 
           <button
             onclick={(e) => handleTabClose(tab.id, e)}
-            class="absolute inset-0 flex items-center justify-center rounded-md transition-opacity duration-150 {tab.is_dirty ? 'opacity-0' : (isActive ? 'opacity-50' : 'opacity-0')} group-hover:opacity-100 hover:!opacity-100 hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer"
+            class="absolute inset-0 flex items-center justify-center rounded transition-opacity duration-150 {tab.is_dirty ? 'opacity-0' : (isActive ? 'opacity-50' : 'opacity-0')} group-hover:opacity-100 hover:!opacity-100 hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer"
             title="Close Tab (Ctrl+W)"
             aria-label="Close Tab"
           >
-            <X size={12} />
+            <X size={11} />
           </button>
         </div>
       </div>
     {/each}
   </div>
 
+  <!-- Conditional Right Scroll Chevron (Only rendered when tabs overflow) -->
+  {#if hasOverflow}
+    <button
+      onclick={() => scrollTabs('right')}
+      disabled={!canScrollRight}
+      class="w-6 h-7 flex items-center justify-center rounded-md transition-all shrink-0 cursor-pointer text-[var(--text-secondary)] {canScrollRight ? 'hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 active:scale-95' : 'opacity-25 cursor-default pointer-events-none'}"
+      title="Scroll tabs right"
+      aria-label="Scroll tabs right"
+    >
+      <ChevronRight size={14} />
+    </button>
+  {/if}
+
+  <div class="w-px h-3.5 mx-0.5 opacity-30 shrink-0" style="background-color: var(--border);"></div>
+
   <!-- Pinned Trailing: Add Tab Button -->
   <button
-    onclick={() => appState.createScratchTab()}
-    class="w-8 h-8 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
+    onclick={() => {
+      appState.createScratchTab();
+      setTimeout(checkOverflow, 50);
+    }}
+    class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
     title="New Tab (Ctrl+T)"
     aria-label="New Tab"
   >
-    <Plus size={16} />
+    <Plus size={15} />
   </button>
 </div>

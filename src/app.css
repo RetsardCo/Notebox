@@ -3,6 +3,26 @@
 :root {
   --font-sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   --font-mono: "SF Mono", "Cascadia Code", "Fira Code", Consolas, Menlo, monospace;
+
+  /* 4px-Based Centralized Spacing System */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* Standardized Border Radii */
+  --radius-xs: 4px;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-island: 16px;
+  --radius-card: 12px;
+  --radius-pill: 9999px;
 }
 
 /* ==========================================================================
@@ -14,6 +34,7 @@
 :root[data-theme="light"],
 :root:not([data-theme]) {
   --bg-titlebar: #ede5d8;
+  --bg-canvas: #ede5d8;
   --bg-sidebar: #fbf8f2;
   --bg-sidebar-hover: #f3ede2;
   --bg-sidebar-active: #ebdccb;
@@ -59,6 +80,7 @@
 :root[data-theme="midnight"],
 :root[data-theme="dark"] {
   --bg-titlebar: #0d1218;
+  --bg-canvas: #090e13;
   --bg-sidebar: #121820;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(56, 189, 248, 0.14);
@@ -103,6 +125,7 @@
 /* 3. Forest (Refreshing nature green dark theme) */
 :root[data-theme="forest"] {
   --bg-titlebar: #0b1510;
+  --bg-canvas: #08100c;
   --bg-sidebar: #101c16;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(16, 185, 129, 0.16);
@@ -147,6 +170,7 @@
 /* 4. Ocean (Clean airy light blue theme) */
 :root[data-theme="ocean"] {
   --bg-titlebar: #dce7f2;
+  --bg-canvas: #d5e3ef;
   --bg-sidebar: #f0f5fa;
   --bg-sidebar-hover: #e4ecf3;
   --bg-sidebar-active: #d4e3ef;
@@ -191,6 +215,7 @@
 /* 5. Lavender (Soft creative lilac light theme) */
 :root[data-theme="lavender"] {
   --bg-titlebar: #e7dcf1;
+  --bg-canvas: #ded2ea;
   --bg-sidebar: #f8f4fb;
   --bg-sidebar-hover: #f0e8f5;
   --bg-sidebar-active: #e5d7ee;
@@ -235,6 +260,7 @@
 /* 6. Sunset (Warm vibrant plum dark theme) */
 :root[data-theme="sunset"] {
   --bg-titlebar: #1a1215;
+  --bg-canvas: #150d10;
   --bg-sidebar: #22181c;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(249, 115, 22, 0.16);
