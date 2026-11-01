@@ -18,3 +18,4 @@ target/
 .noteflow/
 .assets/
 NoteFlow/
+.agents/

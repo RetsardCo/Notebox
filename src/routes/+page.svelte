@@ -12,6 +12,7 @@
   import SettingsModal from '$lib/components/modals/SettingsModal.svelte';
   import PasswordModal from '$lib/components/modals/PasswordModal.svelte';
   import ExportModal from '$lib/components/modals/ExportModal.svelte';
+  import { handleZoomKey } from '$lib/utils/zoom';
 
   let editorComponent: any = null;
   let exportModalOpen = $state(false);
@@ -34,11 +35,13 @@
 
   function onMouseMoveSplitter(e: MouseEvent) {
     if (isDraggingSidebar) {
-      const newWidth = Math.max(200, Math.min(380, e.clientX));
+      // 10px workspace gutter offset
+      const newWidth = Math.max(200, Math.min(380, e.clientX - 10));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
-      const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
-      const newWidth = Math.max(240, Math.min(480, e.clientX - currentSidebarWidth));
+      // 10px workspace gutter + 10px panel gutter
+      const currentSidebarWidth = appState.sidebarCollapsed ? 0 : (appState.sidebarWidth + 10);
+      const newWidth = Math.max(240, Math.min(480, e.clientX - currentSidebarWidth - 10));
       appState.noteListWidth = newWidth;
     }
   }
@@ -124,23 +127,28 @@
       e.preventDefault();
       if (e.shiftKey) appState.prevTab();
       else appState.nextTab();
-    } else if (ctrl && (e.key === '=' || e.key === '+')) {
+    } else {
+      const zoomResult = handleZoomKey(e, appState.zoomLevel);
+      if (zoomResult.handled) {
+        appState.setZoomLevel(zoomResult.newZoom);
+        return;
+      }
+    }
+  }
+
+  function handleWindowWheel(e: WheelEvent) {
+    if (e.ctrlKey || e.metaKey) {
       e.preventDefault();
-      if (appState.zoomLevel < 200) appState.zoomLevel += 10;
-    } else if (ctrl && e.key === '-') {
-      e.preventDefault();
-      if (appState.zoomLevel > 60) appState.zoomLevel -= 10;
-    } else if (ctrl && e.key === '0') {
-      e.preventDefault();
-      appState.zoomLevel = 100;
     }
   }
 
   onMount(() => {
     appState.init();
     window.addEventListener('keydown', handleKeydown);
+    window.addEventListener('wheel', handleWindowWheel, { passive: false });
     return () => {
       window.removeEventListener('keydown', handleKeydown);
+      window.removeEventListener('wheel', handleWindowWheel);
     };
   });
 </script>
@@ -149,56 +157,63 @@
   <title>Notebox — {appState.activeTab?.title || 'Notes'}</title>
 </svelte:head>
 
-<div class="w-screen h-screen flex flex-col overflow-hidden" style="background-color: var(--bg-titlebar);">
+<div class="w-screen h-screen flex flex-col overflow-hidden" style="background-color: var(--bg-canvas);">
   <!-- Custom macOS Window Titlebar with 3 Interactive Dots -->
   <TitleBar />
 
-  <!-- 3-Column Connected Layout (Contiguous, cohesive panels matching Image 1) -->
-  <main class="flex-1 flex flex-row overflow-hidden min-h-0" style="background-color: var(--bg-editor);">
+  <!-- 3-Column Layout with 10px Workspace Gutter & 10px Panel-to-Panel Gutter -->
+  <main class="flex-1 flex flex-row overflow-hidden min-h-0 p-[10px] gap-[10px]" style="background-color: var(--bg-canvas);">
     <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
     {#if !appState.sidebarCollapsed}
       <aside
-        class="h-full flex flex-col shrink-0 overflow-hidden border-r transition-[width] duration-200 ease-in-out"
-        style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar); border-color: var(--border-subtle);"
+        class="h-full flex flex-col shrink-0 rounded-[12px] border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-[width] duration-200 ease-in-out"
+        style="width: {appState.sidebarWidth}px; background-color: var(--bg-sidebar);"
       >
         <Sidebar />
       </aside>
 
-      <!-- Sidebar Resize Splitter Handle (Sleek divider line) -->
+      <!-- Sidebar Resize Splitter Handle (10px gutter centered handle) -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="w-1.5 -ml-1 h-full cursor-col-resize transition-colors z-20 shrink-0 select-none {isDraggingSidebar ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
+        class="w-[10px] -mx-[5px] h-full cursor-col-resize flex items-center justify-center group z-20 shrink-0 select-none"
         onmousedown={onMouseDownSidebarSplitter}
         role="separator"
         tabindex="-1"
         aria-orientation="vertical"
         aria-valuenow={appState.sidebarWidth}
-      ></div>
+      >
+        <div class="w-1 h-8 rounded-full transition-all group-hover:h-14 group-hover:bg-[var(--accent)] bg-black/10 dark:bg-white/10 {isDraggingSidebar ? '!h-16 !bg-[var(--accent)]' : ''}"></div>
+      </div>
     {/if}
 
     <!-- Column 2: Note Cards List -->
     {#if !appState.noteListCollapsed}
       <section
-        class="h-full flex flex-col shrink-0 overflow-hidden border-r transition-[width] duration-200 ease-in-out"
-        style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist); border-color: var(--border-subtle);"
+        class="h-full flex flex-col shrink-0 rounded-[12px] border border-[var(--border-subtle)] shadow-xs overflow-hidden transition-[width] duration-200 ease-in-out"
+        style="width: {appState.noteListWidth}px; background-color: var(--bg-notelist);"
       >
         <NoteList />
       </section>
 
-      <!-- NoteList Resize Splitter Handle (Sleek divider line) -->
+      <!-- NoteList Resize Splitter Handle (10px gutter centered handle) -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="w-1.5 -ml-1 h-full cursor-col-resize transition-colors z-20 shrink-0 select-none {isDraggingNoteList ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
+        class="w-[10px] -mx-[5px] h-full cursor-col-resize flex items-center justify-center group z-20 shrink-0 select-none"
         onmousedown={onMouseDownNoteListSplitter}
         role="separator"
         tabindex="-1"
         aria-orientation="vertical"
         aria-valuenow={appState.noteListWidth}
-      ></div>
+      >
+        <div class="w-1 h-8 rounded-full transition-all group-hover:h-14 group-hover:bg-[var(--accent)] bg-black/10 dark:bg-white/10 {isDraggingNoteList ? '!h-16 !bg-[var(--accent)]' : ''}"></div>
+      </div>
     {/if}
 
     <!-- Column 3: Main Editor Area (Tabs, Toolbar, Editor, Status Bar) -->
-    <section class="flex-1 flex flex-col h-full overflow-hidden min-w-[360px]" style="background-color: var(--bg-editor);">
+    <section
+      class="flex-1 flex flex-col h-full rounded-[12px] border border-[var(--border-subtle)] shadow-xs overflow-hidden min-w-[360px]"
+      style="background-color: var(--bg-editor);"
+    >
       <!-- Tab Bar (Horizontal mouse-wheel scrolling, conditional chevrons, pinned + button) -->
       <TabBar />
 

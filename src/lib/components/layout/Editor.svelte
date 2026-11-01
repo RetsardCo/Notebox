@@ -13,6 +13,7 @@
   import { Placeholder } from '@tiptap/extension-placeholder';
   import { Underline } from '@tiptap/extension-underline';
   import { FileText } from '@lucide/svelte';
+  import { handleZoomWheel, createWheelAccumulator } from '$lib/utils/zoom';
 
   const CustomImage = Image.extend({
     addAttributes() {
@@ -382,6 +383,18 @@
     }
   }
 
+  const wheelAccumulator = createWheelAccumulator();
+
+  function handleWheel(e: WheelEvent) {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+      const { handled, newZoom } = handleZoomWheel(e, appState.zoomLevel, wheelAccumulator);
+      if (handled) {
+        appState.setZoomLevel(newZoom);
+      }
+    }
+  }
+
   // React to tab switch or note unlock/content sync
   $effect(() => {
     if (editorElement && !editor) {
@@ -455,7 +468,8 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
   class="flex-1 h-full overflow-y-auto {appState.wordWrap ? '' : 'overflow-x-auto'} relative select-text editor-outer-container"
-  style="background-color: var(--bg-editor); zoom: {appState.zoomLevel}%;"
+  style="background-color: var(--bg-editor);"
+  onwheel={handleWheel}
   onpaste={handlePaste}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
@@ -464,9 +478,12 @@
   aria-label="Note Editor"
 >
   <!-- Editor Page Canvas: ALWAYS mounted to ensure TipTap binds cleanly on startup -->
-  <div class="min-h-full w-full flex justify-center editor-page-container {!appState.activeTab ? 'hidden' : ''}">
+  <div
+    class="min-h-full w-full flex justify-center editor-page-container {!appState.activeTab ? 'hidden' : ''}"
+    style="zoom: {appState.zoomLevel}%;"
+  >
     <div
-      class="w-full max-w-3xl px-8 sm:px-10 pt-7 pb-10 min-h-full flex flex-col {appState.wordWrap ? '' : 'min-w-max'}"
+      class="w-full max-w-4xl px-8 sm:px-10 pt-7 pb-12 min-h-full flex flex-col"
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}
@@ -500,7 +517,7 @@
 
       <div
         bind:this={editorElement}
-        class="flex-1 min-h-[500px] cursor-text select-text"
+        class="flex-1 min-h-[500px] cursor-text select-text {appState.wordWrap ? '' : 'whitespace-pre overflow-x-auto'}"
       ></div>
     </div>
   </div>

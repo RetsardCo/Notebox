@@ -17,6 +17,7 @@ import type {
   SortOption,
   ViewMode,
 } from '../types';
+import { clampZoom, zoomIn, zoomOut, resetZoom } from '../utils/zoom';
 
 let autoSaveTimer: any = null;
 let sessionSaveTimer: any = null;
@@ -598,6 +599,22 @@ class AppStore {
     const words = content.trim().split(/\s+/).filter(Boolean).length;
     this.wordCount = words;
     this.charCount = content.length;
+  }
+
+  zoomIn(): void {
+    this.zoomLevel = zoomIn(this.zoomLevel);
+  }
+
+  zoomOut(): void {
+    this.zoomLevel = zoomOut(this.zoomLevel);
+  }
+
+  resetZoom(): void {
+    this.zoomLevel = resetZoom();
+  }
+
+  setZoomLevel(level: number): void {
+    this.zoomLevel = clampZoom(level);
   }
 }
 

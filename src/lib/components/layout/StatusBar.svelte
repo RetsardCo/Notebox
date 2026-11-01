@@ -1,21 +1,18 @@
 <script lang="ts">
   import { appState } from '$lib/stores/appState.svelte';
   import { Check, Loader2, Minus, Plus } from '@lucide/svelte';
+  import { MIN_ZOOM, MAX_ZOOM } from '$lib/utils/zoom';
 
   function zoomIn() {
-    if (appState.zoomLevel < 200) {
-      appState.zoomLevel += 10;
-    }
+    appState.zoomIn();
   }
 
   function zoomOut() {
-    if (appState.zoomLevel > 60) {
-      appState.zoomLevel -= 10;
-    }
+    appState.zoomOut();
   }
 
   function resetZoom() {
-    appState.zoomLevel = 100;
+    appState.resetZoom();
   }
 </script>
 
@@ -66,13 +63,30 @@
 
     <!-- Zoom Control -->
     <div class="flex items-center gap-1.5">
-      <button onclick={zoomOut} class="hover:text-[var(--text-primary)] transition-colors cursor-pointer p-0.5 rounded" title="Zoom Out (Ctrl+-)">
+      <button
+        onclick={zoomOut}
+        disabled={appState.zoomLevel <= MIN_ZOOM}
+        class="hover:text-[var(--text-primary)] transition-colors cursor-pointer p-0.5 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+        title="Zoom Out (Ctrl+-)"
+        aria-label="Zoom Out"
+      >
         <Minus size={11} />
       </button>
-      <button onclick={resetZoom} class="hover:underline cursor-pointer font-medium" title="Reset Zoom (Ctrl+0)">
+      <button
+        onclick={resetZoom}
+        class="hover:underline cursor-pointer font-medium"
+        title="Reset Zoom (Ctrl+0)"
+        aria-label="Reset Zoom"
+      >
         {appState.zoomLevel}%
       </button>
-      <button onclick={zoomIn} class="hover:text-[var(--text-primary)] transition-colors cursor-pointer p-0.5 rounded" title="Zoom In (Ctrl+=)">
+      <button
+        onclick={zoomIn}
+        disabled={appState.zoomLevel >= MAX_ZOOM}
+        class="hover:text-[var(--text-primary)] transition-colors cursor-pointer p-0.5 rounded disabled:opacity-30 disabled:cursor-not-allowed"
+        title="Zoom In (Ctrl+=)"
+        aria-label="Zoom In"
+      >
         <Plus size={11} />
       </button>
     </div>

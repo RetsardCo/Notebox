@@ -97,7 +97,7 @@
   style="background-color: var(--bg-notelist);"
 >
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
-  <div class="h-10 px-3 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-10 px-2.5 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
       {#if appState.sidebarCollapsed}
         <button
