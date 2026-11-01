@@ -81,9 +81,10 @@
     onclick={onClose}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
   >
     <div
-      class="w-full max-w-sm rounded-xl border shadow-2xl p-5 space-y-4"
+      class="w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4"
       style="background-color: var(--bg-modal); border-color: var(--border);"
       onclick={(e) => e.stopPropagation()}
     >
@@ -93,7 +94,7 @@
           <FileDown size={16} style="color: var(--accent);" />
           <h3 class="font-semibold text-sm" style="color: var(--text-primary);">Share & Export Note</h3>
         </div>
-        <button onclick={onClose} class="p-1 rounded hover:opacity-75">
+        <button onclick={onClose} class="p-1 rounded-lg hover:opacity-75 cursor-pointer">
           <X size={15} style="color: var(--text-tertiary);" />
         </button>
       </div>
@@ -106,8 +107,8 @@
       <div class="space-y-2">
         <button
           onclick={exportAsMarkdown}
-          class="w-full p-2.5 rounded-lg border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left"
-          style="background-color: var(--bg-sidebar); border-color: var(--border); color: var(--text-primary);"
+          class="w-full p-2.5 rounded-xl border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left shadow-2xs"
+          style="background-color: var(--bg-card); border-color: var(--border-subtle); color: var(--text-primary);"
         >
           <Code size={16} style="color: var(--accent);" />
           <div>
@@ -118,8 +119,8 @@
 
         <button
           onclick={exportAsText}
-          class="w-full p-2.5 rounded-lg border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left"
-          style="background-color: var(--bg-sidebar); border-color: var(--border); color: var(--text-primary);"
+          class="w-full p-2.5 rounded-xl border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left shadow-2xs"
+          style="background-color: var(--bg-card); border-color: var(--border-subtle); color: var(--text-primary);"
         >
           <FileText size={16} style="color: var(--accent);" />
           <div>
@@ -130,8 +131,8 @@
 
         <button
           onclick={exportAsHtml}
-          class="w-full p-2.5 rounded-lg border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left"
-          style="background-color: var(--bg-sidebar); border-color: var(--border); color: var(--text-primary);"
+          class="w-full p-2.5 rounded-xl border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left shadow-2xs"
+          style="background-color: var(--bg-card); border-color: var(--border-subtle); color: var(--text-primary);"
         >
           <Globe size={16} style="color: var(--accent);" />
           <div>
@@ -142,8 +143,8 @@
 
         <button
           onclick={handlePrint}
-          class="w-full p-2.5 rounded-lg border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left"
-          style="background-color: var(--bg-sidebar); border-color: var(--border); color: var(--text-primary);"
+          class="w-full p-2.5 rounded-xl border flex items-center gap-3 text-xs font-medium hover:opacity-85 transition cursor-pointer text-left shadow-2xs"
+          style="background-color: var(--bg-card); border-color: var(--border-subtle); color: var(--text-primary);"
         >
           <Printer size={16} style="color: var(--accent);" />
           <div>

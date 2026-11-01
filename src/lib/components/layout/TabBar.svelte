@@ -21,6 +21,7 @@
   }
 
   function handleTabClose(tabId: string, e: MouseEvent) {
+    e.preventDefault();
     e.stopPropagation();
     appState.closeTab(tabId);
     setTimeout(checkOverflow, 50);
@@ -29,6 +30,7 @@
   function handleAuxClick(tabId: string, e: MouseEvent) {
     if (e.button === 1) {
       e.preventDefault();
+      e.stopPropagation();
       appState.closeTab(tabId);
       setTimeout(checkOverflow, 50);
     }
@@ -77,7 +79,7 @@
 </script>
 
 <div
-  class="h-10 flex items-center border-b px-3 gap-1.5 select-none shrink-0"
+  class="h-9 flex items-center border-b px-2.5 gap-1.5 select-none shrink-0"
   style="background-color: var(--bg-tabbar); border-color: var(--border-subtle);"
 >
   <!-- Pinned Leading: Sidebar Toggle Button -->
@@ -124,9 +126,9 @@
         onkeydown={(e) => {
           if (e.key === 'Enter') handleTabClick(tab.id);
         }}
-        class="group relative h-7.5 px-3 rounded-lg flex items-center gap-2 text-xs transition-all cursor-pointer shrink-0 max-w-[200px] min-w-[120px] select-none border {isActive ? 'shadow-xs font-semibold' : 'hover:bg-black/5 dark:hover:bg-white/5 font-normal'}"
+        class="group relative h-7 px-2.5 rounded-lg flex items-center gap-2 text-xs transition-all cursor-pointer shrink-0 max-w-[200px] min-w-[120px] select-none border {isActive ? 'shadow-xs font-semibold' : 'hover:bg-black/5 dark:hover:bg-white/5 font-normal'}"
         style={isActive
-          ? 'background-color: var(--bg-tab-active); border-color: var(--border); color: var(--text-primary);'
+          ? 'background-color: var(--bg-tab-active); border-color: var(--border-tab-active, var(--border)); color: var(--text-primary);'
           : 'background-color: transparent; border-color: transparent; color: var(--text-secondary);'}
       >
         <FileText
@@ -138,7 +140,7 @@
         <span class="truncate text-[11.5px] flex-1 text-left">{tab.title || 'Untitled'}</span>
 
         <!-- Trailing slot for dirty indicator / close button -->
-        <div class="relative w-3.5 h-3.5 flex items-center justify-center shrink-0">
+        <div class="relative w-4 h-4 flex items-center justify-center shrink-0">
           {#if tab.is_dirty}
             <span
               class="w-1.5 h-1.5 rounded-full transition-opacity duration-150 group-hover:opacity-0"
@@ -148,7 +150,7 @@
 
           <button
             onclick={(e) => handleTabClose(tab.id, e)}
-            class="absolute inset-0 flex items-center justify-center rounded transition-opacity duration-150 {tab.is_dirty ? 'opacity-0' : (isActive ? 'opacity-50' : 'opacity-0')} group-hover:opacity-100 hover:!opacity-100 hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer"
+            class="flex items-center justify-center p-0.5 rounded transition-opacity duration-150 {tab.is_dirty ? 'opacity-0 group-hover:opacity-100' : (isActive ? 'opacity-70 hover:opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100')} hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)]"
             title="Close Tab (Ctrl+W)"
             aria-label="Close Tab"
           >

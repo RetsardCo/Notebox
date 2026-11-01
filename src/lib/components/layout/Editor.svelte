@@ -441,6 +441,16 @@
     }
   }
 
+  function handleEditorKeyDown(e: KeyboardEvent) {
+    const ctrl = e.ctrlKey || e.metaKey;
+    if (ctrl && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'c') {
+      const sel = window.getSelection()?.toString();
+      if (sel && sel.length > 0) {
+        navigator.clipboard.writeText(sel).catch(() => {});
+      }
+    }
+  }
+
   function getNoteMetadata(tab: any): { date: string; folder: string; readTime: string } {
     const note = tab?.note_id ? appState.notes.find((n) => n.id === tab.note_id) : null;
     const dateStr = note?.updated_at || new Date().toISOString();
@@ -467,23 +477,24 @@
 <!-- svelte-ignore a11y_click_events_have_key_events -->
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <div
-  class="flex-1 h-full overflow-y-auto {appState.wordWrap ? '' : 'overflow-x-auto'} relative select-text editor-outer-container"
+  class="flex-1 h-full overflow-y-auto {!appState.wordWrap ? 'overflow-x-auto editor-no-wrap' : 'editor-wrap'} relative select-text editor-outer-container"
   style="background-color: var(--bg-editor);"
   onwheel={handleWheel}
   onpaste={handlePaste}
   ondrop={handleDrop}
   ondragover={(e) => e.preventDefault()}
   onclick={handleEditorClick}
+  onkeydown={handleEditorKeyDown}
   role="region"
   aria-label="Note Editor"
 >
   <!-- Editor Page Canvas: ALWAYS mounted to ensure TipTap binds cleanly on startup -->
   <div
-    class="min-h-full w-full flex justify-center editor-page-container {!appState.activeTab ? 'hidden' : ''}"
-    style="zoom: {appState.zoomLevel}%;"
+    class="min-h-full w-full flex flex-col items-start editor-page-container {!appState.activeTab ? 'hidden' : ''}"
+    style="zoom: {appState.zoomLevel}%; transform-origin: top left;"
   >
     <div
-      class="w-full max-w-4xl px-8 sm:px-10 pt-7 pb-12 min-h-full flex flex-col editor-content-container"
+      class="w-full min-h-full flex flex-col editor-content-container"
     >
       {#if appState.activeTab}
         {@const meta = getNoteMetadata(appState.activeTab)}
@@ -498,11 +509,11 @@
             onmousedown={(e) => e.stopPropagation()}
             onclick={(e) => e.stopPropagation()}
             placeholder="Untitled Note"
-            class="w-full text-3xl font-bold tracking-tight bg-transparent border-none outline-none mb-2 select-text cursor-text"
+            class="w-full text-2xl font-bold tracking-tight bg-transparent border-none outline-none mb-1.5 select-text cursor-text"
             style="color: var(--text-primary);"
           />
 
-          <div class="note-metadata-line px-0.5 mb-4 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
+          <div class="note-metadata-line px-0.5 mb-3 flex items-center gap-2 select-none text-xs font-medium" style="color: var(--text-tertiary);">
             <span>{meta.date}</span>
             <span class="opacity-40">•</span>
             <span class="capitalize">{meta.folder}</span>
@@ -510,14 +521,14 @@
             <span>{meta.readTime}</span>
           </div>
 
-          <!-- Subtle horizontal divider line beneath metadata matching Image 3 -->
-          <div class="border-b mb-6" style="border-color: var(--border-subtle);"></div>
+          <!-- Subtle horizontal divider line beneath metadata matching Reference A -->
+          <div class="border-b mb-5" style="border-color: var(--border-subtle);"></div>
         </div>
       {/if}
 
       <div
         bind:this={editorElement}
-        class="flex-1 min-h-[500px] cursor-text select-text {appState.wordWrap ? '' : 'whitespace-pre overflow-x-auto'}"
+        class="flex-1 min-h-[500px] cursor-text select-text {!appState.wordWrap ? 'editor-no-wrap overflow-x-auto' : ''}"
       ></div>
     </div>
   </div>

@@ -137,7 +137,7 @@
   <!-- Inset Search Box (Image 1 Style: Search notes...) -->
   <div class="px-3 pt-2.5 pb-1 shrink-0">
     <div
-      class="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-xs shadow-2xs transition-colors"
+      class="flex items-center gap-2 h-8.5 px-3 rounded-xl border text-xs shadow-2xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border-subtle);"
     >
       <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
@@ -169,16 +169,16 @@
   <div class="flex-1 overflow-y-auto px-3 py-2 space-y-4">
     <!-- Quick Access Section -->
     <div>
-      <div class="px-3 mt-2.5 mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="px-3 mt-2.5 mb-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-tertiary);">
         Quick Access
       </div>
 
       <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          ? ''
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -193,9 +193,9 @@
       <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          ? ''
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -210,9 +210,9 @@
       <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          ? ''
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -227,9 +227,9 @@
       <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
         style={appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+          ? ''
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -247,7 +247,7 @@
 
     <!-- Folders Section -->
     <div>
-      <div class="flex items-center justify-between px-3 mt-1 mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="flex items-center justify-between px-3 mt-1 mb-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Folders</span>
         <button
           onclick={() => (showNewFolderInput = true)}
@@ -304,9 +304,9 @@
       {#each appState.folders as folder (folder.id)}
         {@const isFolderActive = appState.selectedFolderId === folder.id && !appState.selectedTag && !appState.searchQuery}
         <div
-          class="group w-full h-8 px-2.5 py-1.5 rounded-xl mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isFolderActive ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          class="group w-full h-8 px-2.5 py-1.5 rounded-xl mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isFolderActive ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
           style={isFolderActive
-            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+            ? ''
             : 'color: var(--text-primary);'}
           onclick={() => appState.selectFolder(folder.id)}
           role="button"
@@ -370,7 +370,7 @@
 
     <!-- Tags Section -->
     <div>
-      <div class="flex items-center justify-between px-3 mt-3 mb-1.5 text-[10.5px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">
+      <div class="flex items-center justify-between px-3 mt-3 mb-1.5 text-[10px] font-bold uppercase tracking-wider" style="color: var(--text-tertiary);">
         <span>Tags</span>
         <button
           onclick={() => (showNewTagInput = true)}
@@ -428,9 +428,9 @@
         {@const isTagActive = appState.selectedTag === tag.name && !appState.selectedFolderId && !appState.searchQuery}
         <button
           onclick={() => appState.selectTag(tag.name)}
-          class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTagActive ? '' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTagActive ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
           style={isTagActive
-            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text); font-weight: 600;'
+            ? ''
             : 'color: var(--text-primary);'}
         >
           <div class="flex items-center gap-2.5 truncate">
@@ -446,7 +446,7 @@
   </div>
 
   <!-- Bottom Floating Footer Card for Settings and Palette Switcher (Image 1 Style) -->
-  <div class="m-2.5 p-2 rounded-xl border shadow-2xs flex items-center justify-between text-xs shrink-0 relative transition-colors" style="border-color: var(--border-subtle); background-color: var(--bg-notelist-card);">
+  <div class="m-3 p-2 rounded-xl border shadow-2xs flex items-center justify-between text-xs shrink-0 relative transition-colors" style="border-color: var(--border-subtle); background-color: var(--bg-notelist-card);">
     <!-- Settings Button (Image 1 bottom left) -->
     <button
       onclick={() => (appState.settingsOpen = true)}

@@ -38,9 +38,9 @@ describe('Design System Spacing Hierarchy', () => {
     expect(cssFile).toMatch(/\.notelist-cards-container\s*\{[^}]*gap:\s*8px/);
   });
 
-  it('R2.4: Note card padding is 12px and card radius is 12px in app.css & NoteList.svelte', () => {
+  it('R2.4: Note card padding is 10px 12px and card radius is 12px in app.css & NoteList.svelte', () => {
     expect(noteListFile).toMatch(/notelist-card-item/);
-    expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*padding:\s*12px/);
+    expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*padding:\s*10px 12px/);
     expect(cssFile).toMatch(/\.notelist-card-item\s*\{[^}]*border-radius:\s*(?:12px|var\(--radius-card\))/);
   });
 
@@ -48,11 +48,10 @@ describe('Design System Spacing Hierarchy', () => {
     expect(toolbarFile).toMatch(/px-3/);
   });
 
-  it('R2.6: Editor content horizontal padding is 32–40px (px-8 to px-10) and top padding is 24–32px (pt-6 to pt-8)', () => {
-    expect(editorFile).toMatch(/px-8 sm:px-10/);
-    expect(editorFile).toMatch(/pt-7/);
+  it('R2.6: Editor content horizontal padding is 40px and top padding is 28px with top-left anchor', () => {
     expect(editorFile).toMatch(/editor-content-container/);
-    expect(cssFile).toMatch(/\.editor-content-container\s*\{[^}]*padding:\s*30px 40px 48px/);
+    expect(cssFile).toMatch(/\.editor-content-container\s*\{[^}]*padding:\s*28px 40px 48px/);
+    expect(cssFile).toMatch(/\.editor-content-container\s*\{[^}]*transform-origin:\s*top left/);
   });
 
   it('R2.7: Editor content does not collapse with min-w-max touching left window border', () => {
@@ -62,5 +61,11 @@ describe('Design System Spacing Hierarchy', () => {
 
   it('R2.8: Status bar buttons and text have explicit horizontal padding', () => {
     expect(statusBarFile).toMatch(/px-(?:3\.5|4)/);
+  });
+
+  it('R2.9: Three-island workspace system and word wrap override rules', () => {
+    expect(cssFile).toMatch(/--bg-canvas:\s*#ECE0F8;/);
+    expect(cssFile).toMatch(/--panel-radius:\s*16px;/);
+    expect(cssFile).toMatch(/\.editor-no-wrap \.ProseMirror/);
   });
 });

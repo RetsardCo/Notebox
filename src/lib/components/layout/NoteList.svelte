@@ -111,10 +111,10 @@
       {/if}
 
       <div class="truncate">
-        <h2 class="font-semibold text-xs leading-tight truncate uppercase tracking-wider" style="color: var(--text-tertiary);">
+        <h2 class="font-bold text-[11px] leading-tight truncate uppercase tracking-wider" style="color: var(--text-primary);">
           {currentViewTitle}
         </h2>
-        <span class="text-[10px] font-medium" style="color: var(--text-tertiary);">
+        <span class="text-[10.5px] font-medium" style="color: var(--text-tertiary);">
           {appState.displayedNotes.length} {appState.displayedNotes.length === 1 ? 'note' : 'notes'}
         </span>
       </div>
@@ -184,7 +184,7 @@
           onkeydown={(e) => {
             if (e.key === 'Enter') handleNoteClick(note);
           }}
-          class="notelist-card-item {isSelected ? 'is-selected' : ''}"
+          class="notelist-card-item group {isSelected ? 'is-selected' : ''}"
         >
           <!-- Card Header: Title & Badges -->
           <div class="flex items-start justify-between gap-2 mb-2">
@@ -202,6 +202,23 @@
               {#if note.locked}
                 <Lock size={12} style="color: var(--text-secondary);" />
               {/if}
+              <button
+                onclick={(e) => {
+                  e.stopPropagation();
+                  const isTrash = note.is_trash;
+                  const promptMsg = isTrash
+                    ? `Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`
+                    : `Move "${note.title || 'Untitled Note'}" to trash?`;
+                  if (confirm(promptMsg)) {
+                    appState.deleteNote(note.id, isTrash);
+                  }
+                }}
+                class="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-[var(--text-tertiary)] hover:text-red-500 transition-opacity cursor-pointer shrink-0"
+                title={note.is_trash ? "Permanently Delete Note" : "Move to Trash"}
+                aria-label="Delete Note"
+              >
+                <Trash2 size={13} />
+              </button>
             </div>
           </div>
 

@@ -214,47 +214,50 @@
 :root[data-theme="lavender"],
 :root[data-theme="light"],
 :root:not([data-theme]) {
-  --bg-titlebar: #e7dcf1;
-  --bg-canvas: #ded2ea;
-  --bg-sidebar: #ece4f4;
-  --bg-sidebar-hover: #e1d4eb;
-  --bg-sidebar-active: #dcc8ec;
-  --bg-notelist: #ece4f4;
-  --bg-notelist-card: #ffffff;
-  --bg-notelist-hover: #e1d4eb;
-  --bg-notelist-active: #dcc8ec;
-  --bg-editor: #f8f4fb;
-  --bg-toolbar: #f8f4fb;
-  --bg-tabbar: #e7dcf1;
-  --bg-tab-active: #f8f4fb;
-  --bg-tab-hover: #ded1e9;
-  --bg-statusbar: #ece4f4;
-  --bg-modal: #ffffff;
-  --bg-input: #ffffff;
+  --bg-titlebar: #FAF5FB;
+  --bg-window: #FAF5FB;
+  --bg-canvas: #ECE0F8;
+  --bg-sidebar: #F5EFFD;
+  --bg-sidebar-hover: #EEE6FB;
+  --bg-sidebar-active: #E4D1FA;
+  --bg-notelist: #F4EBFB;
+  --bg-notelist-card: #FCF8FE;
+  --bg-notelist-hover: #F8F1FD;
+  --bg-notelist-active: #F1E8FA;
+  --border-card-active: #9D76F5;
+  --bg-editor: #FBF7FE;
+  --bg-toolbar: #F8F4FD;
+  --bg-tabbar: #EEE4F8;
+  --bg-tab-active: #FFFFFF;
+  --border-tab-active: #DDD3EE;
+  --bg-tab-hover: #E8DDF5;
+  --bg-statusbar: #F4EDFC;
+  --bg-modal: #FAF5FB;
+  --bg-input: #F8F2FD;
 
-  --text-primary: #281438;
-  --text-secondary: #553a6e;
-  --text-tertiary: #82659e;
-  --text-muted: #a68fc0;
+  --text-primary: #1E1233;
+  --text-secondary: #5A4B70;
+  --text-tertiary: #8B7D9E;
+  --text-muted: #A697BC;
 
-  --accent: #8b5cf6;
-  --accent-hover: #7c3aed;
-  --accent-light: rgba(139, 92, 246, 0.15);
-  --accent-text: #7c3aed;
+  --accent: #8A4EF5;
+  --accent-hover: #793DE3;
+  --accent-light: #E4D1FA;
+  --accent-text: #2C1A4A;
 
-  --border: rgba(40, 20, 56, 0.12);
-  --border-subtle: rgba(40, 20, 56, 0.06);
-  --border-focus: #8b5cf6;
+  --border: #DDD3EE;
+  --border-subtle: #E6DCF5;
+  --border-focus: #8A4EF5;
 
-  --callout-bg: #efe5f8;
-  --callout-border: #ded1ec;
+  --callout-bg: #F4EAFB;
+  --callout-border: #E8DCF7;
 
-  --shadow-sm: 0 1px 3px rgba(40, 20, 56, 0.06);
-  --shadow-md: 0 4px 14px rgba(40, 20, 56, 0.09);
-  --shadow-lg: 0 12px 32px rgba(40, 20, 56, 0.13);
+  --shadow-sm: 0 1px 3px rgba(44, 26, 74, 0.05);
+  --shadow-md: 0 4px 14px rgba(44, 26, 74, 0.08);
+  --shadow-lg: 0 12px 32px rgba(44, 26, 74, 0.12);
 
-  --scrollbar-thumb: #dad0e6;
-  --scrollbar-thumb-hover: #c4b5d4;
+  --scrollbar-thumb: #D8CCE8;
+  --scrollbar-thumb-hover: #C5B5D8;
 }
 
 /* 6. Sunset (Warm vibrant plum dark theme) */
@@ -606,12 +609,12 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 :root {
   --workspace-gutter: 10px;
-  --panel-radius: 14px;
+  --panel-radius: 16px;
   --panel-border: 1px solid var(--border-subtle);
-  --panel-shadow: var(--shadow-sm);
-  --sidebar-min-width: 220px;
-  --notelist-min-width: 280px;
-  --editor-min-width: 360px;
+  --panel-shadow: 0 2px 10px rgba(44, 26, 74, 0.05);
+  --sidebar-min-width: 200px;
+  --notelist-min-width: 250px;
+  --editor-min-width: 320px;
 }
 
 .workspace-container {
@@ -695,7 +698,8 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 }
 
 .splitter-handle:hover::after,
-.splitter-handle:focus-visible::after {
+.splitter-handle:focus-visible::after,
+.splitter-handle.is-dragging::after {
   height: 42px;
   background: var(--accent);
   opacity: 0.85;
@@ -738,12 +742,14 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 }
 
 .notelist-card-item {
+  position: relative;
   width: 100%;
-  padding: 12px;
-  border: 1px solid var(--border-subtle);
-  border-radius: var(--radius-card);
-  background: var(--bg-notelist-card);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.035);
+  padding: 10px 12px;
+  margin-bottom: 8px;
+  border: 1px solid #ECE4F7;
+  border-radius: 12px;
+  background: var(--bg-notelist-card, #FCF8FE);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
   text-align: left;
   cursor: pointer;
   user-select: none;
@@ -752,13 +758,13 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 .notelist-card-item:hover {
   border-color: var(--border);
-  background: var(--bg-notelist-hover);
+  background: var(--bg-notelist-hover, #F8F1FD);
 }
 
 .notelist-card-item.is-selected {
-  border-color: var(--accent);
-  background: var(--bg-notelist-active);
-  box-shadow: 0 0 0 1px var(--accent-light);
+  border: 1.5px solid var(--border-card-active, #9D76F5);
+  background: var(--bg-notelist-active, #F1E8FA);
+  box-shadow: 0 2px 8px rgba(157, 118, 245, 0.15);
 }
 
 /* Editor toolbar and document: separate tool chrome from the reading canvas. */
@@ -778,18 +784,28 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 .editor-page-container {
   min-height: 100%;
   width: 100%;
-  padding-inline: 20px;
+  transform-origin: top left;
 }
 
 .editor-content-container {
   width: 100%;
-  max-width: 900px;
+  max-width: 100%;
   min-height: 100%;
-  margin-inline: auto;
-  padding: 30px 40px 48px;
+  padding: 28px 40px 48px;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
+  transform-origin: top left;
+}
+
+/* Word Wrap Override for Windows 11 Notepad behavior */
+.editor-no-wrap .ProseMirror,
+.editor-no-wrap .ProseMirror p {
+  white-space: pre !important;
+  word-break: normal !important;
+  overflow-wrap: normal !important;
+  width: max-content !important;
+  min-width: 100% !important;
 }
 
 .note-header-area {

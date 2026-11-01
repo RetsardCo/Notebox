@@ -35,11 +35,11 @@
 
   function onMouseMoveSplitter(e: MouseEvent) {
     if (isDraggingSidebar) {
-      const newWidth = Math.max(220, Math.min(380, e.clientX));
+      const newWidth = Math.max(200, Math.min(380, e.clientX));
       appState.sidebarWidth = newWidth;
     } else if (isDraggingNoteList) {
       const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
-      const newWidth = Math.max(280, Math.min(480, e.clientX - currentSidebarWidth));
+      const newWidth = Math.max(250, Math.min(480, e.clientX - currentSidebarWidth));
       appState.noteListWidth = newWidth;
     }
   }
@@ -56,7 +56,12 @@
     // Check for Ctrl (or Cmd on Mac)
     const ctrl = e.ctrlKey || e.metaKey;
 
-    if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'n') {
+    if (ctrl && !e.shiftKey && !e.altKey && e.key.toLowerCase() === 'c') {
+      const sel = window.getSelection()?.toString();
+      if (sel && sel.length > 0) {
+        navigator.clipboard.writeText(sel).catch(() => {});
+      }
+    } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 'n') {
       e.preventDefault();
       appState.createNewNote();
     } else if (ctrl && !e.shiftKey && e.key.toLowerCase() === 't') {
@@ -173,7 +178,7 @@
       <!-- Sidebar resize gutter -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="splitter-handle transition-colors {isDraggingSidebar ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
+        class="splitter-handle transition-colors {isDraggingSidebar ? 'is-dragging' : ''}"
         onmousedown={onMouseDownSidebarSplitter}
         role="separator"
         tabindex="-1"
@@ -194,7 +199,7 @@
       <!-- Notes-list resize gutter -->
       <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
       <div
-        class="splitter-handle transition-colors {isDraggingNoteList ? 'bg-[var(--accent)]' : 'hover:bg-[var(--accent)]/50'}"
+        class="splitter-handle transition-colors {isDraggingNoteList ? 'is-dragging' : ''}"
         onmousedown={onMouseDownNoteListSplitter}
         role="separator"
         tabindex="-1"

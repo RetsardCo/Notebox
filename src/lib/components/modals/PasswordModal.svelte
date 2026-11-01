@@ -116,9 +116,10 @@
     }}
     role="dialog"
     aria-modal="true"
+    tabindex="-1"
   >
     <div
-      class="w-full max-w-sm rounded-xl border shadow-2xl p-5 space-y-4"
+      class="w-full max-w-sm rounded-2xl border shadow-2xl p-5 space-y-4"
       style="background-color: var(--bg-modal); border-color: var(--border);"
       onclick={(e) => e.stopPropagation()}
     >
@@ -141,7 +142,7 @@
             appState.passwordModalOpen = false;
             resetForm();
           }}
-          class="p-1 rounded hover:opacity-75"
+          class="p-1 rounded-lg hover:opacity-75 cursor-pointer"
         >
           <X size={15} style="color: var(--text-tertiary);" />
         </button>
@@ -173,7 +174,7 @@
                 else handleUnlockSubmit();
               }
             }}
-            class="w-full px-3 py-1.5 mt-1 rounded-lg border text-xs outline-none"
+            class="w-full px-3 py-2 mt-1 rounded-xl border text-xs outline-none"
             style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
             autofocus
           />
@@ -189,7 +190,7 @@
               onkeydown={(e) => {
                 if (e.key === 'Enter') handleLockSubmit();
               }}
-              class="w-full px-3 py-1.5 mt-1 rounded-lg border text-xs outline-none"
+              class="w-full px-3 py-2 mt-1 rounded-xl border text-xs outline-none"
               style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
             />
           </div>
@@ -210,7 +211,7 @@
             appState.passwordModalOpen = false;
             resetForm();
           }}
-          class="px-3 py-1.5 rounded-lg border text-xs font-medium hover:opacity-80 transition cursor-pointer"
+          class="px-3.5 py-1.5 rounded-xl border text-xs font-medium hover:opacity-80 transition cursor-pointer"
           style="border-color: var(--border); color: var(--text-secondary);"
         >
           Cancel
@@ -223,7 +224,7 @@
             else handleUnlockSubmit();
           }}
           disabled={isSubmitting}
-          class="px-3 py-1.5 rounded-lg text-xs font-medium hover:opacity-90 transition cursor-pointer"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-medium hover:opacity-90 transition cursor-pointer shadow-xs"
           style="background-color: var(--accent); color: #000;"
         >
           {appState.passwordModalMode === 'lock'

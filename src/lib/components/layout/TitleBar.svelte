@@ -60,7 +60,7 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <header
   data-tauri-drag-region
-  class="h-10.5 px-6 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
+  class="h-9.5 px-4 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
   style="background-color: var(--bg-titlebar); border-color: var(--border-subtle);"
   role="region"
   aria-label="Window Title Bar"
@@ -68,11 +68,11 @@
   <!-- Left Side: macOS 3 Interactive Traffic Lights & App Brand -->
   <div class="flex items-center gap-3 h-full">
     <!-- 3 Interactive Dots (macOS style with subtle hover glyphs) -->
-    <div class="flex items-center gap-2.5 group/dots h-full py-1" data-tauri-drag-region="false">
+    <div class="flex items-center gap-1.5 group/dots h-full py-1" data-tauri-drag-region="false">
       <!-- Red: Close -->
       <button
         onclick={handleClose}
-        class="w-3 h-3 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
+        class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
         title="Close"
         aria-label="Close Window"
       >
@@ -82,7 +82,7 @@
       <!-- Yellow: Minimize -->
       <button
         onclick={handleMinimize}
-        class="w-3 h-3 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
+        class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
         title="Minimize"
         aria-label="Minimize Window"
       >
@@ -92,7 +92,7 @@
       <!-- Green: Maximize / Restore -->
       <button
         onclick={handleToggleMaximize}
-        class="w-3 h-3 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
+        class="w-2.5 h-2.5 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
         title="Maximize / Restore"
         aria-label="Maximize Window"
       >
@@ -118,19 +118,17 @@
 
   <!-- Center Area: Active Note Title / Breadcrumb (Draggable) -->
   <div class="flex-1 flex items-center justify-center px-4 overflow-hidden pointer-events-none">
-    {#if appState.activeTab}
-      <span class="text-xs font-medium truncate max-w-sm" style="color: var(--text-tertiary);">
-        {appState.activeTab.title || 'Untitled Note'}
-      </span>
-    {/if}
+    <span class="text-xs font-medium truncate max-w-sm" style="color: var(--text-secondary);">
+      {appState.activeTab ? `${appState.activeTab.title || 'Untitled Note'} — Notebox` : 'Notebox'}
+    </span>
   </div>
 
   <!-- Right Side: Clean Functional Controls (Theme, View Options, Settings) -->
-  <div class="flex items-center gap-2" data-tauri-drag-region="false">
+  <div class="flex items-center gap-1.5" data-tauri-drag-region="false">
     <!-- View Option: Toggle Sidebar -->
     <button
       onclick={() => appState.toggleSidebar()}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Toggle Sidebar (Ctrl+\)"
       aria-label="Toggle Sidebar"
     >
@@ -147,7 +145,7 @@
         appState.noteListCollapsed = !appState.noteListCollapsed;
         appState.scheduleSessionSave();
       }}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title={appState.noteListCollapsed ? 'Show Notes Column' : 'Hide Notes Column'}
       aria-label="Toggle Notes Column"
     >
@@ -160,7 +158,7 @@
         appState.wordWrap = !appState.wordWrap;
         appState.scheduleSessionSave();
       }}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Toggle Word Wrap"
       aria-label="Toggle Word Wrap"
     >
@@ -174,7 +172,7 @@
           e.stopPropagation();
           showThemePicker = !showThemePicker;
         }}
-        class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+        class="h-7 px-2 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1.5 text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
         title="Personalization: Color Palette Library"
         aria-label="Color Palette Switcher"
       >
