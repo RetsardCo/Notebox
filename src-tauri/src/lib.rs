@@ -45,6 +45,7 @@ pub fn run() {
             // Tags
             commands::tags::get_tags,
             commands::tags::create_tag,
+            commands::tags::update_tag,
             commands::tags::delete_tag,
             // Search
             commands::search::search_notes,

@@ -1,14 +1,13 @@
 <script lang="ts">
   import { appState } from '$lib/stores/appState.svelte';
   import { folderService, tagService } from '$lib/services/ipc';
-  import { PALETTES } from '$lib/types';
+  import type { Tag } from '$lib/types';
   import {
     Folder as FolderIcon,
     FolderPlus,
     Tag as TagIcon,
     Plus,
     Trash2,
-    Settings,
     FileText,
     CheckSquare,
     Pin,
@@ -16,12 +15,12 @@
     X,
     PanelLeftClose,
     Search,
-    Palette,
+    MoreHorizontal,
+    Check,
   } from '@lucide/svelte';
 
   let searchInput = $state('');
   let searchTimeout: any = null;
-  let showThemePicker = $state(false);
 
   let showNewFolderInput = $state(false);
   let newFolderName = $state('');
@@ -42,6 +41,14 @@
 
   let editingFolderId = $state<string | null>(null);
   let editFolderName = $state('');
+
+  // Tag Management State
+  let activeTagMenuId = $state<string | null>(null);
+  let editingTag = $state<Tag | null>(null);
+  let editTagName = $state('');
+  let editTagColor = $state('#8b5cf6');
+  let editTagError = $state('');
+  let deletingTag = $state<Tag | null>(null);
 
   function autoFocus(el: HTMLElement) {
     setTimeout(() => el?.focus(), 10);
@@ -77,12 +84,20 @@
   }
 
   async function handleCreateTag() {
-    if (!newTagName.trim()) {
+    const cleanName = newTagName.trim().replace(/^#+/, '').trim();
+    if (!cleanName) {
       showNewTagInput = false;
       return;
     }
+    const duplicate = appState.tags.some(
+      (t) => t.name.toLowerCase() === cleanName.toLowerCase()
+    );
+    if (duplicate) {
+      alert(`A tag named "#${cleanName}" already exists`);
+      return;
+    }
     try {
-      await tagService.createTag(newTagName.trim(), newTagColor);
+      await tagService.createTag(cleanName, newTagColor);
       await appState.loadTags();
       newTagName = '';
       newTagColor = '#8b5cf6';
@@ -123,12 +138,44 @@
     }
   }
 
-  function closeThemePicker() {
-    showThemePicker = false;
+  function closeAllMenus() {
+    activeTagMenuId = null;
+  }
+
+  async function handleSaveTagEdit() {
+    if (!editingTag) return;
+    const cleanName = editTagName.trim().replace(/^#+/, '').trim();
+    if (!cleanName) {
+      editTagError = 'Tag name cannot be empty';
+      return;
+    }
+    const duplicate = appState.tags.some(
+      (t) => t.id !== editingTag!.id && t.name.toLowerCase() === cleanName.toLowerCase()
+    );
+    if (duplicate) {
+      editTagError = `A tag named "#${cleanName}" already exists`;
+      return;
+    }
+    try {
+      await appState.updateTag(editingTag.id, cleanName, editTagColor);
+      editingTag = null;
+    } catch (e: any) {
+      editTagError = e?.message || 'Failed to update tag';
+    }
+  }
+
+  async function handleConfirmDeleteTag() {
+    if (!deletingTag) return;
+    try {
+      await appState.deleteTag(deletingTag.id);
+      deletingTag = null;
+    } catch (e) {
+      console.error('Failed to delete tag:', e);
+    }
   }
 </script>
 
-<svelte:window onclick={closeThemePicker} />
+<svelte:window onclick={closeAllMenus} />
 
 <aside
   class="flex flex-col h-full w-full select-none overflow-hidden"
@@ -462,95 +509,235 @@
 
       {#each appState.tags as tag (tag.id)}
         {@const isTagActive = appState.selectedTag === tag.name && !appState.selectedFolderId && !appState.searchQuery}
-        <button
-          onclick={() => appState.selectTag(tag.name)}
-          class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTagActive ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-          style={isTagActive
-            ? ''
-            : 'color: var(--text-primary);'}
-        >
-          <div class="flex items-center gap-2.5 truncate">
-            <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
-            <span class="truncate">#{tag.name}</span>
-          </div>
-          <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
-            {tag.note_count || 0}
-          </span>
-        </button>
+        <div class="relative group/tag mb-1">
+          <button
+            onclick={() => appState.selectTag(tag.name)}
+            class="w-full h-8 pl-3 pr-8 py-2 rounded-xl flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTagActive ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+            style={isTagActive ? '' : 'color: var(--text-primary);'}
+            title={`Filter notes with #${tag.name}`}
+            aria-label={`Tag #${tag.name}, ${tag.note_count || 0} notes`}
+            aria-current={isTagActive ? "true" : undefined}
+          >
+            <div class="flex items-center gap-2.5 truncate min-w-0">
+              <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
+              <span class="truncate">#{tag.name}</span>
+            </div>
+            <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
+              {tag.note_count || 0}
+            </span>
+          </button>
+
+          <!-- Tag Actions Overflow Menu Button -->
+          <button
+            onclick={(e) => {
+              e.stopPropagation();
+              activeTagMenuId = activeTagMenuId === tag.id ? null : tag.id;
+            }}
+            class="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-lg transition-opacity duration-150 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 {activeTagMenuId === tag.id ? 'opacity-100' : 'opacity-0 group-hover/tag:opacity-100 focus-visible:opacity-100'}"
+            title="Tag actions"
+            aria-label={`Actions for tag ${tag.name}`}
+            aria-expanded={activeTagMenuId === tag.id}
+          >
+            <MoreHorizontal size={14} />
+          </button>
+
+          <!-- Dropdown Popover Menu -->
+          {#if activeTagMenuId === tag.id}
+            <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
+            <div
+              class="absolute right-0 top-full mt-1 w-40 rounded-xl border shadow-xl p-1 z-50 backdrop-blur-md text-xs"
+              style="background-color: var(--bg-modal); border-color: var(--border);"
+              onclick={(e) => e.stopPropagation()}
+              onkeydown={(e) => { if (e.key === 'Escape') activeTagMenuId = null; }}
+              role="menu"
+              tabindex="-1"
+            >
+              <button
+                onclick={() => {
+                  editingTag = tag;
+                  editTagName = tag.name;
+                  editTagColor = tag.color || '#8b5cf6';
+                  editTagError = '';
+                  activeTagMenuId = null;
+                }}
+                class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-left cursor-pointer"
+                style="color: var(--text-primary);"
+                role="menuitem"
+              >
+                <Edit2 size={13} style="color: var(--accent);" />
+                <span>Edit tag</span>
+              </button>
+              <button
+                onclick={() => {
+                  deletingTag = tag;
+                  activeTagMenuId = null;
+                }}
+                class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors text-left text-red-600 dark:text-red-400 cursor-pointer"
+                role="menuitem"
+              >
+                <Trash2 size={13} />
+                <span>Delete tag</span>
+              </button>
+            </div>
+          {/if}
+        </div>
       {/each}
     </div>
   </div>
+</aside>
 
-  <!-- Bottom Floating Footer Card for Settings and Palette Switcher (Image 1 Style) -->
-  <div class="m-3 p-2 rounded-xl border shadow-2xs flex items-center justify-between text-xs shrink-0 relative transition-colors" style="border-color: var(--border-subtle); background-color: var(--bg-notelist-card);">
-    <!-- Settings Button (Image 1 bottom left) -->
-    <button
-      onclick={() => (appState.settingsOpen = true)}
-      class="flex items-center gap-2 px-2.5 py-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-xs font-medium"
-      style="color: var(--text-secondary);"
+<!-- Edit Tag Dialog -->
+{#if editingTag}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm select-none"
+    onclick={() => (editingTag = null)}
+    onkeydown={(e) => { if (e.key === 'Escape') editingTag = null; }}
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    aria-labelledby="edit-tag-title"
+  >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="w-full max-w-sm rounded-[16px] border shadow-2xl p-5 flex flex-col gap-4"
+      style="background-color: var(--bg-modal); border-color: var(--border);"
+      onclick={(e) => e.stopPropagation()}
     >
-      <Settings size={15} style="color: var(--text-tertiary);" />
-      <span>Settings</span>
-    </button>
-
-    <!-- Theme Palette Switcher Button (Image 1 bottom right) -->
-    <div class="relative">
-      <button
-        onclick={(e) => {
-          e.stopPropagation();
-          showThemePicker = !showThemePicker;
-        }}
-        class="p-1.5 rounded-xl hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer flex items-center gap-1.5"
-        title="Personalization: Color Palette Library"
-        aria-label="Color Palette Switcher"
-      >
-        <span class="w-4 h-4 rounded-full border shadow-2xs shrink-0" style="background-color: var(--accent); border-color: rgba(0,0,0,0.15);"></span>
-      </button>
-
-      <!-- Palette Dropdown Popover (Exact 6 themes from Image 1) -->
-      {#if showThemePicker}
-        <div
-          class="absolute bottom-full right-0 mb-2 w-56 rounded-2xl border shadow-xl p-2 z-50 backdrop-blur-md"
-          style="background-color: var(--bg-modal); border-color: var(--border);"
-          onclick={(e) => e.stopPropagation()}
-          role="dialog"
-          tabindex="-1"
-          onkeydown={(e) => { if (e.key === 'Escape') showThemePicker = false; }}
+      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-subtle);">
+        <h3 id="edit-tag-title" class="font-semibold text-sm" style="color: var(--text-primary);">
+          Edit Tag
+        </h3>
+        <button
+          onclick={() => (editingTag = null)}
+          class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
+          style="color: var(--text-tertiary);"
+          aria-label="Close dialog"
         >
-          <div class="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider border-b mb-1" style="color: var(--text-tertiary); border-color: var(--border-subtle);">
-            Color Palette Library
+          <X size={16} />
+        </button>
+      </div>
+
+      <div class="space-y-3">
+        <div>
+          <label for="edit-tag-name-input" class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">
+            Tag Name
+          </label>
+          <div class="flex items-center px-3 py-1.5 rounded-xl border" style="background-color: var(--bg-input); border-color: var(--border);">
+            <span class="text-xs font-semibold mr-1" style="color: var(--text-tertiary);">#</span>
+            <input
+              id="edit-tag-name-input"
+              type="text"
+              bind:value={editTagName}
+              class="w-full text-xs bg-transparent border-none outline-none font-medium"
+              style="color: var(--text-primary);"
+              placeholder="tag-name"
+              onkeydown={(e) => {
+                if (e.key === 'Enter') handleSaveTagEdit();
+              }}
+            />
           </div>
-          <div class="space-y-1">
-            {#each PALETTES as pal}
-              {@const isCurrent = appState.theme === pal.id}
+          {#if editTagError}
+            <p class="text-[11px] text-red-500 mt-1 font-medium">{editTagError}</p>
+          {/if}
+        </div>
+
+        <div>
+          <span class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">
+            Color Swatch
+          </span>
+          <div class="flex items-center gap-2 pt-1">
+            {#each TAG_COLORS as col}
               <button
-                onclick={() => {
-                  appState.setTheme(pal.id);
-                  showThemePicker = false;
-                }}
-                class="w-full flex items-center justify-between px-2.5 py-2 rounded-xl text-xs font-medium cursor-pointer transition-all {isCurrent ? 'shadow-xs' : 'hover:bg-black/5 dark:hover:bg-white/5'}"
-                style={isCurrent
-                  ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
-                  : 'color: var(--text-primary);'}
+                type="button"
+                onclick={() => (editTagColor = col)}
+                class="w-6 h-6 rounded-full transition-all cursor-pointer flex items-center justify-center {editTagColor === col ? 'ring-2 ring-offset-2 ring-[var(--accent)] scale-110 shadow-xs' : 'hover:scale-105 opacity-80 hover:opacity-100'}"
+                style="background-color: {col};"
+                title={col}
+                aria-label={`Select color ${col}`}
               >
-                <div class="flex items-center gap-2">
-                  <span class="w-3.5 h-3.5 rounded-full border shrink-0" style="background-color: {pal.accent}; border-color: rgba(0,0,0,0.1);"></span>
-                  <div class="text-left">
-                    <div class="font-medium">{pal.name}</div>
-                    <div class="text-[10px] opacity-60 capitalize">{pal.type} theme</div>
-                  </div>
-                </div>
-                <!-- 5 palette dots preview from Image 1 -->
-                <div class="flex items-center gap-0.5">
-                  {#each pal.dots as dot}
-                    <span class="w-1.5 h-1.5 rounded-full border border-black/10" style="background-color: {dot};"></span>
-                  {/each}
-                </div>
+                {#if editTagColor === col}
+                  <Check size={12} class="text-white drop-shadow-xs" />
+                {/if}
               </button>
             {/each}
           </div>
         </div>
-      {/if}
+      </div>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t" style="border-color: var(--border-subtle);">
+        <button
+          type="button"
+          onclick={() => (editingTag = null)}
+          class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
+          style="color: var(--text-secondary);"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onclick={handleSaveTagEdit}
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-[var(--accent)] hover:brightness-105 transition cursor-pointer shadow-xs"
+        >
+          Save Changes
+        </button>
+      </div>
     </div>
   </div>
-</aside>
+{/if}
+
+<!-- Delete Tag Confirmation Dialog -->
+{#if deletingTag}
+  <!-- svelte-ignore a11y_click_events_have_key_events -->
+  <div
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm select-none"
+    onclick={() => (deletingTag = null)}
+    onkeydown={(e) => { if (e.key === 'Escape') deletingTag = null; }}
+    role="dialog"
+    aria-modal="true"
+    tabindex="-1"
+    aria-labelledby="delete-tag-title"
+  >
+    <!-- svelte-ignore a11y_no_static_element_interactions -->
+    <div
+      class="w-full max-w-sm rounded-[16px] border shadow-2xl p-5 flex flex-col gap-4"
+      style="background-color: var(--bg-modal); border-color: var(--border);"
+      onclick={(e) => e.stopPropagation()}
+    >
+      <div class="flex items-center gap-2.5">
+        <div class="w-8 h-8 rounded-full bg-red-100 dark:bg-red-500/20 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+          <Trash2 size={16} />
+        </div>
+        <div>
+          <h3 id="delete-tag-title" class="font-semibold text-sm" style="color: var(--text-primary);">
+            Delete Tag #{deletingTag.name}?
+          </h3>
+        </div>
+      </div>
+
+      <p class="text-xs leading-relaxed" style="color: var(--text-secondary);">
+        This will remove the tag association from <strong>{deletingTag.note_count || 0}</strong> notes.
+        <br /><br />
+        <span class="font-medium text-emerald-600 dark:text-emerald-400">Note records will NOT be deleted.</span>
+      </p>
+
+      <div class="flex items-center justify-end gap-2 pt-2 border-t" style="border-color: var(--border-subtle);">
+        <button
+          type="button"
+          onclick={() => (deletingTag = null)}
+          class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
+          style="color: var(--text-secondary);"
+        >
+          Cancel
+        </button>
+        <button
+          type="button"
+          onclick={handleConfirmDeleteTag}
+          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition cursor-pointer shadow-xs"
+        >
+          Delete Tag
+        </button>
+      </div>
+    </div>
+  </div>
+{/if}

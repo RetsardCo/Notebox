@@ -37,14 +37,25 @@ pub fn get_tags(state: State<'_, AppState>) -> Result<Vec<Tag>, String> {
 
 #[tauri::command]
 pub fn create_tag(state: State<'_, AppState>, name: String, color: Option<String>) -> Result<Tag, String> {
-    let clean_name = name.trim().trim_start_matches('#').to_string();
+    let clean_name = name.trim().trim_start_matches('#').trim().to_string();
     if clean_name.is_empty() {
         return Err("Tag name cannot be empty".to_string());
     }
 
     let id = Uuid::new_v4().to_string();
-    let tag_color = color.unwrap_or_else(|| "#e5a823".to_string());
+    let tag_color = color.unwrap_or_else(|| "#8b5cf6".to_string());
     let conn = state.db.lock();
+
+    let exists: bool = conn
+        .query_row(
+            "SELECT EXISTS(SELECT 1 FROM tags WHERE LOWER(name) = LOWER(?1))",
+            [&clean_name],
+            |r| r.get(0),
+        )
+        .unwrap_or(false);
+    if exists {
+        return Err(format!("A tag named '{}' already exists", clean_name));
+    }
 
     conn.execute(
         "INSERT INTO tags (id, name, color) VALUES (?1, ?2, ?3)",
@@ -62,7 +73,73 @@ pub fn create_tag(state: State<'_, AppState>, name: String, color: Option<String
 #[tauri::command]
 pub fn delete_tag(state: State<'_, AppState>, id: String) -> Result<(), String> {
     let conn = state.db.lock();
+    let _ = conn.execute("DELETE FROM note_tags WHERE tag_id = ?1", [&id]);
     conn.execute("DELETE FROM tags WHERE id = ?1", [&id])
         .map_err(|e| e.to_string())?;
     Ok(())
+}
+
+#[tauri::command]
+pub fn update_tag(
+    state: State<'_, AppState>,
+    id: String,
+    name: Option<String>,
+    color: Option<String>,
+) -> Result<Tag, String> {
+    let conn = state.db.lock();
+
+    let (current_name, current_color): (String, String) = conn
+        .query_row(
+            "SELECT name, color FROM tags WHERE id = ?1",
+            [&id],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        )
+        .map_err(|_| "Tag not found".to_string())?;
+
+    let final_name = if let Some(n) = name {
+        let clean = n.trim().trim_start_matches('#').trim().to_string();
+        if clean.is_empty() {
+            return Err("Tag name cannot be empty".to_string());
+        }
+        if !clean.eq_ignore_ascii_case(&current_name) {
+            let exists: bool = conn
+                .query_row(
+                    "SELECT EXISTS(SELECT 1 FROM tags WHERE LOWER(name) = LOWER(?1) AND id != ?2)",
+                    (&clean, &id),
+                    |r| r.get(0),
+                )
+                .unwrap_or(false);
+            if exists {
+                return Err(format!("A tag named '{}' already exists", clean));
+            }
+        }
+        clean
+    } else {
+        current_name
+    };
+
+    let final_color = color.unwrap_or(current_color);
+
+    conn.execute(
+        "UPDATE tags SET name = ?1, color = ?2 WHERE id = ?3",
+        (&final_name, &final_color, &id),
+    )
+    .map_err(|e| e.to_string())?;
+
+    let note_count: usize = conn
+        .query_row(
+            "SELECT COUNT(*) FROM note_tags nt 
+             JOIN notes n ON nt.note_id = n.id 
+             WHERE nt.tag_id = ?1 AND n.is_trash = 0",
+            [&id],
+            |r| r.get::<_, i64>(0).map(|c| c as usize),
+        )
+        .unwrap_or(0);
+
+    Ok(Tag {
+        id,
+        name: final_name,
+        color: final_color,
+        note_count,
+    })
 }

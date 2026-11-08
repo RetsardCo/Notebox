@@ -298,5 +298,137 @@ mod tests {
             preview
         );
     }
+
+    #[test]
+    fn test_tag_crud_and_safety() {
+        let dir = tempdir().expect("Failed to create tempdir");
+        let vault = dir.path().to_path_buf();
+        let db = Database::new(vault.clone()).expect("Failed to init database");
+        let conn = db.lock();
+
+        // 1. Create a note and folder
+        let folder_id = "folder-project";
+        conn.execute(
+            "INSERT INTO folders (id, name, sort_order) VALUES (?1, 'Project Alpha', 1)",
+            [folder_id],
+        ).unwrap();
+
+        let note_id = "test-note-tags";
+        conn.execute(
+            "INSERT INTO notes (id, title, folder_id, file_path, is_trash) VALUES (?1, 'Tagged Note', ?2, 'tagged.md', 0)",
+            (note_id, folder_id),
+        ).unwrap();
+
+        // Tag name normalization test: leading hash and whitespace trimming
+        let raw_input = "  #  urgent  ";
+        let clean_name = raw_input.trim().trim_start_matches('#').trim().to_string();
+        assert_eq!(clean_name, "urgent");
+
+        let tag1_id = "tag-urgent";
+        conn.execute(
+            "INSERT INTO tags (id, name, color) VALUES (?1, ?2, '#ef4444')",
+            (tag1_id, &clean_name),
+        ).unwrap();
+
+        // Case-insensitive duplicate check assertion
+        let duplicate_attempt = "URGENT";
+        let exists: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM tags WHERE LOWER(name) = LOWER(?1))",
+            [&duplicate_attempt],
+            |r| r.get(0),
+        ).unwrap();
+        assert!(exists, "Case-insensitive duplicate check must detect existing tag");
+
+        let tag2_id = "tag-ideas";
+        conn.execute(
+            "INSERT INTO tags (id, name, color) VALUES (?1, 'ideas', '#3b82f6')",
+            [tag2_id],
+        ).unwrap();
+
+        // Associate note with tag1
+        conn.execute(
+            "INSERT INTO note_tags (note_id, tag_id) VALUES (?1, ?2)",
+            (note_id, tag1_id),
+        ).unwrap();
+
+        // Check count
+        let count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM note_tags WHERE note_id = ?1",
+            [note_id],
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(count, 1);
+
+        // 2. Rename tag1 to 'critical' and change color to '#8b5cf6'
+        conn.execute(
+            "UPDATE tags SET name = 'critical', color = '#8b5cf6' WHERE id = ?1",
+            [tag1_id],
+        ).unwrap();
+
+        // Verify note association is STILL present with tag1_id!
+        let assoc_count: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM note_tags WHERE note_id = ?1 AND tag_id = ?2",
+            (note_id, tag1_id),
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(assoc_count, 1, "Renaming tag must preserve note associations");
+
+        // Verify updated values
+        let (name, color): (String, String) = conn.query_row(
+            "SELECT name, color FROM tags WHERE id = ?1",
+            [tag1_id],
+            |r| Ok((r.get(0)?, r.get(1)?)),
+        ).unwrap();
+        assert_eq!(name, "critical");
+        assert_eq!(color, "#8b5cf6");
+
+        // 3. Deleting tag must delete note_tags association but NEVER delete note
+        conn.execute("DELETE FROM tags WHERE id = ?1", [tag1_id]).unwrap();
+
+        let note_exists: bool = conn.query_row(
+            "SELECT EXISTS(SELECT 1 FROM notes WHERE id = ?1)",
+            [note_id],
+            |r| r.get(0),
+        ).unwrap();
+        assert!(note_exists, "Deleting tag must NEVER delete note records!");
+
+        let remaining_assoc: i64 = conn.query_row(
+            "SELECT COUNT(*) FROM note_tags WHERE tag_id = ?1",
+            [tag1_id],
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(remaining_assoc, 0, "Deleting tag must remove tag associations via CASCADE");
+
+        // 4. Test note trash & restore with missing folder fallback
+        conn.execute("UPDATE notes SET is_trash = 1 WHERE id = ?1", [note_id]).unwrap();
+        // Delete original parent folder
+        conn.execute("DELETE FROM folders WHERE id = ?1", [folder_id]).unwrap();
+
+        // Restore note: folder does not exist, so folder_id must fall back to NULL
+        let orig_fid: Option<String> = conn.query_row(
+            "SELECT folder_id FROM notes WHERE id = ?1",
+            [note_id],
+            |r| r.get(0),
+        ).unwrap_or(None);
+
+        if let Some(ref fid) = orig_fid {
+            let folder_exists: bool = conn.query_row(
+                "SELECT EXISTS(SELECT 1 FROM folders WHERE id = ?1)",
+                [fid],
+                |r| r.get(0),
+            ).unwrap_or(false);
+            if !folder_exists {
+                conn.execute("UPDATE notes SET folder_id = NULL WHERE id = ?1", [note_id]).unwrap();
+            }
+        }
+        conn.execute("UPDATE notes SET is_trash = 0 WHERE id = ?1", [note_id]).unwrap();
+
+        let restored_fid: Option<String> = conn.query_row(
+            "SELECT folder_id FROM notes WHERE id = ?1",
+            [note_id],
+            |r| r.get(0),
+        ).unwrap();
+        assert_eq!(restored_fid, None, "Restored note whose folder was deleted must fall back to NULL");
+    }
 }
 

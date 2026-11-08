@@ -181,17 +181,27 @@
   <!-- Notes List / Cards Container with Generous Breathing Room -->
   <div class="notelist-cards-container">
     {#if appState.displayedNotes.length === 0}
-      <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
-        <p class="font-medium mb-1">No notes found</p>
-        <p class="text-[11px] max-w-[180px] mb-3 opacity-75">Create a new note or adjust your search filter</p>
-        <button
-          onclick={() => appState.createNewNote()}
-          class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:brightness-105 active:scale-95 transition-all cursor-pointer shadow-xs"
-          style="background-color: var(--accent); color: var(--accent-contrast, #ffffff);"
-        >
-          New Note
-        </button>
-      </div>
+      {#if appState.selectedSmartFolder === 'trash'}
+        <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
+          <div class="w-10 h-10 rounded-2xl flex items-center justify-center mb-3 bg-red-500/10 text-red-500">
+            <Trash2 size={20} />
+          </div>
+          <p class="font-semibold text-xs mb-1" style="color: var(--text-primary);">Recently Deleted is empty</p>
+          <p class="text-[11px] max-w-[200px] leading-relaxed opacity-75">Notes moved to trash can be restored or permanently deleted.</p>
+        </div>
+      {:else}
+        <div class="h-48 flex flex-col items-center justify-center text-center p-6 text-xs select-none" style="color: var(--text-tertiary);">
+          <p class="font-medium mb-1">No notes found</p>
+          <p class="text-[11px] max-w-[180px] mb-3 opacity-75">Create a new note or adjust your search filter</p>
+          <button
+            onclick={() => appState.createNewNote()}
+            class="px-3.5 py-2 rounded-xl text-xs font-semibold hover:brightness-105 active:scale-95 transition-all cursor-pointer shadow-xs"
+            style="background-color: var(--accent); color: var(--accent-contrast, #ffffff);"
+          >
+            New Note
+          </button>
+        </div>
+      {/if}
     {:else}
       {#each appState.displayedNotes as note (note.id)}
         {@const isSelected = selectedNote?.id === note.id}
@@ -205,7 +215,7 @@
           }}
           class="notelist-card-item group {isSelected ? 'is-selected' : ''}"
         >
-          <!-- Card Header: Title & Badges -->
+          <!-- Card Header: Title & Badges / Actions -->
           <div class="flex items-start justify-between gap-2 mb-1">
             <span
               class="font-semibold text-xs leading-snug line-clamp-1 flex-1"
@@ -215,32 +225,55 @@
             </span>
 
             <div class="flex items-center gap-1.5 shrink-0 pt-0.5">
-              {#if note.pinned}
-                <Pin size={12} style="color: var(--accent);" class="fill-current" />
-              {/if}
-              {#if note.has_checklist}
-                <CheckSquare size={12} style="color: var(--accent);" class="opacity-80" />
-              {/if}
-              {#if note.locked}
-                <Lock size={12} style="color: var(--text-secondary);" />
-              {/if}
-              <button
-                onclick={(e) => {
-                  e.stopPropagation();
-                  if (note.is_trash) {
+              {#if note.is_trash}
+                <!-- Explicit Restore Button -->
+                <button
+                  onclick={(e) => {
+                    e.stopPropagation();
+                    appState.restoreNote(note.id);
+                  }}
+                  class="p-1 rounded-md hover:bg-black/10 dark:hover:bg-white/10 text-[var(--text-secondary)] hover:text-emerald-600 transition-colors cursor-pointer shrink-0"
+                  title="Restore Note"
+                  aria-label="Restore Note"
+                >
+                  <RotateCcw size={13} />
+                </button>
+                <!-- Explicit Permanent Delete Button -->
+                <button
+                  onclick={(e) => {
+                    e.stopPropagation();
                     if (confirm(`Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`)) {
                       appState.deleteNote(note.id, true);
                     }
-                  } else {
+                  }}
+                  class="p-1 rounded-md hover:bg-red-500/15 text-red-500 hover:text-red-700 transition-colors cursor-pointer shrink-0"
+                  title="Permanently Delete Note"
+                  aria-label="Permanently Delete Note"
+                >
+                  <Trash2 size={13} />
+                </button>
+              {:else}
+                {#if note.pinned}
+                  <Pin size={12} style="color: var(--accent);" class="fill-current" />
+                {/if}
+                {#if note.has_checklist}
+                  <CheckSquare size={12} style="color: var(--accent);" class="opacity-80" />
+                {/if}
+                {#if note.locked}
+                  <Lock size={12} style="color: var(--text-secondary);" />
+                {/if}
+                <button
+                  onclick={(e) => {
+                    e.stopPropagation();
                     appState.deleteNote(note.id, false);
-                  }
-                }}
-                class="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-[var(--text-tertiary)] hover:text-red-500 transition-opacity cursor-pointer shrink-0"
-                title={note.is_trash ? "Permanently Delete Note" : "Move to Trash"}
-                aria-label="Delete Note"
-              >
-                <Trash2 size={13} />
-              </button>
+                  }}
+                  class="opacity-0 group-hover:opacity-100 p-0.5 rounded hover:bg-black/10 dark:hover:bg-white/10 text-[var(--text-tertiary)] hover:text-red-500 transition-opacity cursor-pointer shrink-0"
+                  title="Move to Trash"
+                  aria-label="Move to Trash"
+                >
+                  <Trash2 size={13} />
+                </button>
+              {/if}
             </div>
           </div>
 
@@ -255,7 +288,7 @@
           <!-- Card Footer: Date on left, Folder/Tags on right -->
           <div class="flex items-center justify-between text-[11px] pt-1">
             <span class="font-medium shrink-0" style="color: var(--text-tertiary);">
-              {formatDate(note.updated_at)}
+              {note.is_trash ? `Deleted ${formatDate(note.updated_at)}` : formatDate(note.updated_at)}
             </span>
 
             <div class="flex items-center gap-1.5 overflow-hidden">
@@ -269,11 +302,18 @@
               {/if}
 
               {#if note.tags && note.tags.length > 0}
+                {@const tagInfo = appState.tags.find((t) => t.name.toLowerCase() === note.tags[0].toLowerCase())}
                 <span
-                  class="px-2 py-0.5 rounded-lg font-medium"
-                  style="background-color: var(--accent-light); color: var(--accent-text);"
+                  class="px-2 py-0.5 rounded-lg font-medium inline-flex items-center gap-1 text-[10.5px]"
+                  style={tagInfo?.color
+                    ? `background-color: ${tagInfo.color}18; color: ${tagInfo.color}; border: 1px solid ${tagInfo.color}30;`
+                    : 'background-color: var(--accent-light); color: var(--accent-text);'}
                 >
-                  #{note.tags[0]}
+                  <span
+                    class="w-1.5 h-1.5 rounded-full shrink-0"
+                    style="background-color: {tagInfo?.color || 'var(--accent)'};"
+                  ></span>
+                  <span>#{note.tags[0]}</span>
                 </span>
               {/if}
             </div>

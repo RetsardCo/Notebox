@@ -3,6 +3,16 @@ import { sveltekit } from "@sveltejs/kit/vite";
 import tailwindcss from "@tailwindcss/vite";
 // @ts-expect-error type error without @types/node package
 import process from "node:process";
+// @ts-expect-error type error without @types/node package
+import fs from "node:fs";
+
+try {
+  const realCwd = fs.realpathSync(process.cwd());
+  if (realCwd && realCwd !== process.cwd()) {
+    process.chdir(realCwd);
+  }
+} catch (_) {}
+
 const host = process.env.TAURI_DEV_HOST;
 
 // https://vite.dev/config/

@@ -388,6 +388,32 @@ pub fn delete_note(state: State<'_, AppState>, id: String, permanent: bool) -> R
 #[tauri::command]
 pub fn restore_note(state: State<'_, AppState>, id: String) -> Result<(), String> {
     let conn = state.db.lock();
+
+    let note_exists: bool = conn
+        .query_row("SELECT EXISTS(SELECT 1 FROM notes WHERE id = ?1)", [&id], |r| r.get(0))
+        .unwrap_or(false);
+    if !note_exists {
+        return Err("Note not found".to_string());
+    }
+
+    // Check if original folder still exists; if not, safely fallback to null (uncategorized)
+    let folder_id: Option<String> = conn
+        .query_row("SELECT folder_id FROM notes WHERE id = ?1", [&id], |r| r.get(0))
+        .unwrap_or(None);
+
+    if let Some(ref fid) = folder_id {
+        let folder_exists: bool = conn
+            .query_row(
+                "SELECT EXISTS(SELECT 1 FROM folders WHERE id = ?1)",
+                [fid],
+                |r| r.get(0),
+            )
+            .unwrap_or(false);
+        if !folder_exists {
+            let _ = conn.execute("UPDATE notes SET folder_id = NULL WHERE id = ?1", [&id]);
+        }
+    }
+
     conn.execute("UPDATE notes SET is_trash = 0, updated_at = ?2 WHERE id = ?1", (&id, Local::now().to_rfc3339()))
         .map_err(|e| e.to_string())?;
     Ok(())

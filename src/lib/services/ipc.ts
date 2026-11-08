@@ -58,13 +58,36 @@ const mockNotes: NoteSummary[] = [
     preview: 'No additional text',
     word_count: 0,
     char_count: 0,
-    tags: [],
+    tags: ['work', 'personal'],
+  },
+  {
+    id: 'note-sample-deleted',
+    title: 'Archived Meeting Brief',
+    folder_id: null,
+    folder_name: null,
+    file_path: 'Archived Meeting Brief.md',
+    created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+    updated_at: new Date(Date.now() - 3600000 * 4).toISOString(),
+    pinned: false,
+    locked: false,
+    is_trash: true,
+    has_checklist: false,
+    preview: 'Summary notes from the planning session and product feedback.',
+    word_count: 85,
+    char_count: 512,
+    tags: ['work'],
   },
 ];
 
 const mockFolders: Folder[] = [
   { id: 'folder-personal', name: 'Personal', parent_id: null, icon: 'folder', sort_order: 0, note_count: 1, created_at: new Date().toISOString() },
   { id: 'folder-work', name: 'Work', parent_id: null, icon: 'folder', sort_order: 1, note_count: 0, created_at: new Date().toISOString() },
+];
+
+const mockTags: Tag[] = [
+  { id: 'tag-work', name: 'work', color: '#8b5cf6', note_count: 2 },
+  { id: 'tag-personal', name: 'personal', color: '#ec4899', note_count: 1 },
+  { id: 'tag-ideas', name: 'ideas', color: '#10b981', note_count: 3 },
 ];
 
 export const noteService = {
@@ -123,18 +146,40 @@ export const noteService = {
   },
 
   deleteNote: async (id: string, permanent: boolean = false): Promise<void> => {
+    if (permanent) {
+      const idx = mockNotes.findIndex((n) => n.id === id);
+      if (idx !== -1) mockNotes.splice(idx, 1);
+    } else {
+      const n = mockNotes.find((x) => x.id === id);
+      if (n) n.is_trash = true;
+    }
     return safeInvoke('delete_note', { id, permanent });
   },
 
   restoreNote: async (id: string): Promise<void> => {
+    const n = mockNotes.find((x) => x.id === id);
+    if (n) {
+      n.is_trash = false;
+      if (n.folder_id && !mockFolders.some((f) => f.id === n.folder_id)) {
+        n.folder_id = null;
+        n.folder_name = null;
+      }
+    }
     return safeInvoke('restore_note', { id });
   },
 
   moveNote: async (id: string, folderId: string | null): Promise<void> => {
+    const n = mockNotes.find((x) => x.id === id);
+    if (n) {
+      n.folder_id = folderId;
+      n.folder_name = mockFolders.find((f) => f.id === folderId)?.name || null;
+    }
     return safeInvoke('move_note', { id, folderId });
   },
 
   pinNote: async (id: string, pinned: boolean): Promise<void> => {
+    const n = mockNotes.find((x) => x.id === id);
+    if (n) n.pinned = pinned;
     return safeInvoke('pin_note', { id, pinned });
   },
 
@@ -160,16 +205,40 @@ export const noteService = {
     filterType?: string | null,
     sortBy?: SortOption,
   ): Promise<NoteSummary[]> => {
+    let filtered = [...mockNotes];
+    if (filterType === 'trash') {
+      filtered = filtered.filter((n) => n.is_trash);
+    } else {
+      filtered = filtered.filter((n) => !n.is_trash);
+      if (filterType === 'pinned') {
+        filtered = filtered.filter((n) => n.pinned);
+      } else if (filterType === 'checklist') {
+        filtered = filtered.filter((n) => n.has_checklist);
+      }
+      if (folderId) {
+        filtered = filtered.filter((n) => n.folder_id === folderId);
+      }
+      if (tag) {
+        filtered = filtered.filter((n) => n.tags?.some((t) => t.toLowerCase() === tag.toLowerCase()));
+      }
+    }
     return safeInvoke('get_notes', {
       folderId: folderId ?? null,
       tag: tag ?? null,
       filterType: filterType ?? null,
       sortBy: sortBy ?? 'updated',
-    }, [...mockNotes]);
+    }, filtered);
   },
 
   emptyTrash: async (): Promise<number> => {
-    return safeInvoke('empty_trash', undefined, 0);
+    let count = 0;
+    for (let i = mockNotes.length - 1; i >= 0; i--) {
+      if (mockNotes[i].is_trash) {
+        mockNotes.splice(i, 1);
+        count++;
+      }
+    }
+    return safeInvoke('empty_trash', undefined, count);
   },
 
   exportNote: async (id: string, format: string): Promise<string> => {
@@ -226,14 +295,42 @@ export const folderService = {
 
 export const tagService = {
   getTags: async (): Promise<Tag[]> => {
-    return safeInvoke('get_tags', undefined, []);
+    return safeInvoke('get_tags', undefined, mockTags);
   },
 
   createTag: async (name: string, color?: string): Promise<Tag> => {
-    return safeInvoke('create_tag', { name, color: color ?? null }, { id: 'tag-1', name, color: color || '#8b5cf6', note_count: 0 });
+    const t: Tag = { id: 'tag-' + Date.now(), name, color: color || '#8b5cf6', note_count: 0 };
+    mockTags.push(t);
+    return safeInvoke('create_tag', { name, color: color ?? null }, t);
+  },
+
+  updateTag: async (id: string, name?: string, color?: string): Promise<Tag> => {
+    const t = mockTags.find((x) => x.id === id);
+    const oldName = t?.name;
+    if (t) {
+      if (name) t.name = name;
+      if (color) t.color = color;
+    }
+    if (oldName && name) {
+      for (const n of mockNotes) {
+        n.tags = n.tags.map((tag) => (tag.toLowerCase() === oldName.toLowerCase() ? name : tag));
+      }
+    }
+    return safeInvoke('update_tag', { id, name: name ?? null, color: color ?? null }, t || { id, name: name || 'tag', color: color || '#8b5cf6', note_count: 0 });
   },
 
   deleteTag: async (id: string): Promise<void> => {
+    const idx = mockTags.findIndex((x) => x.id === id);
+    let tagName = '';
+    if (idx !== -1) {
+      tagName = mockTags[idx].name;
+      mockTags.splice(idx, 1);
+    }
+    if (tagName) {
+      for (const n of mockNotes) {
+        n.tags = n.tags.filter((t) => t.toLowerCase() !== tagName.toLowerCase());
+      }
+    }
     return safeInvoke('delete_tag', { id });
   },
 };

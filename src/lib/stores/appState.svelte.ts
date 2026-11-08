@@ -286,6 +286,38 @@ class AppStore {
     this.scheduleSessionSave();
   }
 
+  async updateTag(id: string, name?: string, color?: string): Promise<Tag> {
+    const existingTag = this.tags.find((t) => t.id === id);
+    const oldName = existingTag?.name;
+
+    const updated = await tagService.updateTag(id, name, color);
+
+    // If active tag filter was the renamed tag, update active filter name
+    if (oldName && this.selectedTag && this.selectedTag.toLowerCase() === oldName.toLowerCase() && name) {
+      this.selectedTag = updated.name;
+    }
+
+    await this.loadTags();
+    await this.loadNotes();
+    this.scheduleSessionSave();
+    return updated;
+  }
+
+  async deleteTag(id: string): Promise<void> {
+    const tagToDelete = this.tags.find((t) => t.id === id);
+    await tagService.deleteTag(id);
+
+    // If active tag was deleted, clear active filter and return to All Notes
+    if (tagToDelete && this.selectedTag && this.selectedTag.toLowerCase() === tagToDelete.name.toLowerCase()) {
+      this.selectedTag = null;
+      this.selectedSmartFolder = 'all';
+    }
+
+    await this.loadTags();
+    await this.loadNotes();
+    this.scheduleSessionSave();
+  }
+
   async selectSmartFolder(filterType: string) {
     this.selectedSmartFolder = filterType;
     this.selectedFolderId = null;
@@ -532,6 +564,7 @@ class AppStore {
       await noteService.restoreNote(noteId);
       await this.loadNotes();
       await this.loadFolders();
+      await this.loadTags();
     } catch (e) {
       console.error('Failed to restore note:', e);
     }
@@ -542,6 +575,7 @@ class AppStore {
       await noteService.emptyTrash();
       await this.loadNotes();
       await this.loadFolders();
+      await this.loadTags();
     } catch (e) {
       console.error('Failed to empty trash:', e);
     }

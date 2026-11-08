@@ -18,11 +18,29 @@
   /* Standardized Border Radii */
   --radius-xs: 4px;
   --radius-sm: 6px;
+  --radius-control: 8px;
   --radius-md: 10px;
-  --radius-lg: 14px;
-  --radius-island: 16px;
+  --radius-input: 10px;
   --radius-card: 12px;
+  --radius-lg: 14px;
+  --radius-panel: 16px;
+  --radius-island: 16px;
+  --radius-modal: 16px;
   --radius-pill: 9999px;
+
+  --sidebar-width-default: 240px;
+  --sidebar-width-min: 200px;
+  --sidebar-width-max: 380px;
+
+  --notelist-width-default: 300px;
+  --notelist-width-min: 240px;
+  --notelist-width-max: 480px;
+
+  --editor-min-width: 360px;
+  --titlebar-height: 38px;
+  --tabbar-height: 36px;
+  --toolbar-height: 36px;
+  --statusbar-height: 28px;
 }
 
 /* ==========================================================================
@@ -32,18 +50,24 @@
 /* 1. Warm Paper (Warm cream/parchment light theme - Default) */
 :root[data-theme="warm-paper"] {
   --bg-titlebar: #ede5d8;
+  --bg-window: #ede5d8;
   --bg-canvas: #ede5d8;
   --bg-sidebar: #fbf8f2;
   --bg-sidebar-hover: #f3ede2;
   --bg-sidebar-active: #ebdccb;
   --bg-notelist: #f3ede2;
   --bg-notelist-card: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #eadecb;
+  --bg-card-active: #faeed9;
   --bg-notelist-hover: #eadecb;
   --bg-notelist-active: #faeed9;
+  --border-card-active: #c48137;
   --bg-editor: #fbf8f2;
   --bg-toolbar: #fbf8f2;
   --bg-tabbar: #ede5d8;
   --bg-tab-active: #fbf8f2;
+  --border-tab-active: #d9cdbe;
   --bg-tab-hover: #e4dacb;
   --bg-statusbar: #f3ede2;
   --bg-modal: #fbf8f2;
@@ -58,6 +82,7 @@
   --accent-hover: #b0702a;
   --accent-light: rgba(196, 129, 55, 0.14);
   --accent-text: #8a4f15;
+  --accent-contrast: #ffffff;
 
   --border: rgba(44, 34, 30, 0.12);
   --border-subtle: rgba(44, 34, 30, 0.06);
@@ -69,6 +94,8 @@
   --shadow-sm: 0 1px 3px rgba(44, 34, 30, 0.05);
   --shadow-md: 0 4px 14px rgba(44, 34, 30, 0.08);
   --shadow-lg: 0 12px 32px rgba(44, 34, 30, 0.12);
+  --shadow-panel: 0 2px 10px rgba(44, 34, 30, 0.05);
+  --shadow-card: 0 1px 3px rgba(44, 34, 30, 0.04);
 
   --scrollbar-thumb: #d9cdbe;
   --scrollbar-thumb-hover: #c4b5a3;
@@ -78,18 +105,24 @@
 :root[data-theme="midnight"],
 :root[data-theme="dark"] {
   --bg-titlebar: #0d1218;
+  --bg-window: #0d1218;
   --bg-canvas: #090e13;
   --bg-sidebar: #121820;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(56, 189, 248, 0.14);
   --bg-notelist: #141b24;
   --bg-notelist-card: #1f2a38;
+  --bg-card: #1f2a38;
+  --bg-card-hover: #273647;
+  --bg-card-active: #1d3652;
   --bg-notelist-hover: #273647;
   --bg-notelist-active: #1d3652;
+  --border-card-active: #38bdf8;
   --bg-editor: #121820;
   --bg-toolbar: #121820;
   --bg-tabbar: #0d1218;
   --bg-tab-active: #121820;
+  --border-tab-active: rgba(255, 255, 255, 0.15);
   --bg-tab-hover: rgba(255, 255, 255, 0.04);
   --bg-statusbar: #0d1218;
   --bg-modal: #18202b;
@@ -104,6 +137,7 @@
   --accent-hover: #0ea5e9;
   --accent-light: rgba(56, 189, 248, 0.15);
   --accent-text: #38bdf8;
+  --accent-contrast: #090e13;
 
   --border: rgba(255, 255, 255, 0.10);
   --border-subtle: rgba(255, 255, 255, 0.06);
@@ -115,6 +149,8 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
 
   --scrollbar-thumb: #283546;
   --scrollbar-thumb-hover: #3a4c63;
@@ -123,18 +159,24 @@
 /* 3. Forest (Refreshing nature green dark theme) */
 :root[data-theme="forest"] {
   --bg-titlebar: #0b1510;
+  --bg-window: #0b1510;
   --bg-canvas: #08100c;
   --bg-sidebar: #101c16;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(16, 185, 129, 0.16);
   --bg-notelist: #13221b;
   --bg-notelist-card: #1d3328;
+  --bg-card: #1d3328;
+  --bg-card-hover: #254233;
+  --bg-card-active: #1e4d36;
   --bg-notelist-hover: #254233;
   --bg-notelist-active: #1e4d36;
+  --border-card-active: #10b981;
   --bg-editor: #101c16;
   --bg-toolbar: #101c16;
   --bg-tabbar: #0b1510;
   --bg-tab-active: #101c16;
+  --border-tab-active: rgba(255, 255, 255, 0.15);
   --bg-tab-hover: rgba(255, 255, 255, 0.04);
   --bg-statusbar: #0b1510;
   --bg-modal: #16271e;
@@ -149,6 +191,7 @@
   --accent-hover: #059669;
   --accent-light: rgba(16, 185, 129, 0.18);
   --accent-text: #34d399;
+  --accent-contrast: #08100c;
 
   --border: rgba(255, 255, 255, 0.10);
   --border-subtle: rgba(255, 255, 255, 0.06);
@@ -160,6 +203,8 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
 
   --scrollbar-thumb: #223c2f;
   --scrollbar-thumb-hover: #2f5442;
@@ -168,18 +213,24 @@
 /* 4. Ocean (Clean airy light blue theme) */
 :root[data-theme="ocean"] {
   --bg-titlebar: #dce7f2;
+  --bg-window: #dce7f2;
   --bg-canvas: #d5e3ef;
   --bg-sidebar: #f0f5fa;
   --bg-sidebar-hover: #e4ecf3;
   --bg-sidebar-active: #d4e3ef;
   --bg-notelist: #e2ecf5;
   --bg-notelist-card: #ffffff;
+  --bg-card: #ffffff;
+  --bg-card-hover: #d5e4ef;
+  --bg-card-active: #cbe1f2;
   --bg-notelist-hover: #d5e4ef;
   --bg-notelist-active: #cbe1f2;
+  --border-card-active: #0284c7;
   --bg-editor: #f0f5fa;
   --bg-toolbar: #f0f5fa;
   --bg-tabbar: #dce7f2;
   --bg-tab-active: #f0f5fa;
+  --border-tab-active: #cadbe9;
   --bg-tab-hover: #d3e1ed;
   --bg-statusbar: #e2ecf5;
   --bg-modal: #ffffff;
@@ -194,6 +245,7 @@
   --accent-hover: #0369a1;
   --accent-light: rgba(2, 132, 199, 0.15);
   --accent-text: #0369a1;
+  --accent-contrast: #ffffff;
 
   --border: rgba(12, 35, 56, 0.12);
   --border-subtle: rgba(12, 35, 56, 0.06);
@@ -205,6 +257,8 @@
   --shadow-sm: 0 1px 3px rgba(12, 35, 56, 0.06);
   --shadow-md: 0 4px 14px rgba(12, 35, 56, 0.09);
   --shadow-lg: 0 12px 32px rgba(12, 35, 56, 0.13);
+  --shadow-panel: 0 2px 10px rgba(12, 35, 56, 0.05);
+  --shadow-card: 0 1px 3px rgba(12, 35, 56, 0.04);
 
   --scrollbar-thumb: #cadbe9;
   --scrollbar-thumb-hover: #b4cbdd;
@@ -222,6 +276,9 @@
   --bg-sidebar-active: #E4D1FA;
   --bg-notelist: #F4EBFB;
   --bg-notelist-card: #FCF8FE;
+  --bg-card: #FCF8FE;
+  --bg-card-hover: #F8F1FD;
+  --bg-card-active: #F1E8FA;
   --bg-notelist-hover: #F8F1FD;
   --bg-notelist-active: #F1E8FA;
   --border-card-active: #9D76F5;
@@ -256,6 +313,8 @@
   --shadow-sm: 0 1px 3px rgba(44, 26, 74, 0.05);
   --shadow-md: 0 4px 14px rgba(44, 26, 74, 0.08);
   --shadow-lg: 0 12px 32px rgba(44, 26, 74, 0.12);
+  --shadow-panel: 0 2px 10px rgba(44, 26, 74, 0.05);
+  --shadow-card: 0 1px 3px rgba(44, 26, 74, 0.04);
 
   --scrollbar-thumb: #D8CCE8;
   --scrollbar-thumb-hover: #C5B5D8;
@@ -264,18 +323,24 @@
 /* 6. Sunset (Warm vibrant plum dark theme) */
 :root[data-theme="sunset"] {
   --bg-titlebar: #1a1215;
+  --bg-window: #1a1215;
   --bg-canvas: #150d10;
   --bg-sidebar: #22181c;
   --bg-sidebar-hover: rgba(255, 255, 255, 0.06);
   --bg-sidebar-active: rgba(249, 115, 22, 0.16);
   --bg-notelist: #271c21;
   --bg-notelist-card: #3a2730;
+  --bg-card: #3a2730;
+  --bg-card-hover: #48313c;
+  --bg-card-active: #4d2737;
   --bg-notelist-hover: #48313c;
   --bg-notelist-active: #4d2737;
+  --border-card-active: #f97316;
   --bg-editor: #22181c;
   --bg-toolbar: #22181c;
   --bg-tabbar: #1a1215;
   --bg-tab-active: #22181c;
+  --border-tab-active: rgba(255, 255, 255, 0.15);
   --bg-tab-hover: rgba(255, 255, 255, 0.04);
   --bg-statusbar: #1a1215;
   --bg-modal: #2d2026;
@@ -290,6 +355,7 @@
   --accent-hover: #ea580c;
   --accent-light: rgba(249, 115, 22, 0.18);
   --accent-text: #fb923c;
+  --accent-contrast: #ffffff;
 
   --border: rgba(255, 255, 255, 0.10);
   --border-subtle: rgba(255, 255, 255, 0.06);
@@ -301,6 +367,8 @@
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.35);
   --shadow-md: 0 6px 18px rgba(0, 0, 0, 0.5);
   --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.7);
+  --shadow-panel: 0 4px 14px rgba(0, 0, 0, 0.45);
+  --shadow-card: 0 1px 3px rgba(0, 0, 0, 0.3);
 
   --scrollbar-thumb: #412f36;
   --scrollbar-thumb-hover: #583f49;
@@ -613,7 +681,7 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   --panel-gutter: 10px;
   --panel-radius: 16px;
   --panel-border: 1px solid var(--border-subtle);
-  --panel-shadow: 0 2px 10px rgba(44, 26, 74, 0.05);
+  --panel-shadow: var(--shadow-panel, 0 2px 10px rgba(0, 0, 0, 0.05));
   --sidebar-min-width: 200px;
   --notelist-min-width: 250px;
   --editor-min-width: 320px;
@@ -748,10 +816,10 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   width: 100%;
   padding: 8px 10px;
   margin-bottom: 8px;
-  border: 1px solid #ECE4F7;
-  border-radius: 12px;
-  background: var(--bg-notelist-card, #FCF8FE);
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+  border: 1px solid var(--border-subtle);
+  border-radius: var(--radius-card);
+  background: var(--bg-card, var(--bg-notelist-card, #FCF8FE));
+  box-shadow: var(--shadow-card, var(--shadow-sm));
   text-align: left;
   cursor: pointer;
   user-select: none;
@@ -764,13 +832,13 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 .notelist-card-item:hover {
   border-color: var(--border);
-  background: var(--bg-notelist-hover, #F8F1FD);
+  background: var(--bg-card-hover, var(--bg-notelist-hover, #F8F1FD));
 }
 
 .notelist-card-item.is-selected {
-  border: 1.5px solid var(--border-card-active, #9D76F5);
-  background: var(--bg-notelist-active, #F1E8FA);
-  box-shadow: 0 2px 8px rgba(157, 118, 245, 0.15);
+  border: 1.5px solid var(--border-card-active, var(--accent));
+  background: var(--bg-card-active, var(--bg-notelist-active, #F1E8FA));
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 /* Editor toolbar and document: separate tool chrome from the reading canvas. */
