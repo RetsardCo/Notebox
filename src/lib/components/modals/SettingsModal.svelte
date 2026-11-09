@@ -22,9 +22,6 @@
   let shortcutSearch = $state('');
   let copiedVault = $state(false);
   let density = $state<'comfortable' | 'compact' | 'spacious'>('comfortable');
-  let startupView = $state<'all' | 'pinned' | 'last'>('all');
-  let confirmTagDelete = $state(true);
-  let confirmPermanentDelete = $state(true);
 
   const categories: { id: SettingsCategory; label: string; icon: any }[] = [
     { id: 'general', label: 'General', icon: SlidersHorizontal },
@@ -51,7 +48,7 @@
     { group: 'Navigation', key: 'Ctrl + Tab', desc: 'Next Tab' },
     { group: 'Navigation', key: 'Ctrl + Shift + Tab', desc: 'Previous Tab' },
     // Search
-    { group: 'Search', key: 'Ctrl + F', desc: 'Search Notes' },
+    { group: 'Search', key: 'Ctrl + F', desc: 'Find in Note' },
     { group: 'Search', key: 'Ctrl + K', desc: 'Quick Focus Search' },
     { group: 'Search', key: 'Ctrl + H', desc: 'Find & Replace' },
     // Formatting
@@ -143,7 +140,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       bind:this={modalRef}
-      class="w-full max-w-3xl rounded-[16px] border shadow-2xl overflow-hidden flex flex-col h-[620px] max-h-[88vh]"
+      class="w-full max-w-4xl rounded-[16px] border shadow-2xl overflow-hidden flex flex-col h-[580px] max-h-[88vh]"
       style="background-color: var(--bg-modal); border-color: var(--border);"
       onclick={(e) => e.stopPropagation()}
     >
@@ -207,25 +204,34 @@
                 <div class="grid grid-cols-3 gap-2">
                   <button
                     type="button"
-                    onclick={() => (startupView = 'all')}
-                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {startupView === 'all' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
-                    style={startupView === 'all' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                    onclick={() => {
+                      appState.startupView = 'all';
+                      appState.scheduleSessionSave();
+                    }}
+                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'all' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
+                    style={appState.startupView === 'all' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
                   >
                     All Notes
                   </button>
                   <button
                     type="button"
-                    onclick={() => (startupView = 'pinned')}
-                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {startupView === 'pinned' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
-                    style={startupView === 'pinned' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                    onclick={() => {
+                      appState.startupView = 'pinned';
+                      appState.scheduleSessionSave();
+                    }}
+                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'pinned' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
+                    style={appState.startupView === 'pinned' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
                   >
                     Pinned Notes
                   </button>
                   <button
                     type="button"
-                    onclick={() => (startupView = 'last')}
-                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {startupView === 'last' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
-                    style={startupView === 'last' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                    onclick={() => {
+                      appState.startupView = 'last_session';
+                      appState.scheduleSessionSave();
+                    }}
+                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'last_session' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
+                    style={appState.startupView === 'last_session' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
                   >
                     Last Session
                   </button>
@@ -238,7 +244,8 @@
                 <label class="flex items-center gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
-                    bind:checked={confirmTagDelete}
+                    bind:checked={appState.confirmTagDelete}
+                    onchange={() => appState.scheduleSessionSave()}
                     class="rounded accent-[var(--accent)] cursor-pointer"
                   />
                   <span style="color: var(--text-secondary);">Confirm before deleting tags (safeguards note associations)</span>
@@ -246,7 +253,8 @@
                 <label class="flex items-center gap-2.5 cursor-pointer">
                   <input
                     type="checkbox"
-                    bind:checked={confirmPermanentDelete}
+                    bind:checked={appState.confirmPermanentDelete}
+                    onchange={() => appState.scheduleSessionSave()}
                     class="rounded accent-[var(--accent)] cursor-pointer"
                   />
                   <span style="color: var(--text-secondary);">Confirm before permanently purging deleted notes</span>
@@ -265,7 +273,7 @@
               </div>
             </div>
 
-          <!-- 2. APPEARANCE CATEGORY (Matching target_settings_layout.png) -->
+          <!-- 2. APPEARANCE CATEGORY (Matching target_settings_layout.png 3-column x 2-row grid) -->
           {:else if activeCategory === 'appearance'}
             <div class="space-y-5">
               <div>
@@ -276,7 +284,7 @@
               <!-- Color Theme Grid -->
               <div>
                 <span class="font-semibold text-xs block mb-2.5" style="color: var(--text-primary);">Color theme</span>
-                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
                   {#each PALETTES as pal}
                     {@const isSelected = appState.theme === pal.id}
                     <button
@@ -286,31 +294,33 @@
                         ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent);'
                         : 'background-color: var(--bg-input); border-color: var(--border-subtle);'}
                     >
-                      <div class="flex items-center justify-between gap-2 mb-1.5">
-                        <div class="flex items-center gap-2">
-                          <span
-                            class="w-3.5 h-3.5 rounded-full border shadow-2xs shrink-0"
-                            style="background-color: {pal.accent}; border-color: rgba(0,0,0,0.15);"
-                          ></span>
-                          <span class="font-semibold text-xs" style="color: var(--text-primary);">
-                            {pal.name}
-                          </span>
-                          <span class="text-[10px] px-1.5 py-0.2 rounded font-medium opacity-60" style="background-color: var(--border-subtle); color: var(--text-secondary);">
-                            {pal.type}
-                          </span>
+                      <div>
+                        <div class="flex items-center justify-between gap-1.5 mb-1.5">
+                          <div class="flex items-center gap-1.5 min-w-0">
+                            <span
+                              class="w-3.5 h-3.5 rounded-full border shadow-2xs shrink-0"
+                              style="background-color: {pal.accent}; border-color: rgba(0,0,0,0.15);"
+                            ></span>
+                            <span class="font-semibold text-xs truncate" style="color: var(--text-primary);">
+                              {pal.name}
+                            </span>
+                            <span class="text-[9.5px] px-1 py-0.2 rounded font-medium opacity-60 shrink-0" style="background-color: var(--border-subtle); color: var(--text-secondary);">
+                              {pal.type}
+                            </span>
+                          </div>
+
+                          {#if isSelected}
+                            <Check size={14} style="color: var(--accent);" class="shrink-0" />
+                          {/if}
                         </div>
 
-                        {#if isSelected}
-                          <Check size={14} style="color: var(--accent);" />
-                        {/if}
+                        <p class="text-[11px] leading-relaxed mb-3 line-clamp-2" style="color: var(--text-secondary);">
+                          {pal.description}
+                        </p>
                       </div>
 
-                      <p class="text-[11px] leading-relaxed mb-2.5" style="color: var(--text-secondary);">
-                        {pal.description}
-                      </p>
-
-                      <!-- 5 Dots Preview -->
-                      <div class="flex items-center gap-1.5 pt-1 border-t" style="border-color: var(--border-subtle);">
+                      <!-- 5 Dots Preview with safe bottom padding -->
+                      <div class="flex items-center gap-1.5 pt-2 pb-0.5 border-t" style="border-color: var(--border-subtle);">
                         {#each pal.dots as dot}
                           <span
                             class="w-3 h-3 rounded-full border shadow-2xs"
@@ -505,23 +515,30 @@
                 </div>
               </div>
 
-              <!-- Shortcut Grid -->
-              <div class="border rounded-xl divide-y overflow-hidden" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                {#each filteredShortcuts as sc}
-                  <div class="flex items-center justify-between px-4 py-2.5 text-xs hover:bg-black/5 dark:hover:bg-white/5 transition">
-                    <div class="flex items-center gap-2">
-                      <span class="text-[10px] px-1.5 py-0.5 rounded font-mono uppercase font-semibold opacity-70" style="background-color: var(--border-subtle); color: var(--text-tertiary);">
-                        {sc.group}
+              <!-- Shortcut Grid Grouped by Category -->
+              <div class="space-y-4">
+                {#each ['Navigation', 'Search', 'Formatting', 'View & App'] as groupName}
+                  {@const groupShortcuts = filteredShortcuts.filter((s) => s.group === groupName)}
+                  {#if groupShortcuts.length > 0}
+                    <div>
+                      <span class="text-[10px] font-bold uppercase tracking-wider block mb-1.5 px-1" style="color: var(--text-tertiary);">
+                        {groupName}
                       </span>
-                      <span class="font-medium" style="color: var(--text-primary);">{sc.desc}</span>
+                      <div class="border rounded-xl divide-y overflow-hidden" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                        {#each groupShortcuts as sc}
+                          <div class="flex items-center justify-between px-3.5 py-2 text-xs hover:bg-black/5 dark:hover:bg-white/5 transition">
+                            <span class="font-medium" style="color: var(--text-primary);">{sc.desc}</span>
+                            <kbd class="px-2 py-0.5 rounded-lg font-mono border text-[11px] font-semibold shrink-0" style="background-color: var(--bg-modal); border-color: var(--border); color: var(--text-secondary);">
+                              {sc.key}
+                            </kbd>
+                          </div>
+                        {/each}
+                      </div>
                     </div>
-                    <kbd class="px-2 py-0.5 rounded-lg font-mono border text-[11px] font-semibold" style="background-color: var(--bg-modal); border-color: var(--border); color: var(--text-secondary);">
-                      {sc.key}
-                    </kbd>
-                  </div>
+                  {/if}
                 {/each}
                 {#if filteredShortcuts.length === 0}
-                  <div class="p-6 text-center text-xs" style="color: var(--text-tertiary);">
+                  <div class="border rounded-xl p-6 text-center text-xs" style="border-color: var(--border-subtle); color: var(--text-tertiary);">
                     No shortcuts matching "{shortcutSearch}"
                   </div>
                 {/if}
@@ -530,7 +547,7 @@
 
           <!-- 6. ABOUT CATEGORY -->
           {:else if activeCategory === 'about'}
-            <div class="space-y-6">
+            <div class="space-y-5">
               <!-- Banner Card -->
               <div class="p-6 rounded-2xl border text-center flex flex-col items-center justify-center space-y-3" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
                 <img src="/notebox-icon.png" class="w-14 h-14 rounded-2xl object-contain shadow-md" alt="Notebox" />
@@ -554,6 +571,32 @@
                 <div class="p-3.5 rounded-xl border space-y-1" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
                   <span class="font-semibold block text-[11px] uppercase tracking-wider opacity-60" style="color: var(--text-tertiary);">Desktop Native</span>
                   <p class="font-medium" style="color: var(--text-primary);">Tauri v2 + Rust + SQLite 3 WAL</p>
+                </div>
+              </div>
+
+              <!-- External Links (GitHub, License, Docs) -->
+              <div class="p-4 rounded-xl border flex items-center justify-between text-xs" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <span class="font-semibold" style="color: var(--text-primary);">Open Source & License</span>
+                <div class="flex items-center gap-3">
+                  <a
+                    href="https://github.com"
+                    target="_blank"
+                    rel="noreferrer"
+                    class="font-medium hover:underline flex items-center gap-1 cursor-pointer"
+                    style="color: var(--accent);"
+                  >
+                    GitHub Repository
+                  </a>
+                  <span style="color: var(--border);">•</span>
+                  <a
+                    href="https://opensource.org/licenses/MIT"
+                    target="_blank"
+                    rel="noreferrer"
+                    class="font-medium hover:underline flex items-center gap-1 cursor-pointer"
+                    style="color: var(--accent);"
+                  >
+                    MIT License
+                  </a>
                 </div>
               </div>
             </div>

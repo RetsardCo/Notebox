@@ -45,14 +45,46 @@ class AppStore {
   activeTabId = $state<string | null>(null);
 
   // UI State
-  sidebarWidth = $state<number>(210);
-  noteListWidth = $state<number>(260);
+  sidebarWidth = $state<number>(240);
+  noteListWidth = $state<number>(300);
   sidebarCollapsed = $state<boolean>(false);
   noteListCollapsed = $state<boolean>(false);
   theme = $state<string>('lavender');
   wordWrap = $state<boolean>(true);
   fontSize = $state<number>(15);
   zoomLevel = $state<number>(100);
+
+  // General Settings Persistence
+  startupView = $state<'all' | 'pinned' | 'last_session'>('all');
+  confirmTagDelete = $state<boolean>(true);
+  confirmPermanentDelete = $state<boolean>(true);
+
+  // Active Formatting Marks for Toolbar
+  activeFormatting = $state<{
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+    strike: boolean;
+    highlight: boolean;
+    heading: string;
+    bulletList: boolean;
+    orderedList: boolean;
+    taskList: boolean;
+    blockquote: boolean;
+    codeBlock: boolean;
+  }>({
+    bold: false,
+    italic: false,
+    underline: false,
+    strike: false,
+    highlight: false,
+    heading: 'p',
+    bulletList: false,
+    orderedList: false,
+    taskList: false,
+    blockquote: false,
+    codeBlock: false,
+  });
 
   // Quick Access Counts
   allCount = $state<number>(0);
@@ -136,15 +168,30 @@ class AppStore {
       if (savedSession && savedSession.tabs && savedSession.tabs.length > 0) {
         this.tabs = savedSession.tabs;
         this.activeTabId = savedSession.active_tab_id || savedSession.tabs[0].id;
-        this.sidebarWidth = savedSession.sidebar_width === 240 ? 210 : (savedSession.sidebar_width || 210);
-        this.noteListWidth = savedSession.note_list_width === 300 ? 260 : (savedSession.note_list_width || 260);
-        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 210;
-        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 260;
+        this.sidebarWidth = savedSession.sidebar_width || 240;
+        this.noteListWidth = savedSession.note_list_width || 300;
+        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 240;
+        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 300;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
-        this.selectedFolderId = savedSession.selected_folder_id;
-        this.selectedTag = savedSession.selected_tag;
-        this.selectedSmartFolder = (savedSession.selected_folder_id || savedSession.selected_tag) ? null : (savedSession.selected_smart_folder || 'all');
+        this.startupView = savedSession.startup_view || 'all';
+        this.confirmTagDelete = savedSession.confirm_tag_delete !== false;
+        this.confirmPermanentDelete = savedSession.confirm_permanent_delete !== false;
+
+        if (this.startupView === 'all') {
+          this.selectedSmartFolder = 'all';
+          this.selectedFolderId = null;
+          this.selectedTag = null;
+        } else if (this.startupView === 'pinned') {
+          this.selectedSmartFolder = 'pinned';
+          this.selectedFolderId = null;
+          this.selectedTag = null;
+        } else {
+          this.selectedFolderId = savedSession.selected_folder_id;
+          this.selectedTag = savedSession.selected_tag;
+          this.selectedSmartFolder = (savedSession.selected_folder_id || savedSession.selected_tag) ? null : (savedSession.selected_smart_folder || 'all');
+        }
+
         this.theme = savedSession.theme || 'lavender';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
@@ -152,15 +199,30 @@ class AppStore {
         this.applyTheme(this.theme);
         restored = true;
       } else if (savedSession) {
-        this.sidebarWidth = savedSession.sidebar_width === 240 ? 210 : (savedSession.sidebar_width || 210);
-        this.noteListWidth = savedSession.note_list_width === 300 ? 260 : (savedSession.note_list_width || 260);
-        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 210;
-        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 260;
+        this.sidebarWidth = savedSession.sidebar_width || 240;
+        this.noteListWidth = savedSession.note_list_width || 300;
+        if (this.sidebarWidth < 200 || this.sidebarWidth > 420) this.sidebarWidth = 240;
+        if (this.noteListWidth < 240 || this.noteListWidth > 500) this.noteListWidth = 300;
         this.sidebarCollapsed = savedSession.sidebar_collapsed || false;
         this.noteListCollapsed = savedSession.note_list_collapsed || false;
-        this.selectedFolderId = savedSession.selected_folder_id;
-        this.selectedTag = savedSession.selected_tag;
-        this.selectedSmartFolder = (savedSession.selected_folder_id || savedSession.selected_tag) ? null : (savedSession.selected_smart_folder || 'all');
+        this.startupView = savedSession.startup_view || 'all';
+        this.confirmTagDelete = savedSession.confirm_tag_delete !== false;
+        this.confirmPermanentDelete = savedSession.confirm_permanent_delete !== false;
+
+        if (this.startupView === 'all') {
+          this.selectedSmartFolder = 'all';
+          this.selectedFolderId = null;
+          this.selectedTag = null;
+        } else if (this.startupView === 'pinned') {
+          this.selectedSmartFolder = 'pinned';
+          this.selectedFolderId = null;
+          this.selectedTag = null;
+        } else {
+          this.selectedFolderId = savedSession.selected_folder_id;
+          this.selectedTag = savedSession.selected_tag;
+          this.selectedSmartFolder = (savedSession.selected_folder_id || savedSession.selected_tag) ? null : (savedSession.selected_smart_folder || 'all');
+        }
+
         this.theme = savedSession.theme || 'lavender';
         this.viewMode = savedSession.view_mode || 'list';
         this.wordWrap = savedSession.word_wrap !== false;
@@ -355,6 +417,7 @@ class AppStore {
     };
     this.tabs.push(newTab);
     this.activeTabId = newTab.id;
+    this.resetFormatting();
     this.scheduleSessionSave();
   }
 
@@ -622,6 +685,9 @@ class AppStore {
       view_mode: this.viewMode,
       word_wrap: this.wordWrap,
       font_size: this.fontSize,
+      startup_view: this.startupView,
+      confirm_tag_delete: this.confirmTagDelete,
+      confirm_permanent_delete: this.confirmPermanentDelete,
     };
     try {
       await sessionService.saveSession(session);
@@ -636,6 +702,38 @@ class AppStore {
     const words = content.trim().split(/\s+/).filter(Boolean).length;
     this.wordCount = words;
     this.charCount = content.length;
+  }
+
+  updateFormatting(formatting: Partial<{
+    bold: boolean;
+    italic: boolean;
+    underline: boolean;
+    strike: boolean;
+    highlight: boolean;
+    heading: string;
+    bulletList: boolean;
+    orderedList: boolean;
+    taskList: boolean;
+    blockquote: boolean;
+    codeBlock: boolean;
+  }>) {
+    this.activeFormatting = { ...this.activeFormatting, ...formatting };
+  }
+
+  resetFormatting() {
+    this.activeFormatting = {
+      bold: false,
+      italic: false,
+      underline: false,
+      strike: false,
+      highlight: false,
+      heading: 'p',
+      bulletList: false,
+      orderedList: false,
+      taskList: false,
+      blockquote: false,
+      codeBlock: false,
+    };
   }
 
   zoomIn(): void {

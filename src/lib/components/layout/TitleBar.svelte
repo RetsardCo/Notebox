@@ -9,6 +9,7 @@
     PanelLeftOpen,
     WrapText,
     Columns2,
+    Check,
   } from '@lucide/svelte';
 
   let showThemePicker = $state(false);
@@ -60,43 +61,49 @@
 <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
 <header
   data-tauri-drag-region
-  class="h-11 px-4 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
+  class="h-[38px] px-4 flex items-center justify-between border-b select-none shrink-0 relative z-30 transition-colors"
   style="background-color: var(--bg-titlebar); border-color: var(--border-subtle);"
   role="region"
   aria-label="Window Title Bar"
 >
   <!-- Left Side: macOS 3 Interactive Traffic Lights & App Brand -->
   <div class="flex items-center gap-3 h-full">
-    <!-- 3 Interactive Dots (macOS style with subtle hover glyphs) -->
-    <div class="flex items-center gap-1.5 group/dots h-full py-1" data-tauri-drag-region="false">
+    <!-- 3 Interactive Dots (macOS style with subtle hover glyphs, 24x24px accessible hit targets) -->
+    <div class="flex items-center group/dots h-full py-1 -space-x-1" data-tauri-drag-region="false">
       <!-- Red: Close -->
       <button
         onclick={handleClose}
-        class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
+        class="w-6 h-6 flex items-center justify-center cursor-pointer transition-all p-0 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
         title="Close"
         aria-label="Close Window"
       >
-        <span class="opacity-0 group-hover/dots:opacity-100 text-[8px] font-bold text-[#4a0002] transition-opacity leading-none">✕</span>
+        <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center relative shadow-2xs hover:brightness-105 active:scale-90 transition-transform">
+          <span class="opacity-0 group-hover/dots:opacity-100 text-[8px] font-bold text-[#4a0002] transition-opacity leading-none">✕</span>
+        </span>
       </button>
 
       <!-- Yellow: Minimize -->
       <button
         onclick={handleMinimize}
-        class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
+        class="w-6 h-6 flex items-center justify-center cursor-pointer transition-all p-0 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
         title="Minimize"
         aria-label="Minimize Window"
       >
-        <span class="opacity-0 group-hover/dots:opacity-100 text-[10px] font-bold text-[#563600] transition-opacity leading-none">−</span>
+        <span class="w-2.5 h-2.5 rounded-full bg-[#ffbd2e] border border-[#dea123] flex items-center justify-center relative shadow-2xs hover:brightness-105 active:scale-90 transition-transform">
+          <span class="opacity-0 group-hover/dots:opacity-100 text-[10px] font-bold text-[#563600] transition-opacity leading-none">−</span>
+        </span>
       </button>
 
       <!-- Green: Maximize / Restore -->
       <button
         onclick={handleToggleMaximize}
-        class="w-2.5 h-2.5 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center cursor-pointer transition-all active:scale-90 relative shadow-2xs hover:brightness-105"
+        class="w-6 h-6 flex items-center justify-center cursor-pointer transition-all p-0 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
         title="Maximize / Restore"
         aria-label="Maximize Window"
       >
-        <span class="opacity-0 group-hover/dots:opacity-100 text-[9px] font-bold text-[#08480e] transition-opacity leading-none">+</span>
+        <span class="w-2.5 h-2.5 rounded-full bg-[#27c93f] border border-[#1aab29] flex items-center justify-center relative shadow-2xs hover:brightness-105 active:scale-90 transition-transform">
+          <span class="opacity-0 group-hover/dots:opacity-100 text-[9px] font-bold text-[#08480e] transition-opacity leading-none">+</span>
+        </span>
       </button>
     </div>
 
@@ -116,9 +123,13 @@
     </div>
   </div>
 
-  <!-- Center Area: Active Note Title / Breadcrumb (Draggable) -->
+  <!-- Center Area: Active Note Title / Breadcrumb (Draggable) with tooltip -->
   <div class="flex-1 flex items-center justify-center px-4 overflow-hidden pointer-events-none">
-    <span class="text-xs font-medium truncate max-w-sm" style="color: var(--text-secondary);">
+    <span
+      class="text-xs font-medium truncate max-w-sm pointer-events-auto"
+      style="color: var(--text-secondary);"
+      title={appState.activeTab ? `${appState.activeTab.title || 'Untitled Note'} — Notebox` : 'Notebox'}
+    >
       {appState.activeTab ? `${appState.activeTab.title || 'Untitled Note'} — Notebox` : 'Notebox'}
     </span>
   </div>
@@ -187,7 +198,7 @@
       {#if showThemePicker}
         <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
         <div
-          class="absolute top-full right-0 mt-2 w-60 rounded-2xl border shadow-xl p-2 z-50 backdrop-blur-md"
+          class="absolute top-full right-0 mt-2 w-72 rounded-2xl border shadow-xl p-2 z-50 backdrop-blur-md"
           style="background-color: var(--bg-modal); border-color: var(--border);"
           onclick={(e) => e.stopPropagation()}
           onkeydown={(e) => { if (e.key === 'Escape') showThemePicker = false; }}
@@ -196,7 +207,7 @@
           aria-label="Color Palette Library"
         >
           <div
-            class="px-2.5 py-1.5 text-[11px] font-semibold uppercase tracking-wider border-b mb-1 flex items-center justify-between"
+            class="px-2.5 pt-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider border-b mb-1 flex items-center justify-between"
             style="color: var(--text-tertiary); border-color: var(--border-subtle);"
           >
             <span>Color Palette Library</span>
@@ -227,14 +238,19 @@
                   </div>
                 </div>
 
-                <!-- 5 dots preview from Image 1 -->
-                <div class="flex items-center gap-0.5">
-                  {#each pal.dots as dot}
-                    <span
-                      class="w-1.5 h-1.5 rounded-full border border-black/10"
-                      style="background-color: {dot};"
-                    ></span>
-                  {/each}
+                <!-- Active checkmark and 5 dots preview -->
+                <div class="flex items-center gap-2">
+                  {#if isCurrent}
+                    <Check size={13} style="color: var(--accent);" />
+                  {/if}
+                  <div class="flex items-center gap-0.5">
+                    {#each pal.dots as dot}
+                      <span
+                        class="w-1.5 h-1.5 rounded-full border border-black/10 shrink-0"
+                        style="background-color: {dot};"
+                      ></span>
+                    {/each}
+                  </div>
                 </div>
               </button>
             {/each}

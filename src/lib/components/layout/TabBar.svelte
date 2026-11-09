@@ -1,7 +1,7 @@
 <script lang="ts">
   import { onMount } from 'svelte';
   import { appState } from '$lib/stores/appState.svelte';
-  import { Plus, X, FileText, PanelLeftOpen, ChevronLeft, ChevronRight } from '@lucide/svelte';
+  import { Plus, X, FileText, ChevronLeft, ChevronRight } from '@lucide/svelte';
 
   let scrollContainer = $state<HTMLDivElement | null>(null);
   let hasOverflow = $state(false);
@@ -79,21 +79,9 @@
 </script>
 
 <div
-  class="h-9.5 flex items-center border-b px-2.5 gap-1.5 select-none shrink-0"
+  class="panel-header-bar flex items-center border-b px-2.5 gap-1.5 select-none shrink-0"
   style="background-color: var(--bg-tabbar); border-color: var(--border-subtle);"
 >
-  <!-- Pinned Leading: Sidebar Toggle Button -->
-  {#if appState.sidebarCollapsed}
-    <button
-      onclick={() => appState.toggleSidebar()}
-      class="w-7 h-7 flex items-center justify-center rounded-lg transition-colors cursor-pointer shrink-0 text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10"
-      title="Show Sidebar (Ctrl+\)"
-      aria-label="Show Sidebar"
-    >
-      <PanelLeftOpen size={15} />
-    </button>
-    <div class="w-px h-3.5 mx-0.5 opacity-40 shrink-0" style="background-color: var(--border);"></div>
-  {/if}
 
   <!-- Conditional Left Scroll Chevron (Only rendered when tabs overflow and can scroll left) -->
   {#if hasOverflow && canScrollLeft}

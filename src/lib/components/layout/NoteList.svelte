@@ -98,7 +98,7 @@
   style="background-color: var(--bg-notelist);"
 >
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
-  <div class="h-10 panel-header-bar flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="h-[44px] panel-header-bar flex items-center justify-between border-b shrink-0 px-3.5" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
       {#if appState.sidebarCollapsed}
         <button
@@ -127,7 +127,7 @@
         {#if appState.displayedNotes.length > 0}
           <button
             onclick={() => {
-              if (confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.')) {
+              if (!appState.confirmPermanentDelete || confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.')) {
                 appState.emptyTrash();
               }
             }}
@@ -242,7 +242,7 @@
                 <button
                   onclick={(e) => {
                     e.stopPropagation();
-                    if (confirm(`Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`)) {
+                    if (!appState.confirmPermanentDelete || confirm(`Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`)) {
                       appState.deleteNote(note.id, true);
                     }
                   }}
@@ -288,7 +288,7 @@
           <!-- Card Footer: Date on left, Folder/Tags on right -->
           <div class="flex items-center justify-between text-[11px] pt-1">
             <span class="font-medium shrink-0" style="color: var(--text-tertiary);">
-              {note.is_trash ? `Deleted ${formatDate(note.updated_at)}` : formatDate(note.updated_at)}
+              {note.is_trash || appState.selectedSmartFolder === 'trash' ? `Deleted ${formatDate(note.updated_at)}` : formatDate(note.updated_at)}
             </span>
 
             <div class="flex items-center gap-1.5 overflow-hidden">
@@ -306,7 +306,7 @@
                 <span
                   class="px-2 py-0.5 rounded-lg font-medium inline-flex items-center gap-1 text-[10.5px]"
                   style={tagInfo?.color
-                    ? `background-color: ${tagInfo.color}18; color: ${tagInfo.color}; border: 1px solid ${tagInfo.color}30;`
+                    ? `background-color: color-mix(in srgb, ${tagInfo.color} 14%, transparent); color: ${tagInfo.color}; border: 1px solid color-mix(in srgb, ${tagInfo.color} 30%, transparent);`
                     : 'background-color: var(--accent-light); color: var(--accent-text);'}
                 >
                   <span
@@ -411,7 +411,7 @@
 
         <button
           onclick={() => {
-            if (confirm('Permanently delete this note file forever?')) {
+            if (!appState.confirmPermanentDelete || confirm('Permanently delete this note file forever?')) {
               appState.deleteNote(note.id, true);
             }
             closeContextMenu();

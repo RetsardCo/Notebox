@@ -19,3 +19,4 @@ target/
 .assets/
 NoteFlow/
 .agents/
+.edge-profile/

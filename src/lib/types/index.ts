@@ -84,6 +84,9 @@ export interface SessionState {
   view_mode: 'list' | 'gallery';
   word_wrap: boolean;
   font_size: number;
+  startup_view?: 'all' | 'pinned' | 'last_session';
+  confirm_tag_delete?: boolean;
+  confirm_permanent_delete?: boolean;
 }
 
 export interface SearchResult {

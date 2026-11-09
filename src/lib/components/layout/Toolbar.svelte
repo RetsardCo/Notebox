@@ -41,15 +41,16 @@
 </script>
 
 <div
-  class="h-10 px-3 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto no-scrollbar {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
+  class="h-[36px] px-3 flex items-center justify-between border-b select-none shrink-0 overflow-x-auto no-scrollbar {appState.activeTab ? '' : 'opacity-40 pointer-events-none'}"
   style="background-color: var(--bg-toolbar); border-color: var(--border-subtle);"
 >
   <!-- Left Formatting Tools (Image 1 Style) -->
   <div class="flex items-center gap-1">
     <!-- Heading / Style Dropdown -->
     <select
+      value={appState.activeFormatting.heading}
       onchange={(e) => onCommand('heading', (e.target as HTMLSelectElement).value)}
-      class="h-6.5 text-[11px] font-semibold rounded-lg px-2.5 mr-1 outline-none cursor-pointer border shadow-xs transition-colors"
+      class="h-6 text-[11px] font-semibold rounded-lg px-2 mr-1 outline-none cursor-pointer border shadow-xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
       title="Text Style"
     >
@@ -64,45 +65,65 @@
     <!-- Text Styles: Bold, Italic, Underline, Strike, Highlight -->
     <button
       onclick={() => onCommand('bold')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.bold ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.bold
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Bold (Ctrl+B)"
       aria-label="Bold"
+      aria-pressed={appState.activeFormatting.bold}
     >
       <Bold size={14} />
     </button>
 
     <button
       onclick={() => onCommand('italic')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.italic ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.italic
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Italic (Ctrl+I)"
       aria-label="Italic"
+      aria-pressed={appState.activeFormatting.italic}
     >
       <Italic size={14} />
     </button>
 
     <button
       onclick={() => onCommand('underline')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.underline ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.underline
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Underline (Ctrl+U)"
       aria-label="Underline"
+      aria-pressed={appState.activeFormatting.underline}
     >
       <UnderlineIcon size={14} />
     </button>
 
     <button
       onclick={() => onCommand('strike')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.strike ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.strike
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Strikethrough"
       aria-label="Strikethrough"
+      aria-pressed={appState.activeFormatting.strike}
     >
       <Strikethrough size={14} />
     </button>
 
     <button
       onclick={() => onCommand('highlight')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.highlight ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.highlight
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Highlight"
       aria-label="Highlight"
+      aria-pressed={appState.activeFormatting.highlight}
     >
       <Highlighter size={14} />
     </button>
@@ -112,27 +133,39 @@
     <!-- Lists & Checklists -->
     <button
       onclick={() => onCommand('taskList')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.taskList ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.taskList
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Checklist"
       aria-label="Checklist"
+      aria-pressed={appState.activeFormatting.taskList}
     >
       <CheckSquare size={14} />
     </button>
 
     <button
       onclick={() => onCommand('bulletList')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.bulletList ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.bulletList
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Bullet List"
       aria-label="Bullet List"
+      aria-pressed={appState.activeFormatting.bulletList}
     >
       <List size={14} />
     </button>
 
     <button
       onclick={() => onCommand('orderedList')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.orderedList ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.orderedList
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Numbered List"
       aria-label="Numbered List"
+      aria-pressed={appState.activeFormatting.orderedList}
     >
       <ListOrdered size={14} />
     </button>
@@ -160,18 +193,26 @@
 
     <button
       onclick={() => onCommand('blockquote')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.blockquote ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.blockquote
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Blockquote"
       aria-label="Blockquote"
+      aria-pressed={appState.activeFormatting.blockquote}
     >
       <Quote size={14} />
     </button>
 
     <button
       onclick={() => onCommand('codeBlock')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.codeBlock ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      style={appState.activeFormatting.codeBlock
+        ? 'background-color: var(--accent-light); color: var(--accent);'
+        : 'color: var(--text-secondary);'}
       title="Code Block"
       aria-label="Code Block"
+      aria-pressed={appState.activeFormatting.codeBlock}
     >
       <Code size={14} />
     </button>

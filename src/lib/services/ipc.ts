@@ -28,10 +28,10 @@ async function safeInvoke<T>(cmd: string, args?: any, fallback?: T): Promise<T> 
 const mockNotes: NoteSummary[] = [
   {
     id: 'note-welcome',
-    title: 'Welcome to NoteFlow',
+    title: 'Welcome to Notebox',
     folder_id: 'folder-personal',
     folder_name: 'Personal',
-    file_path: 'Welcome to NoteFlow.md',
+    file_path: 'Welcome to Notebox.md',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString(),
     pinned: false,

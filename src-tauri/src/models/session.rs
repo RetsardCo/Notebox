@@ -38,6 +38,12 @@ pub struct SessionState {
     pub word_wrap: bool,
     #[serde(default = "default_font_size")]
     pub font_size: u32,
+    #[serde(default = "default_startup_view")]
+    pub startup_view: String,
+    #[serde(default = "default_true")]
+    pub confirm_tag_delete: bool,
+    #[serde(default = "default_true")]
+    pub confirm_permanent_delete: bool,
 }
 
 fn default_sidebar_width() -> u32 { 280 }
@@ -46,3 +52,5 @@ fn default_theme() -> String { "warm-paper".to_string() }
 fn default_view_mode() -> String { "list".to_string() }
 fn default_word_wrap() -> bool { true }
 fn default_font_size() -> u32 { 15 }
+fn default_startup_view() -> String { "all".to_string() }
+fn default_true() -> bool { true }

@@ -22,13 +22,19 @@
   let isDraggingNoteList = $state(false);
 
   function onMouseDownSidebarSplitter(e: MouseEvent) {
+    e.preventDefault();
     isDraggingSidebar = true;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
     window.addEventListener('mousemove', onMouseMoveSplitter);
     window.addEventListener('mouseup', onMouseUpSplitter);
   }
 
   function onMouseDownNoteListSplitter(e: MouseEvent) {
+    e.preventDefault();
     isDraggingNoteList = true;
+    document.body.style.userSelect = 'none';
+    document.body.style.cursor = 'col-resize';
     window.addEventListener('mousemove', onMouseMoveSplitter);
     window.addEventListener('mouseup', onMouseUpSplitter);
   }
@@ -45,7 +51,7 @@
     } else if (isDraggingNoteList) {
       const currentSidebarWidth = appState.sidebarCollapsed ? 0 : appState.sidebarWidth;
       const sidebarGutter = appState.sidebarCollapsed ? 0 : panelGutter;
-      const newWidth = Math.max(250, Math.min(480, e.clientX - workspaceLeft - outerGutter - currentSidebarWidth - sidebarGutter));
+      const newWidth = Math.max(240, Math.min(480, e.clientX - workspaceLeft - outerGutter - currentSidebarWidth - sidebarGutter));
       appState.noteListWidth = newWidth;
     }
   }
@@ -53,6 +59,8 @@
   function onMouseUpSplitter() {
     isDraggingSidebar = false;
     isDraggingNoteList = false;
+    document.body.style.userSelect = '';
+    document.body.style.cursor = '';
     window.removeEventListener('mousemove', onMouseMoveSplitter);
     window.removeEventListener('mouseup', onMouseUpSplitter);
     appState.scheduleSessionSave();
@@ -186,7 +194,7 @@
     <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
     {#if !appState.sidebarCollapsed}
       <aside
-        class="sidebar-panel transition-[width] duration-200 ease-in-out"
+        class="sidebar-panel {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
         style="width: {appState.sidebarWidth}px;"
       >
         <Sidebar />
@@ -207,7 +215,7 @@
     <!-- Column 2: Note Cards List -->
     {#if !appState.noteListCollapsed}
       <section
-        class="notelist-panel transition-[width] duration-200 ease-in-out"
+        class="notelist-panel {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
         style="width: {appState.noteListWidth}px;"
       >
         <NoteList />

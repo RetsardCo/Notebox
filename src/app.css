@@ -38,7 +38,8 @@
 
   --editor-min-width: 360px;
   --titlebar-height: 38px;
-  --tabbar-height: 36px;
+  --panel-header-height: 44px;
+  --tabbar-height: 44px;
   --toolbar-height: 36px;
   --statusbar-height: 28px;
 }
@@ -684,7 +685,6 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   --panel-shadow: var(--shadow-panel, 0 2px 10px rgba(0, 0, 0, 0.05));
   --sidebar-min-width: 200px;
   --notelist-min-width: 250px;
-  --editor-min-width: 320px;
 }
 
 .workspace-container {
@@ -795,7 +795,8 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 /* Notes list: consistent header inset, card rhythm and readable card content. */
 .panel-header-bar {
-  min-height: 44px;
+  height: var(--panel-header-height, 44px);
+  min-height: var(--panel-header-height, 44px);
   padding: 0 14px;
   box-sizing: border-box;
 }
@@ -814,7 +815,7 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 .notelist-card-item {
   position: relative;
   width: 100%;
-  padding: 8px 10px;
+  padding: 10px 12px;
   margin-bottom: 8px;
   border: 1px solid var(--border-subtle);
   border-radius: var(--radius-card);
@@ -1010,4 +1011,51 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
 
 @media (max-width: 900px) {
   .editor-panel > footer { margin-inline: 6px; padding-inline: 10px; }
+}
+
+/* Custom Range Slider (Editor Settings & Zoom) */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  background: var(--border-subtle);
+  border-radius: var(--radius-pill);
+  outline: none;
+  cursor: pointer;
+  transition: background 150ms ease;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-modal, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--accent);
+  border: 2px solid var(--bg-modal, #ffffff);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: transform 150ms ease, box-shadow 150ms ease;
+}
+
+input[type="range"]::-moz-range-thumb:hover {
+  transform: scale(1.15);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }

@@ -250,6 +250,34 @@
     appState.updateMetrics(lineNum, colNum, fullText);
   }
 
+  function updateFormattingFromEditor() {
+    if (!editor) {
+      appState.resetFormatting();
+      return;
+    }
+    const heading = editor.isActive('heading', { level: 1 })
+      ? '1'
+      : editor.isActive('heading', { level: 2 })
+      ? '2'
+      : editor.isActive('heading', { level: 3 })
+      ? '3'
+      : 'p';
+
+    appState.updateFormatting({
+      bold: editor.isActive('bold'),
+      italic: editor.isActive('italic'),
+      underline: editor.isActive('underline'),
+      strike: editor.isActive('strike'),
+      highlight: editor.isActive('highlight'),
+      heading,
+      bulletList: editor.isActive('bulletList'),
+      orderedList: editor.isActive('orderedList'),
+      taskList: editor.isActive('taskList'),
+      blockquote: editor.isActive('blockquote'),
+      codeBlock: editor.isActive('codeBlock'),
+    });
+  }
+
   function initEditor() {
     if (!editorElement || editor) return;
 
@@ -293,9 +321,14 @@
         lastLoadedContent = md;
         appState.updateTabContent(md);
         updateMetricsFromEditor();
+        updateFormattingFromEditor();
       },
       onSelectionUpdate: () => {
         updateMetricsFromEditor();
+        updateFormattingFromEditor();
+      },
+      onTransaction: () => {
+        updateFormattingFromEditor();
       },
     });
 
@@ -368,6 +401,7 @@
     editor.commands.setContent(html, { emitUpdate: false });
     setTimeout(() => { isInternalUpdate = false; }, 300);
     updateMetricsFromEditor();
+    updateFormattingFromEditor();
   }
 
   function handleEditorClick(e: MouseEvent) {
@@ -420,6 +454,8 @@
       if (tab.id !== lastLoadedTabId || (!tab.is_dirty && tab.content !== lastLoadedContent)) {
         loadTabContent(tab.id, tab.content);
       }
+    } else if (!tab) {
+      appState.resetFormatting();
     }
   });
 

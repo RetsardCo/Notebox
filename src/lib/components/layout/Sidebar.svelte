@@ -17,6 +17,7 @@
     Search,
     MoreHorizontal,
     Check,
+    Palette,
   } from '@lucide/svelte';
 
   let searchInput = $state('');
@@ -44,14 +45,55 @@
 
   // Tag Management State
   let activeTagMenuId = $state<string | null>(null);
+  let showColorPickerForTag = $state<string | null>(null);
   let editingTag = $state<Tag | null>(null);
   let editTagName = $state('');
   let editTagColor = $state('#8b5cf6');
   let editTagError = $state('');
   let deletingTag = $state<Tag | null>(null);
 
+  let editTagModalRef = $state<HTMLElement | null>(null);
+  let deleteTagModalRef = $state<HTMLElement | null>(null);
+
+  let isAllActive = $derived(appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery);
+  let isPinnedActive = $derived(appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery);
+  let isChecklistActive = $derived(appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery);
+  let isTrashActive = $derived(appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery);
+
   function autoFocus(el: HTMLElement) {
     setTimeout(() => el?.focus(), 10);
+  }
+
+  function handleTrapKeydown(e: KeyboardEvent, container: HTMLElement | null, onDismiss: () => void) {
+    if (e.key === 'Escape') {
+      e.stopPropagation();
+      onDismiss();
+      return;
+    }
+    if (e.key === 'Tab' && container) {
+      const focusable = container.querySelectorAll<HTMLElement>(
+        'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+      );
+      if (focusable.length === 0) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    }
+  }
+
+  async function handleDeleteTag(tag: Tag) {
+    if (!appState.confirmTagDelete) {
+      await appState.deleteTag(tag.id);
+      return;
+    }
+    deletingTag = tag;
   }
 
   function handleSearchInput(e: Event) {
@@ -140,6 +182,7 @@
 
   function closeAllMenus() {
     activeTagMenuId = null;
+    showColorPickerForTag = null;
   }
 
   async function handleSaveTagEdit() {
@@ -182,22 +225,14 @@
   style="background-color: var(--bg-sidebar);"
 >
   <!-- Sidebar Header Aligned with Column 2 and Column 3 -->
-  <div class="h-10 px-3 flex items-center justify-between border-b shrink-0" style="border-color: var(--border-subtle);">
+  <div class="panel-header-bar px-3.5 flex items-center border-b shrink-0" style="border-color: var(--border-subtle);">
     <span class="text-[11px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">Sidebar</span>
-    <button
-      onclick={() => appState.toggleSidebar()}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
-      title="Hide Sidebar (Ctrl+\)"
-      aria-label="Hide Sidebar"
-    >
-      <PanelLeftClose size={15} />
-    </button>
   </div>
 
   <!-- Inset Search Box (Image 1 Style: Search notes...) -->
   <div class="px-3 pt-2.5 pb-1 shrink-0">
     <div
-      class="flex items-center gap-2 h-8.5 px-3 rounded-xl border text-xs shadow-2xs transition-colors"
+      class="flex items-center gap-2 h-[34px] px-3 rounded-[10px] border text-xs shadow-2xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border-subtle);"
     >
       <Search size={14} style="color: var(--text-tertiary);" class="shrink-0" />
@@ -236,9 +271,9 @@
       <!-- All Notes -->
       <button
         onclick={() => appState.selectSmartFolder('all')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'all' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? ''
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isAllActive ? 'font-semibold shadow-2xs' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={isAllActive
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -253,9 +288,9 @@
       <!-- Pinned -->
       <button
         onclick={() => appState.selectSmartFolder('pinned')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'pinned' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? ''
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isPinnedActive ? 'font-semibold shadow-2xs' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={isPinnedActive
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -270,9 +305,9 @@
       <!-- Checklists -->
       <button
         onclick={() => appState.selectSmartFolder('checklist')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'checklist' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? ''
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isChecklistActive ? 'font-semibold shadow-2xs' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={isChecklistActive
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -287,9 +322,9 @@
       <!-- Recently Deleted -->
       <button
         onclick={() => appState.selectSmartFolder('trash')}
-        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-        style={appState.selectedSmartFolder === 'trash' && !appState.selectedFolderId && !appState.selectedTag && !appState.searchQuery
-          ? ''
+        class="w-full h-8 px-3 py-2 rounded-xl gap-2.5 mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTrashActive ? 'font-semibold shadow-2xs' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+        style={isTrashActive
+          ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
           : 'color: var(--text-primary);'}
       >
         <div class="flex items-center gap-2.5">
@@ -364,9 +399,9 @@
       {#each appState.folders as folder (folder.id)}
         {@const isFolderActive = appState.selectedFolderId === folder.id && !appState.selectedTag && !appState.searchQuery}
         <div
-          class="group w-full h-8 px-2.5 py-1.5 rounded-xl mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isFolderActive ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          class="group w-full h-8 px-2.5 py-1.5 rounded-xl mb-1 flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isFolderActive ? 'font-semibold shadow-2xs' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
           style={isFolderActive
-            ? ''
+            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
             : 'color: var(--text-primary);'}
           onclick={() => appState.selectFolder(folder.id)}
           role="button"
@@ -398,26 +433,26 @@
 
           <div class="relative flex items-center justify-end shrink-0 min-w-[44px] h-5">
             <span
-              class="text-[11px] font-semibold transition-opacity duration-150 group-hover:opacity-0"
+              class="text-[11px] font-semibold transition-opacity duration-150 group-hover:opacity-0 group-focus-within:opacity-0"
               style="color: var(--text-tertiary);"
             >
               {folder.note_count || 0}
             </span>
-            <div class="absolute right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity duration-150">
+            <div class="absolute right-0 flex items-center gap-1 opacity-0 group-hover:opacity-100 group-focus-within:opacity-100 transition-opacity duration-150">
               <button
                 onclick={(e) => {
                   e.stopPropagation();
                   editingFolderId = folder.id;
                   editFolderName = folder.name;
                 }}
-                class="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
+                class="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                 title="Rename folder"
               >
                 <Edit2 size={12} style="color: var(--text-secondary);" />
               </button>
               <button
                 onclick={(e) => handleDeleteFolder(folder.id, e)}
-                class="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer"
+                class="p-1 rounded hover:bg-black/10 dark:hover:bg-white/10 cursor-pointer focus-visible:opacity-100 focus-visible:ring-1 focus-visible:ring-[var(--accent)]"
                 title="Delete folder"
               >
                 <X size={12} style="color: var(--text-secondary);" />
@@ -507,48 +542,59 @@
         </div>
       {/if}
 
-      {#each appState.tags as tag (tag.id)}
+      {#each appState.tags as tag, tagIndex (tag.id)}
         {@const isTagActive = appState.selectedTag === tag.name && !appState.selectedFolderId && !appState.searchQuery}
-        <div class="relative group/tag mb-1">
+        {@const isNearBottom = tagIndex >= appState.tags.length - 2}
+        <div
+          class="group/tag relative mb-1 flex items-center justify-between rounded-xl transition-all {isTagActive ? 'font-semibold shadow-2xs' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
+          style={isTagActive
+            ? 'background-color: var(--bg-sidebar-active); color: var(--accent-text);'
+            : 'color: var(--text-primary);'}
+        >
           <button
             onclick={() => appState.selectTag(tag.name)}
-            class="w-full h-8 pl-3 pr-8 py-2 rounded-xl flex items-center justify-between text-xs font-medium transition-all cursor-pointer {isTagActive ? 'bg-[#E4D1FA] text-[#2C1A4A] font-semibold' : 'hover:bg-[var(--bg-sidebar-hover)]'}"
-            style={isTagActive ? '' : 'color: var(--text-primary);'}
+            class="flex-1 min-w-0 h-8 pl-3 pr-1.5 flex items-center gap-2.5 text-xs font-medium cursor-pointer text-left overflow-hidden"
             title={`Filter notes with #${tag.name}`}
             aria-label={`Tag #${tag.name}, ${tag.note_count || 0} notes`}
             aria-current={isTagActive ? "true" : undefined}
           >
-            <div class="flex items-center gap-2.5 truncate min-w-0">
-              <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
-              <span class="truncate">#{tag.name}</span>
-            </div>
-            <span class="text-[11px] font-semibold px-1.5 py-0.5 rounded-md" style="color: var(--text-tertiary);">
-              {tag.note_count || 0}
-            </span>
+            <span class="w-2.5 h-2.5 rounded-full shrink-0 shadow-xs" style="background-color: {tag.color || 'var(--accent)'};"></span>
+            <span class="truncate">#{tag.name}</span>
           </button>
 
-          <!-- Tag Actions Overflow Menu Button -->
-          <button
-            onclick={(e) => {
-              e.stopPropagation();
-              activeTagMenuId = activeTagMenuId === tag.id ? null : tag.id;
-            }}
-            class="absolute right-1.5 top-1/2 -translate-y-1/2 w-6 h-6 flex items-center justify-center rounded-lg transition-opacity duration-150 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 {activeTagMenuId === tag.id ? 'opacity-100' : 'opacity-0 group-hover/tag:opacity-100 focus-visible:opacity-100'}"
-            title="Tag actions"
-            aria-label={`Actions for tag ${tag.name}`}
-            aria-expanded={activeTagMenuId === tag.id}
-          >
-            <MoreHorizontal size={14} />
-          </button>
+          <!-- Trailing area: Count is preserved; action button revealed on hover/focus/menu-open without overlap -->
+          <div class="flex items-center gap-1 shrink-0 pr-1.5">
+            <span
+              class="text-[11px] font-semibold px-1 rounded transition-opacity duration-150"
+              style="color: var(--text-tertiary);"
+            >
+              {tag.note_count || 0}
+            </span>
+
+            <!-- Tag Actions Overflow Menu Button -->
+            <button
+              onclick={(e) => {
+                e.stopPropagation();
+                activeTagMenuId = activeTagMenuId === tag.id ? null : tag.id;
+                showColorPickerForTag = null;
+              }}
+              class="w-6 h-6 flex items-center justify-center rounded-lg transition-opacity duration-150 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 {activeTagMenuId === tag.id ? 'opacity-100' : 'opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100 focus-visible:opacity-100'}"
+              title="Tag actions"
+              aria-label={`Actions for tag ${tag.name}`}
+              aria-expanded={activeTagMenuId === tag.id}
+            >
+              <MoreHorizontal size={14} />
+            </button>
+          </div>
 
           <!-- Dropdown Popover Menu -->
           {#if activeTagMenuId === tag.id}
             <!-- svelte-ignore a11y_no_noninteractive_element_interactions -->
             <div
-              class="absolute right-0 top-full mt-1 w-40 rounded-xl border shadow-xl p-1 z-50 backdrop-blur-md text-xs"
+              class="absolute right-0 {isNearBottom ? 'bottom-full mb-1' : 'top-full mt-1'} w-44 rounded-xl border shadow-xl p-1 z-50 backdrop-blur-md text-xs"
               style="background-color: var(--bg-modal); border-color: var(--border);"
               onclick={(e) => e.stopPropagation()}
-              onkeydown={(e) => { if (e.key === 'Escape') activeTagMenuId = null; }}
+              onkeydown={(e) => { if (e.key === 'Escape') { activeTagMenuId = null; showColorPickerForTag = null; } }}
               role="menu"
               tabindex="-1"
             >
@@ -559,20 +605,58 @@
                   editTagColor = tag.color || '#8b5cf6';
                   editTagError = '';
                   activeTagMenuId = null;
+                  showColorPickerForTag = null;
                 }}
                 class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-left cursor-pointer"
                 style="color: var(--text-primary);"
                 role="menuitem"
+                use:autoFocus
               >
                 <Edit2 size={13} style="color: var(--accent);" />
-                <span>Edit tag</span>
+                <span>Edit tag name</span>
               </button>
               <button
                 onclick={() => {
-                  deletingTag = tag;
+                  showColorPickerForTag = showColorPickerForTag === tag.id ? null : tag.id;
+                }}
+                class="w-full flex items-center justify-between px-2.5 py-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors text-left cursor-pointer"
+                style="color: var(--text-primary);"
+                role="menuitem"
+              >
+                <div class="flex items-center gap-2">
+                  <Palette size={13} style="color: var(--accent);" />
+                  <span>Change color</span>
+                </div>
+                <span class="text-[10px] text-[var(--text-tertiary)]">{showColorPickerForTag === tag.id ? '▾' : '▸'}</span>
+              </button>
+
+              {#if showColorPickerForTag === tag.id}
+                <div class="px-2 py-1.5 flex items-center gap-1.5 flex-wrap border-t border-b border-[var(--border-subtle)] bg-black/5 dark:bg-white/5 rounded-md my-0.5">
+                  {#each TAG_COLORS as col}
+                    <button
+                      type="button"
+                      onclick={async () => {
+                        await appState.updateTag(tag.id, undefined, col);
+                        activeTagMenuId = null;
+                        showColorPickerForTag = null;
+                      }}
+                      class="w-4 h-4 rounded-full transition-transform hover:scale-125 cursor-pointer shadow-xs {tag.color === col ? 'ring-2 ring-offset-1 ring-[var(--accent)] scale-110' : ''}"
+                      style="background-color: {col};"
+                      title={col}
+                      aria-label={`Select color ${col}`}
+                    ></button>
+                  {/each}
+                </div>
+              {/if}
+
+              <button
+                onclick={() => {
+                  handleDeleteTag(tag);
                   activeTagMenuId = null;
+                  showColorPickerForTag = null;
                 }}
                 class="w-full flex items-center gap-2 px-2.5 py-1.5 rounded-lg hover:bg-red-500/10 transition-colors text-left text-red-600 dark:text-red-400 cursor-pointer"
+                style="color: #ef4444;"
                 role="menuitem"
               >
                 <Trash2 size={13} />
@@ -592,7 +676,7 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm select-none"
     onclick={() => (editingTag = null)}
-    onkeydown={(e) => { if (e.key === 'Escape') editingTag = null; }}
+    onkeydown={(e) => handleTrapKeydown(e, editTagModalRef, () => (editingTag = null))}
     role="dialog"
     aria-modal="true"
     tabindex="-1"
@@ -600,11 +684,12 @@
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="w-full max-w-sm rounded-[16px] border shadow-2xl p-5 flex flex-col gap-4"
-      style="background-color: var(--bg-modal); border-color: var(--border);"
+      bind:this={editTagModalRef}
+      class="w-full max-w-md rounded-[16px] border shadow-2xl flex flex-col gap-4"
+      style="background-color: var(--bg-modal); border-color: var(--border); padding: 24px;"
       onclick={(e) => e.stopPropagation()}
     >
-      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border-subtle);">
+      <div class="flex items-center justify-between border-b pb-3" style="border-color: var(--border);">
         <h3 id="edit-tag-title" class="font-semibold text-sm" style="color: var(--text-primary);">
           Edit Tag
         </h3>
@@ -618,7 +703,7 @@
         </button>
       </div>
 
-      <div class="space-y-3">
+      <div class="space-y-3.5">
         <div>
           <label for="edit-tag-name-input" class="block text-xs font-medium mb-1.5" style="color: var(--text-secondary);">
             Tag Name
@@ -632,6 +717,7 @@
               class="w-full text-xs bg-transparent border-none outline-none font-medium"
               style="color: var(--text-primary);"
               placeholder="tag-name"
+              use:autoFocus
               onkeydown={(e) => {
                 if (e.key === 'Enter') handleSaveTagEdit();
               }}
@@ -665,11 +751,11 @@
         </div>
       </div>
 
-      <div class="flex items-center justify-end gap-2 pt-2 border-t" style="border-color: var(--border-subtle);">
+      <div class="flex items-center justify-end gap-2.5 pt-4 border-t mt-1" style="border-color: var(--border);">
         <button
           type="button"
           onclick={() => (editingTag = null)}
-          class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
           style="color: var(--text-secondary);"
         >
           Cancel
@@ -677,7 +763,7 @@
         <button
           type="button"
           onclick={handleSaveTagEdit}
-          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-[var(--accent)] hover:brightness-105 transition cursor-pointer shadow-xs"
+          class="px-4 py-1.5 rounded-xl text-xs font-semibold text-white bg-[var(--accent)] hover:brightness-105 transition cursor-pointer shadow-xs"
         >
           Save Changes
         </button>
@@ -692,7 +778,7 @@
   <div
     class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/45 backdrop-blur-sm select-none"
     onclick={() => (deletingTag = null)}
-    onkeydown={(e) => { if (e.key === 'Escape') deletingTag = null; }}
+    onkeydown={(e) => handleTrapKeydown(e, deleteTagModalRef, () => (deletingTag = null))}
     role="dialog"
     aria-modal="true"
     tabindex="-1"
@@ -700,8 +786,9 @@
   >
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
-      class="w-full max-w-sm rounded-[16px] border shadow-2xl p-5 flex flex-col gap-4"
-      style="background-color: var(--bg-modal); border-color: var(--border);"
+      bind:this={deleteTagModalRef}
+      class="w-full max-w-md rounded-[16px] border shadow-2xl flex flex-col gap-4"
+      style="background-color: var(--bg-modal); border-color: var(--border); padding: 24px;"
       onclick={(e) => e.stopPropagation()}
     >
       <div class="flex items-center gap-2.5">
@@ -721,19 +808,20 @@
         <span class="font-medium text-emerald-600 dark:text-emerald-400">Note records will NOT be deleted.</span>
       </p>
 
-      <div class="flex items-center justify-end gap-2 pt-2 border-t" style="border-color: var(--border-subtle);">
+      <div class="flex items-center justify-end gap-2.5 pt-4 border-t mt-1" style="border-color: var(--border);">
         <button
           type="button"
           onclick={() => (deletingTag = null)}
-          class="px-3 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
+          class="px-3.5 py-1.5 rounded-xl text-xs font-medium hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer focus-visible:ring-2 focus-visible:ring-[var(--accent)]"
           style="color: var(--text-secondary);"
+          use:autoFocus
         >
           Cancel
         </button>
         <button
           type="button"
           onclick={handleConfirmDeleteTag}
-          class="px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition cursor-pointer shadow-xs"
+          class="px-4 py-1.5 rounded-xl text-xs font-semibold text-white bg-red-600 hover:bg-red-700 transition cursor-pointer shadow-xs"
         >
           Delete Tag
         </button>
