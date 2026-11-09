@@ -77,6 +77,16 @@
         ),
   );
 
+  function parseShortcutKeys(keyStr: string): string[] {
+    const parts = keyStr.split(' + ');
+    const tokens: string[] = [];
+    for (let i = 0; i < parts.length; i++) {
+      if (i > 0) tokens.push('+');
+      tokens.push(parts[i]);
+    }
+    return tokens;
+  }
+
   let modalRef = $state<HTMLElement | null>(null);
 
   function copyVaultPath() {
@@ -192,15 +202,18 @@
         <main class="flex-1 p-6 overflow-y-auto text-xs space-y-6 select-text">
           <!-- 1. GENERAL CATEGORY -->
           {#if activeCategory === 'general'}
-            <div class="space-y-5">
+            <div class="space-y-4">
               <div>
-                <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">General</h3>
-                <p class="text-xs" style="color: var(--text-secondary);">Manage application behavior, startup views, and confirmation dialogs.</p>
+                <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">General Settings</h3>
+                <p class="text-xs" style="color: var(--text-secondary);">Manage application behavior, default startup views, and workflow safety.</p>
               </div>
 
               <!-- Startup View Selection -->
-              <div class="p-4 rounded-xl border space-y-2.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                <span class="font-semibold text-xs block" style="color: var(--text-primary);">Default Startup View</span>
+              <div class="p-4 rounded-xl border space-y-3" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <div>
+                  <span class="font-semibold text-xs block" style="color: var(--text-primary);">Default Startup View</span>
+                  <p class="text-[11px] mt-0.5" style="color: var(--text-tertiary);">Choose which notes view opens when starting Notebox or restoring a session.</p>
+                </div>
                 <div class="grid grid-cols-3 gap-2">
                   <button
                     type="button"
@@ -208,8 +221,8 @@
                       appState.startupView = 'all';
                       appState.scheduleSessionSave();
                     }}
-                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'all' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
-                    style={appState.startupView === 'all' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                    class="py-2.5 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'all' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
+                    style={appState.startupView === 'all' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-secondary);'}
                   >
                     All Notes
                   </button>
@@ -219,8 +232,8 @@
                       appState.startupView = 'pinned';
                       appState.scheduleSessionSave();
                     }}
-                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'pinned' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
-                    style={appState.startupView === 'pinned' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                    class="py-2.5 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'pinned' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
+                    style={appState.startupView === 'pinned' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-secondary);'}
                   >
                     Pinned Notes
                   </button>
@@ -230,8 +243,8 @@
                       appState.startupView = 'last_session';
                       appState.scheduleSessionSave();
                     }}
-                    class="py-2 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'last_session' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
-                    style={appState.startupView === 'last_session' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                    class="py-2.5 px-3 rounded-lg border text-center transition cursor-pointer font-medium text-xs {appState.startupView === 'last_session' ? 'ring-1 ring-[var(--accent)] font-semibold' : 'opacity-80 hover:opacity-100'}"
+                    style={appState.startupView === 'last_session' ? 'background-color: var(--bg-sidebar-active); border-color: var(--accent); color: var(--accent-text);' : 'background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-secondary);'}
                   >
                     Last Session
                   </button>
@@ -240,36 +253,59 @@
 
               <!-- Safety Prompts -->
               <div class="p-4 rounded-xl border space-y-3" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                <span class="font-semibold text-xs block" style="color: var(--text-primary);">Safety & Confirmations</span>
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    bind:checked={appState.confirmTagDelete}
-                    onchange={() => appState.scheduleSessionSave()}
-                    class="rounded accent-[var(--accent)] cursor-pointer"
-                  />
-                  <span style="color: var(--text-secondary);">Confirm before deleting tags (safeguards note associations)</span>
-                </label>
-                <label class="flex items-center gap-2.5 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    bind:checked={appState.confirmPermanentDelete}
-                    onchange={() => appState.scheduleSessionSave()}
-                    class="rounded accent-[var(--accent)] cursor-pointer"
-                  />
-                  <span style="color: var(--text-secondary);">Confirm before permanently purging deleted notes</span>
-                </label>
+                <div>
+                  <span class="font-semibold text-xs block" style="color: var(--text-primary);">Safety & Confirmation Dialogs</span>
+                  <p class="text-[11px] mt-0.5" style="color: var(--text-tertiary);">Safeguard your notes and taxonomy from unintended deletions.</p>
+                </div>
+                <div class="space-y-2 pt-0.5">
+                  <label class="flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition" style="background-color: var(--bg-modal); border-color: var(--border-subtle);">
+                    <input
+                      type="checkbox"
+                      bind:checked={appState.confirmTagDelete}
+                      onchange={() => appState.scheduleSessionSave()}
+                      class="mt-0.5 rounded accent-[var(--accent)] cursor-pointer"
+                    />
+                    <div>
+                      <span class="font-medium text-xs block" style="color: var(--text-primary);">Confirm tag deletion</span>
+                      <span class="text-[11px]" style="color: var(--text-secondary);">Prompts for confirmation before removing tags to safeguard note associations.</span>
+                    </div>
+                  </label>
+                  <label class="flex items-start gap-3 p-2.5 rounded-lg border cursor-pointer hover:bg-black/5 dark:hover:bg-white/5 transition" style="background-color: var(--bg-modal); border-color: var(--border-subtle);">
+                    <input
+                      type="checkbox"
+                      bind:checked={appState.confirmPermanentDelete}
+                      onchange={() => appState.scheduleSessionSave()}
+                      class="mt-0.5 rounded accent-[var(--accent)] cursor-pointer"
+                    />
+                    <div>
+                      <span class="font-medium text-xs block" style="color: var(--text-primary);">Confirm permanent note purge</span>
+                      <span class="text-[11px]" style="color: var(--text-secondary);">Prompts for confirmation before permanently deleting notes from Recently Deleted.</span>
+                    </div>
+                  </label>
+                </div>
               </div>
 
               <!-- Auto-save Status Info -->
-              <div class="p-4 rounded-xl border flex items-center justify-between" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                <div>
-                  <span class="font-semibold text-xs block" style="color: var(--text-primary);">Live Auto-Save</span>
-                  <span class="text-[11px]" style="color: var(--text-tertiary);">Changes are debounced and automatically persisted to disk.</span>
+              <div class="p-4 rounded-xl border space-y-2.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <div class="flex items-center justify-between">
+                  <div>
+                    <span class="font-semibold text-xs block" style="color: var(--text-primary);">Live Auto-Save & WAL Mode</span>
+                    <p class="text-[11px] mt-0.5" style="color: var(--text-tertiary);">Changes are debounced and automatically persisted to disk without data loss.</p>
+                  </div>
+                  <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10 shrink-0">
+                    Active (400ms)
+                  </span>
                 </div>
-                <span class="px-2.5 py-1 rounded-md text-[11px] font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
-                  Active (400ms)
-                </span>
+                <div class="flex items-center gap-4 text-[11px] pt-1" style="color: var(--text-secondary);">
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>SQLite WAL Journal: Active</span>
+                  </div>
+                  <div class="flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                    <span>Disk Sync: Immediate</span>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -368,10 +404,10 @@
 
           <!-- 3. EDITOR CATEGORY -->
           {:else if activeCategory === 'editor'}
-            <div class="space-y-5">
+            <div class="space-y-4">
               <div>
-                <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">Editor</h3>
-                <p class="text-xs" style="color: var(--text-secondary);">Configure writing fonts, sizes, line wrapping, and document spacing.</p>
+                <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">Editor Settings</h3>
+                <p class="text-xs" style="color: var(--text-secondary);">Configure writing fonts, text scaling, line wrapping, and typography.</p>
               </div>
 
               <!-- Font Size -->
@@ -381,7 +417,7 @@
                     <span class="font-semibold text-xs block" style="color: var(--text-primary);">Editor Font Size</span>
                     <span class="text-[11px]" style="color: var(--text-tertiary);">Adjust text scaling inside document content.</span>
                   </div>
-                  <span class="font-mono text-xs font-semibold px-2 py-0.5 rounded-md border" style="background-color: var(--bg-modal); border-color: var(--border); color: var(--text-primary);">
+                  <span class="font-mono text-xs font-semibold px-2.5 py-0.5 rounded-md border" style="background-color: var(--bg-modal); border-color: var(--border); color: var(--text-primary);">
                     {appState.fontSize}px
                   </span>
                 </div>
@@ -401,8 +437,8 @@
                         appState.fontSize = sizePreset;
                         appState.scheduleSessionSave();
                       }}
-                      class="px-2.5 py-1 rounded-lg border text-[11px] font-medium transition cursor-pointer {appState.fontSize === sizePreset ? 'bg-[var(--accent)] text-white' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
-                      style={appState.fontSize === sizePreset ? '' : 'border-color: var(--border-subtle); color: var(--text-secondary);'}
+                      class="px-3 py-1 rounded-lg border text-[11px] font-medium transition cursor-pointer {appState.fontSize === sizePreset ? 'bg-[var(--accent)] text-white' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+                      style={appState.fontSize === sizePreset ? '' : 'background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-secondary);'}
                     >
                       {sizePreset}px
                     </button>
@@ -414,7 +450,7 @@
               <div class="p-4 rounded-xl border flex items-center justify-between" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
                 <div>
                   <span class="font-semibold text-xs block" style="color: var(--text-primary);">Word Wrap</span>
-                  <span class="text-[11px]" style="color: var(--text-tertiary);">Soft-wrap lines to fit within editor panel width.</span>
+                  <span class="text-[11px]" style="color: var(--text-tertiary);">Soft-wrap lines to fit cleanly within editor panel width.</span>
                 </div>
                 <button
                   type="button"
@@ -422,27 +458,37 @@
                     appState.wordWrap = !appState.wordWrap;
                     appState.scheduleSessionSave();
                   }}
-                  class="px-3.5 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer {appState.wordWrap ? 'bg-[var(--accent)] text-white border-transparent' : 'border-[var(--border)] text-[var(--text-secondary)]'}"
+                  class="px-4 py-1.5 rounded-xl border text-xs font-semibold transition cursor-pointer {appState.wordWrap ? 'bg-[var(--accent)] text-white border-transparent' : 'border-[var(--border)] text-[var(--text-secondary)]'}"
                 >
                   {appState.wordWrap ? 'Enabled' : 'Disabled'}
                 </button>
               </div>
 
               <!-- Live Editor Typography Preview -->
-              <div class="p-4 rounded-xl border space-y-1.5" style="border-color: var(--border-subtle); background-color: var(--bg-modal);">
-                <span class="text-[10px] font-semibold uppercase tracking-wider block" style="color: var(--text-tertiary);">Live Preview</span>
-                <p style="font-size: {appState.fontSize}px; line-height: 1.65; color: var(--text-primary);">
-                  The quick brown fox jumps over the lazy dog. Markdown notes stay simple, portable, and calm.
-                </p>
+              <div class="p-4 rounded-xl border space-y-2.5" style="border-color: var(--border-subtle); background-color: var(--bg-modal);">
+                <div class="flex items-center justify-between border-b pb-2" style="border-color: var(--border-subtle);">
+                  <span class="text-[10px] font-semibold uppercase tracking-wider" style="color: var(--text-tertiary);">Live Typography Specimen</span>
+                  <span class="text-[10px] font-mono opacity-70" style="color: var(--text-secondary);">{appState.fontSize}px / 1.65 line-height</span>
+                </div>
+                <div class="space-y-2 pt-1" style="font-size: {appState.fontSize}px; line-height: 1.65; color: var(--text-primary);">
+                  <p class="font-bold text-[1.15em] tracking-tight">The Art of Calm Writing</p>
+                  <p style="color: var(--text-secondary);">
+                    Notebox keeps writing portable and tranquil. Notes are stored as standard <strong>Markdown</strong> files with <em>zero proprietary lock-in</em>.
+                  </p>
+                  <div class="flex items-center gap-2 text-[0.9em] pt-1" style="color: var(--text-secondary);">
+                    <span class="w-3.5 h-3.5 rounded border border-emerald-500 bg-emerald-500/10 text-emerald-600 flex items-center justify-center text-[10px] font-bold">✓</span>
+                    <span>Distraction-free floating three-island layout</span>
+                  </div>
+                </div>
               </div>
             </div>
 
           <!-- 4. STORAGE CATEGORY -->
           {:else if activeCategory === 'storage'}
-            <div class="space-y-5">
+            <div class="space-y-4">
               <div>
                 <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">Storage & Vault</h3>
-                <p class="text-xs" style="color: var(--text-secondary);">Local filesystem storage location and database status.</p>
+                <p class="text-xs" style="color: var(--text-secondary);">Local filesystem storage location, database index, and file architecture.</p>
               </div>
 
               <!-- Vault Location Card -->
@@ -454,8 +500,8 @@
                   </div>
                   <button
                     onclick={copyVaultPath}
-                    class="flex items-center gap-1 text-[11px] px-2 py-1 rounded-lg border hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
-                    style="border-color: var(--border-subtle); color: var(--text-secondary);"
+                    class="flex items-center gap-1 text-[11px] px-2.5 py-1 rounded-lg border hover:bg-black/5 dark:hover:bg-white/10 transition cursor-pointer"
+                    style="background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-secondary);"
                     title="Copy Vault Path"
                   >
                     <Copy size={12} />
@@ -468,11 +514,14 @@
                 >
                   {appState.vaultPath || 'C:\\Users\\Kurados\\Documents\\Notebox'}
                 </div>
+                <p class="text-[11px]" style="color: var(--text-tertiary);">
+                  Your vault is stored locally. You can open, back up, or sync this directory with Git, Dropbox, or OneDrive.
+                </p>
               </div>
 
               <!-- Storage Format Info Cards -->
               <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div class="p-3.5 rounded-xl border space-y-1.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <div class="p-4 rounded-xl border space-y-2" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
                   <div class="flex items-center gap-1.5 font-semibold text-xs" style="color: var(--text-primary);">
                     <FileText size={14} style="color: var(--accent);" />
                     <span>Plain Markdown (.md)</span>
@@ -480,9 +529,12 @@
                   <p class="text-[11px] leading-relaxed" style="color: var(--text-secondary);">
                     Notes are saved as human-readable standard Markdown files directly on your local filesystem without vendor lock-in.
                   </p>
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
+                    Zero lock-in
+                  </span>
                 </div>
 
-                <div class="p-3.5 rounded-xl border space-y-1.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <div class="p-4 rounded-xl border space-y-2" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
                   <div class="flex items-center gap-1.5 font-semibold text-xs" style="color: var(--text-primary);">
                     <HardDrive size={14} style="color: var(--accent);" />
                     <span>SQLite 3 Index</span>
@@ -490,6 +542,33 @@
                   <p class="text-[11px] leading-relaxed" style="color: var(--text-secondary);">
                     Indexes, tag relations, and full-text search (FTS5) are backed by <code class="font-mono text-[10px]">.notebox/notebox.db</code> with WAL mode.
                   </p>
+                  <span class="inline-block px-2 py-0.5 rounded text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-500/10">
+                    FTS5 Search + WAL
+                  </span>
+                </div>
+              </div>
+
+              <!-- Vault Status & Health Summary -->
+              <div class="p-4 rounded-xl border space-y-2" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <div class="flex items-center justify-between">
+                  <span class="font-semibold text-xs" style="color: var(--text-primary);">Database & Vault Status</span>
+                  <span class="px-2 py-0.5 rounded text-[10px] font-medium text-emerald-600 dark:text-emerald-400 bg-emerald-500/10">
+                    Connected & Verified
+                  </span>
+                </div>
+                <div class="grid grid-cols-3 gap-2 pt-1 text-center">
+                  <div class="p-2 rounded-lg border" style="background-color: var(--bg-modal); border-color: var(--border-subtle);">
+                    <span class="text-[10px] block opacity-60" style="color: var(--text-tertiary);">Total Notes</span>
+                    <span class="font-mono font-bold text-xs" style="color: var(--text-primary);">{appState.notes.length}</span>
+                  </div>
+                  <div class="p-2 rounded-lg border" style="background-color: var(--bg-modal); border-color: var(--border-subtle);">
+                    <span class="text-[10px] block opacity-60" style="color: var(--text-tertiary);">Tags Indexed</span>
+                    <span class="font-mono font-bold text-xs" style="color: var(--text-primary);">{appState.tags.length}</span>
+                  </div>
+                  <div class="p-2 rounded-lg border" style="background-color: var(--bg-modal); border-color: var(--border-subtle);">
+                    <span class="text-[10px] block opacity-60" style="color: var(--text-tertiary);">Folders</span>
+                    <span class="font-mono font-bold text-xs" style="color: var(--text-primary);">{appState.folders.length}</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -499,19 +578,19 @@
             <div class="space-y-4">
               <div class="flex items-center justify-between">
                 <div>
-                  <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">Shortcuts</h3>
-                  <p class="text-xs" style="color: var(--text-secondary);">Complete list of registered keyboard shortcuts.</p>
+                  <h3 class="text-base font-bold tracking-tight mb-1" style="color: var(--text-primary);">Keyboard Shortcuts</h3>
+                  <p class="text-xs" style="color: var(--text-secondary);">Comprehensive catalog of keyboard navigation and editor commands.</p>
                 </div>
                 <!-- Search input -->
-                <div class="flex items-center px-2.5 py-1 rounded-xl border w-44" style="background-color: var(--bg-input); border-color: var(--border);">
-                  <Search size={13} style="color: var(--text-tertiary);" class="mr-1.5 shrink-0" />
+                <div class="flex items-center px-3 py-1.5 rounded-xl border w-48 shadow-2xs" style="background-color: var(--bg-input); border-color: var(--border-subtle);">
+                  <Search size={13} style="color: var(--text-tertiary);" class="mr-2 shrink-0" />
                   <input
                     type="text"
                     bind:value={shortcutSearch}
                     placeholder="Search shortcuts..."
                     class="w-full text-xs bg-transparent border-none outline-none font-medium"
                     style="color: var(--text-primary);"
-                  />
+                  >
                 </div>
               </div>
 
@@ -524,13 +603,24 @@
                       <span class="text-[10px] font-bold uppercase tracking-wider block mb-1.5 px-1" style="color: var(--text-tertiary);">
                         {groupName}
                       </span>
-                      <div class="border rounded-xl divide-y overflow-hidden" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                        {#each groupShortcuts as sc}
-                          <div class="flex items-center justify-between px-3.5 py-2 text-xs hover:bg-black/5 dark:hover:bg-white/5 transition">
-                            <span class="font-medium" style="color: var(--text-primary);">{sc.desc}</span>
-                            <kbd class="px-2 py-0.5 rounded-lg font-mono border text-[11px] font-semibold shrink-0" style="background-color: var(--bg-modal); border-color: var(--border); color: var(--text-secondary);">
-                              {sc.key}
-                            </kbd>
+                      <div class="border rounded-xl overflow-hidden shadow-2xs" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                        {#each groupShortcuts as sc, i}
+                          <div
+                            class="flex items-center justify-between px-4 py-2.5 text-xs hover:bg-black/5 dark:hover:bg-white/5 transition {i < groupShortcuts.length - 1 ? 'border-b' : ''}"
+                            style="border-color: var(--border-subtle);"
+                          >
+                            <span class="font-medium min-w-0 pr-3 truncate" style="color: var(--text-primary);">{sc.desc}</span>
+                            <div class="flex items-center gap-1 shrink-0">
+                              {#each parseShortcutKeys(sc.key) as token}
+                                {#if token === '+'}
+                                  <span class="text-[10px] font-semibold opacity-40 px-0.5" style="color: var(--text-tertiary);">+</span>
+                                {:else}
+                                  <kbd class="inline-flex items-center justify-center min-w-[22px] h-6 px-1.5 rounded-md font-mono text-[11px] font-semibold border shadow-2xs" style="background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-primary);">
+                                    {token}
+                                  </kbd>
+                                {/if}
+                              {/each}
+                            </div>
                           </div>
                         {/each}
                       </div>
@@ -547,39 +637,57 @@
 
           <!-- 6. ABOUT CATEGORY -->
           {:else if activeCategory === 'about'}
-            <div class="space-y-5">
+            <div class="space-y-4">
               <!-- Banner Card -->
-              <div class="p-6 rounded-2xl border text-center flex flex-col items-center justify-center space-y-3" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                <img src="/notebox-icon.png" class="w-14 h-14 rounded-2xl object-contain shadow-md" alt="Notebox" />
+              <div class="p-5 rounded-2xl border text-center flex flex-col items-center justify-center space-y-2.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <img src="/notebox-icon.png" class="w-12 h-12 rounded-2xl object-contain shadow-md" alt="Notebox" />
                 <div>
-                  <h3 class="text-lg font-bold tracking-tight" style="color: var(--text-primary);">Notebox Desktop</h3>
-                  <span class="text-xs font-mono font-medium px-2 py-0.5 rounded-full" style="background-color: var(--accent-light); color: var(--accent-text);">
-                    v0.1.0 (Production)
-                  </span>
+                  <h3 class="text-base font-bold tracking-tight" style="color: var(--text-primary);">Notebox Desktop</h3>
+                  <div class="flex items-center justify-center gap-2 mt-1">
+                    <span class="text-[11px] font-mono font-medium px-2 py-0.5 rounded-full" style="background-color: var(--accent-light); color: var(--accent-text);">
+                      v0.1.0 (Production)
+                    </span>
+                    <span class="text-[11px] font-mono px-2 py-0.5 rounded-full border" style="background-color: var(--bg-modal); border-color: var(--border-subtle); color: var(--text-secondary);">
+                      Tauri v2
+                    </span>
+                  </div>
                 </div>
                 <p class="text-xs max-w-md leading-relaxed" style="color: var(--text-secondary);">
-                  A calm, precise, distraction-free desktop writing and note-taking tool built with Svelte 5 runes, TypeScript, Tailwind CSS v4, and Tauri v2.
+                  A calm, precise, distraction-free desktop writing and note-taking environment crafted with Svelte 5 runes, TypeScript, Tailwind CSS v4, and Tauri v2.
                 </p>
               </div>
 
-              <!-- Tech Specs -->
+              <!-- Tech Specs Grid -->
               <div class="grid grid-cols-2 gap-3 text-xs">
-                <div class="p-3.5 rounded-xl border space-y-1" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                  <span class="font-semibold block text-[11px] uppercase tracking-wider opacity-60" style="color: var(--text-tertiary);">Frontend Stack</span>
-                  <p class="font-medium" style="color: var(--text-primary);">Svelte 5 + TypeScript + Vite + Tailwind v4</p>
+                <div class="p-3.5 rounded-xl border space-y-1.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                  <span class="font-semibold block text-[10px] uppercase tracking-wider opacity-60" style="color: var(--text-tertiary);">Frontend Architecture</span>
+                  <p class="font-medium text-xs" style="color: var(--text-primary);">Svelte 5 Runes + TypeScript + Vite + Tailwind v4</p>
+                  <p class="text-[11px]" style="color: var(--text-secondary);">Reactive state with top-left anchored canvas and Tiptap rich markdown.</p>
                 </div>
-                <div class="p-3.5 rounded-xl border space-y-1" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
-                  <span class="font-semibold block text-[11px] uppercase tracking-wider opacity-60" style="color: var(--text-tertiary);">Desktop Native</span>
-                  <p class="font-medium" style="color: var(--text-primary);">Tauri v2 + Rust + SQLite 3 WAL</p>
+                <div class="p-3.5 rounded-xl border space-y-1.5" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                  <span class="font-semibold block text-[10px] uppercase tracking-wider opacity-60" style="color: var(--text-tertiary);">Desktop Native Core</span>
+                  <p class="font-medium text-xs" style="color: var(--text-primary);">Tauri v2 + Rust + SQLite 3 WAL</p>
+                  <p class="text-[11px]" style="color: var(--text-secondary);">High-performance local IPC commands with zero-loss crash resilience.</p>
                 </div>
               </div>
 
+              <!-- Philosophy & Values -->
+              <div class="p-3.5 rounded-xl border flex items-center justify-between text-xs" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+                <div class="space-y-0.5">
+                  <span class="font-semibold block text-xs" style="color: var(--text-primary);">Design Philosophy</span>
+                  <p class="text-[11px]" style="color: var(--text-secondary);">Calm software, local-first storage, three-island geometry, zero cloud lock-in.</p>
+                </div>
+                <span class="px-2.5 py-1 rounded-md text-[10px] font-semibold text-[var(--accent-text)] bg-[var(--accent-light)] shrink-0">
+                  Calm Software
+                </span>
+              </div>
+
               <!-- External Links (GitHub, License, Docs) -->
-              <div class="p-4 rounded-xl border flex items-center justify-between text-xs" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
+              <div class="p-3.5 rounded-xl border flex items-center justify-between text-xs" style="border-color: var(--border-subtle); background-color: var(--bg-input);">
                 <span class="font-semibold" style="color: var(--text-primary);">Open Source & License</span>
                 <div class="flex items-center gap-3">
                   <a
-                    href="https://github.com"
+                    href="https://github.com/RetsardCo/Notebox"
                     target="_blank"
                     rel="noreferrer"
                     class="font-medium hover:underline flex items-center gap-1 cursor-pointer"

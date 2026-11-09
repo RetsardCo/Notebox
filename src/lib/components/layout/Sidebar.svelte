@@ -135,7 +135,13 @@
       (t) => t.name.toLowerCase() === cleanName.toLowerCase()
     );
     if (duplicate) {
-      alert(`A tag named "#${cleanName}" already exists`);
+      await appState.confirm({
+        title: 'Tag Already Exists',
+        message: `A tag named "#${cleanName}" already exists. Please choose a different name.`,
+        confirmText: 'OK',
+        cancelText: '',
+        destructive: false,
+      });
       return;
     }
     try {
@@ -166,7 +172,13 @@
 
   async function handleDeleteFolder(id: string, e: MouseEvent) {
     e.stopPropagation();
-    if (confirm('Delete this folder? Notes inside will become uncategorized.')) {
+    const confirmed = await appState.confirm({
+      title: 'Delete Folder',
+      message: 'Delete this folder? Notes inside will become uncategorized.',
+      confirmText: 'Delete Folder',
+      destructive: true,
+    });
+    if (confirmed) {
       try {
         await folderService.deleteFolder(id);
         if (appState.selectedFolderId === id) {

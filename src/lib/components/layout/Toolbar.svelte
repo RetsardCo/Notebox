@@ -50,7 +50,7 @@
     <select
       value={appState.activeFormatting.heading}
       onchange={(e) => onCommand('heading', (e.target as HTMLSelectElement).value)}
-      class="h-6 text-[11px] font-semibold rounded-lg px-2 mr-1 outline-none cursor-pointer border shadow-xs transition-colors"
+      class="h-7 text-[11px] font-semibold rounded-lg px-2 mr-1 outline-none cursor-pointer border shadow-xs transition-colors"
       style="background-color: var(--bg-input); border-color: var(--border); color: var(--text-primary);"
       title="Text Style"
     >
@@ -65,7 +65,7 @@
     <!-- Text Styles: Bold, Italic, Underline, Strike, Highlight -->
     <button
       onclick={() => onCommand('bold')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.bold ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.bold ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.bold
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -78,7 +78,7 @@
 
     <button
       onclick={() => onCommand('italic')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.italic ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.italic ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.italic
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -91,7 +91,7 @@
 
     <button
       onclick={() => onCommand('underline')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.underline ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.underline ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.underline
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -104,7 +104,7 @@
 
     <button
       onclick={() => onCommand('strike')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.strike ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.strike ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.strike
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -117,7 +117,7 @@
 
     <button
       onclick={() => onCommand('highlight')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.highlight ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.highlight ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.highlight
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -133,7 +133,7 @@
     <!-- Lists & Checklists -->
     <button
       onclick={() => onCommand('taskList')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.taskList ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.taskList ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.taskList
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -146,7 +146,7 @@
 
     <button
       onclick={() => onCommand('bulletList')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.bulletList ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.bulletList ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.bulletList
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -159,7 +159,7 @@
 
     <button
       onclick={() => onCommand('orderedList')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.orderedList ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.orderedList ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.orderedList
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -175,7 +175,7 @@
     <!-- Insert Blocks: Table, Image, Quote, Code, Horizontal Rule -->
     <button
       onclick={() => onCommand('insertTable')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Insert Table"
       aria-label="Insert Table"
     >
@@ -184,7 +184,7 @@
 
     <button
       onclick={onImageUpload}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Insert Image"
       aria-label="Insert Image"
     >
@@ -193,7 +193,7 @@
 
     <button
       onclick={() => onCommand('blockquote')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.blockquote ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.blockquote ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.blockquote
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -206,7 +206,7 @@
 
     <button
       onclick={() => onCommand('codeBlock')}
-      class="p-1 rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.codeBlock ? 'font-semibold shadow-2xs' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg active:scale-95 transition-all cursor-pointer {appState.activeFormatting.codeBlock ? 'font-semibold shadow-2xs ring-1 ring-[var(--accent)]/30' : 'hover:bg-black/5 dark:hover:bg-white/10'}"
       style={appState.activeFormatting.codeBlock
         ? 'background-color: var(--accent-light); color: var(--accent);'
         : 'color: var(--text-secondary);'}
@@ -219,7 +219,7 @@
 
     <button
       onclick={() => onCommand('horizontalRule')}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Horizontal Divider"
       aria-label="Horizontal Divider"
     >
@@ -235,7 +235,7 @@
         appState.wordWrap = !appState.wordWrap;
         appState.scheduleSessionSave();
       }}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {appState.wordWrap ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-tertiary)]'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {appState.wordWrap ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-tertiary)]'}"
       title="Toggle Word Wrap"
       aria-label="Toggle Word Wrap"
     >
@@ -245,7 +245,7 @@
     <!-- Find & Replace -->
     <button
       onclick={() => (appState.findReplaceOpen = !appState.findReplaceOpen)}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {appState.findReplaceOpen ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {appState.findReplaceOpen ? 'text-[var(--accent)] font-medium' : 'text-[var(--text-secondary)] hover:text-[var(--text-primary)]'}"
       title="Find & Replace (Ctrl+H)"
       aria-label="Find and Replace"
     >
@@ -256,7 +256,7 @@
     {#if activeNote}
       <button
         onclick={() => appState.togglePinNote(activeNote.id, activeNote.pinned)}
-        class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {activeNote.pinned ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}"
+        class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {activeNote.pinned ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}"
         title={activeNote.pinned ? 'Unpin Note' : 'Pin Note'}
         aria-label={activeNote.pinned ? 'Unpin Note' : 'Pin Note'}
       >
@@ -270,7 +270,7 @@
           appState.passwordModalMode = activeNote.locked ? 'remove_lock' : 'lock';
           appState.passwordModalOpen = true;
         }}
-        class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {activeNote.locked ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}"
+        class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer {activeNote.locked ? 'text-[var(--accent)]' : 'text-[var(--text-tertiary)] hover:text-[var(--text-primary)]'}"
         title={activeNote.locked ? 'Remove Password Lock' : 'Lock Note'}
         aria-label={activeNote.locked ? 'Remove Password Lock' : 'Lock Note'}
       >
@@ -281,7 +281,7 @@
     <!-- Export Note -->
     <button
       onclick={onExport}
-      class="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 active:scale-95 transition-all cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Share & Export Note"
       aria-label="Share and Export Note"
     >

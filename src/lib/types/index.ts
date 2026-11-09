@@ -184,3 +184,13 @@ export const PALETTES: PaletteInfo[] = [
     text: '#fdf2f4',
   },
 ];
+
+export interface ConfirmDialogOptions {
+  title?: string;
+  message: string;
+  detail?: string;
+  confirmText?: string;
+  cancelText?: string;
+  destructive?: boolean;
+  invokerElement?: HTMLElement | null;
+}

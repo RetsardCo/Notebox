@@ -16,6 +16,7 @@ import type {
   SearchResult,
   SortOption,
   ViewMode,
+  ConfirmDialogOptions,
 } from '../types';
 import { clampZoom, zoomIn, zoomOut, resetZoom } from '../utils/zoom';
 
@@ -106,6 +107,13 @@ class AppStore {
   passwordModalMode = $state<'lock' | 'unlock' | 'remove_lock'>('unlock');
   targetNoteForPassword = $state<NoteSummary | null>(null);
   findReplaceOpen = $state<boolean>(false);
+
+  // Reusable Confirmation Dialog
+  confirmModalOpen = $state<boolean>(false);
+  confirmOptions = $state<ConfirmDialogOptions | null>(null);
+  isConfirmSubmitting = $state<boolean>(false);
+  private confirmResolve: ((value: boolean) => void) | null = null;
+  private confirmQueue: Array<{ options: ConfirmDialogOptions; resolve: (val: boolean) => void }> = [];
 
   // Active Tab Derived
   get activeTab(): TabState | null {
@@ -750,6 +758,75 @@ class AppStore {
 
   setZoomLevel(level: number): void {
     this.zoomLevel = clampZoom(level);
+  }
+
+  confirm(options: string | ConfirmDialogOptions): Promise<boolean> {
+    return new Promise((resolve) => {
+      let opts: ConfirmDialogOptions;
+      const activeEl = typeof document !== 'undefined' ? (document.activeElement as HTMLElement) : null;
+      if (typeof options === 'string') {
+        const isDestructive = /delete|remove|erase|forever|undone|purge/i.test(options);
+        opts = {
+          title: isDestructive ? 'Confirm Deletion' : 'Confirm Action',
+          message: options,
+          confirmText: isDestructive ? 'Delete' : 'Confirm',
+          cancelText: 'Cancel',
+          destructive: isDestructive,
+          invokerElement: activeEl,
+        };
+      } else {
+        const isDestructive = options.destructive !== undefined
+          ? options.destructive
+          : /delete|remove|erase|forever|undone|purge/i.test(options.message || options.title || '');
+        opts = {
+          title: options.title || (isDestructive ? 'Confirm Deletion' : 'Confirm Action'),
+          message: options.message,
+          detail: options.detail,
+          confirmText: options.confirmText !== undefined ? options.confirmText : (isDestructive ? 'Delete' : 'Confirm'),
+          cancelText: options.cancelText !== undefined ? options.cancelText : 'Cancel',
+          destructive: isDestructive,
+          invokerElement: options.invokerElement || activeEl,
+        };
+      }
+
+      if (this.confirmModalOpen) {
+        // Enqueue concurrent confirm request to prevent hanging promises or overwritten UI state
+        this.confirmQueue.push({ options: opts, resolve });
+      } else {
+        this.confirmOptions = opts;
+        this.confirmResolve = resolve;
+        this.isConfirmSubmitting = false;
+        this.confirmModalOpen = true;
+      }
+    });
+  }
+
+  resolveConfirm(confirmed: boolean) {
+    if (this.isConfirmSubmitting) return;
+    this.isConfirmSubmitting = true;
+    const resolve = this.confirmResolve;
+    const invoker = this.confirmOptions?.invokerElement;
+    this.confirmResolve = null;
+    this.confirmOptions = null;
+    if (resolve) resolve(confirmed);
+    if (invoker && typeof invoker.focus === 'function') {
+      setTimeout(() => {
+        try {
+          invoker.focus();
+        } catch (_) {}
+      }, 50);
+    }
+
+    if (this.confirmQueue.length > 0) {
+      const next = this.confirmQueue.shift()!;
+      this.confirmOptions = next.options;
+      this.confirmResolve = next.resolve;
+      this.isConfirmSubmitting = false;
+      this.confirmModalOpen = true;
+    } else {
+      this.confirmModalOpen = false;
+      this.isConfirmSubmitting = false;
+    }
   }
 }
 

@@ -118,6 +118,7 @@
         style={isActive
           ? 'background-color: var(--bg-tab-active); border-color: var(--border-tab-active, var(--border)); color: var(--text-primary);'
           : 'background-color: transparent; border-color: transparent; color: var(--text-secondary);'}
+        title={tab.title || 'Untitled'}
       >
         <FileText
           size={13}
@@ -139,7 +140,7 @@
 
           <button
             onclick={(e) => handleTabClose(tab.id, e)}
-            class="w-4 h-4 flex items-center justify-center p-0.5 rounded transition-opacity duration-150 {isActive ? 'opacity-70 hover:opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'} hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] shrink-0"
+            class="w-5 h-5 flex items-center justify-center p-0.5 rounded-md transition-opacity duration-150 {isActive ? 'opacity-70 hover:opacity-100' : 'opacity-0 group-hover:opacity-70 hover:!opacity-100'} hover:bg-black/10 dark:hover:bg-white/15 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] shrink-0"
             title="Close Tab (Ctrl+W)"
             aria-label="Close Tab"
           >

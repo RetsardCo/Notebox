@@ -12,6 +12,7 @@
   import SettingsModal from '$lib/components/modals/SettingsModal.svelte';
   import PasswordModal from '$lib/components/modals/PasswordModal.svelte';
   import ExportModal from '$lib/components/modals/ExportModal.svelte';
+  import ConfirmModal from '$lib/components/modals/ConfirmModal.svelte';
   import { handleZoomKey } from '$lib/utils/zoom';
 
   let editorComponent: any = null;
@@ -267,3 +268,4 @@
 <SettingsModal />
 <PasswordModal />
 <ExportModal open={exportModalOpen} onClose={() => (exportModalOpen = false)} />
+<ConfirmModal />

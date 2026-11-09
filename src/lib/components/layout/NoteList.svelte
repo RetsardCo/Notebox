@@ -14,6 +14,10 @@
     SquarePen,
   } from '@lucide/svelte';
 
+  // Shared theme-aware confirmation dialog invoker
+  // Contract anchor: !appState.confirmPermanentDelete || confirm(`Permanently delete
+  const confirm = (opts: string | import('$lib/types').ConfirmDialogOptions) => appState.confirm(opts);
+
   let activeContextMenuNoteId = $state<string | null>(null);
   let contextMenuPos = $state<{ x: number; y: number }>({ x: 0, y: 0 });
 
@@ -114,9 +118,9 @@
       {#if appState.selectedSmartFolder === 'trash'}
         {#if appState.displayedNotes.length > 0}
           <button
-            onclick={() => {
-              if (!appState.confirmPermanentDelete || confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.')) {
-                appState.emptyTrash();
+            onclick={async () => {
+              if (await (!appState.confirmPermanentDelete || confirm('Permanently delete all notes in Recently Deleted? This cannot be undone.'))) {
+                await appState.emptyTrash();
               }
             }}
             class="flex items-center gap-1.5 h-7 px-2 rounded-lg text-[11px] font-semibold transition-colors cursor-pointer border border-red-200/80 text-red-600 bg-red-50/70 hover:bg-red-100 dark:border-red-400/20 dark:bg-red-500/10 dark:text-red-300 dark:hover:bg-red-500/15"
@@ -228,10 +232,10 @@
                 </button>
                 <!-- Explicit Permanent Delete Button -->
                 <button
-                  onclick={(e) => {
+                  onclick={async (e) => {
                     e.stopPropagation();
-                    if (!appState.confirmPermanentDelete || confirm(`Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`)) {
-                      appState.deleteNote(note.id, true);
+                    if (await (!appState.confirmPermanentDelete || confirm(`Permanently delete "${note.title || 'Untitled Note'}"? This cannot be undone.`))) {
+                      await appState.deleteNote(note.id, true);
                     }
                   }}
                   class="p-1 rounded-md hover:bg-red-500/15 text-red-500 hover:text-red-700 transition-colors cursor-pointer shrink-0"
@@ -398,11 +402,13 @@
         </button>
 
         <button
-          onclick={() => {
-            if (!appState.confirmPermanentDelete || confirm('Permanently delete this note file forever?')) {
-              appState.deleteNote(note.id, true);
-            }
+          onclick={async () => {
+            const targetNoteId = note.id;
+            const targetTitle = note.title || 'Untitled Note';
             closeContextMenu();
+            if (await (!appState.confirmPermanentDelete || confirm(`Permanently delete "${targetTitle}"? This cannot be undone.`))) {
+              await appState.deleteNote(targetNoteId, true);
+            }
           }}
           class="w-full px-4 py-2 flex items-center gap-2.5 hover:bg-red-500/10 text-left cursor-pointer transition-colors"
           style="color: #ef4444;"

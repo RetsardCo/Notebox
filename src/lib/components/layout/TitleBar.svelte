@@ -262,7 +262,7 @@
     <!-- Settings Shortcut Button -->
     <button
       onclick={() => (appState.settingsOpen = true)}
-      class="p-1.5 rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+      class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
       title="Settings"
       aria-label="Settings"
     >
