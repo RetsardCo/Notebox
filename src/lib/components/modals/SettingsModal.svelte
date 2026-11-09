@@ -140,7 +140,7 @@
     <!-- svelte-ignore a11y_no_static_element_interactions -->
     <div
       bind:this={modalRef}
-      class="w-full max-w-4xl rounded-[16px] border shadow-2xl overflow-hidden flex flex-col h-[580px] max-h-[88vh]"
+      class="w-full max-w-4xl rounded-[16px] border shadow-2xl overflow-hidden flex flex-col min-h-[460px] max-h-[85vh] h-auto"
       style="background-color: var(--bg-modal); border-color: var(--border);"
       onclick={(e) => e.stopPropagation()}
     >
@@ -284,7 +284,7 @@
               <!-- Color Theme Grid -->
               <div>
                 <span class="font-semibold text-xs block mb-2.5" style="color: var(--text-primary);">Color theme</span>
-                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2.5">
+                <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
                   {#each PALETTES as pal}
                     {@const isSelected = appState.theme === pal.id}
                     <button

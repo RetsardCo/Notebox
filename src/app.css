@@ -684,7 +684,11 @@ ul[data-type="taskList"] li[data-checked="true"] > div {
   --panel-border: 1px solid var(--border-subtle);
   --panel-shadow: var(--shadow-panel, 0 2px 10px rgba(0, 0, 0, 0.05));
   --sidebar-min-width: 200px;
-  --notelist-min-width: 250px;
+  --notelist-min-width: 240px;
+}
+
+.transition-none {
+  transition: none !important;
 }
 
 .workspace-container {

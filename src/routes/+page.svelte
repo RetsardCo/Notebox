@@ -194,7 +194,8 @@
     <!-- Column 1: Sidebar (Folders, Smart Folders, Tags) -->
     {#if !appState.sidebarCollapsed}
       <aside
-        class="sidebar-panel {isDraggingSidebar ? '' : 'transition-[width] duration-200 ease-in-out'}"
+        class="sidebar-panel transition-[width] duration-200 ease-in-out"
+        class:transition-none={isDraggingSidebar || isDraggingNoteList}
         style="width: {appState.sidebarWidth}px;"
       >
         <Sidebar />
@@ -215,7 +216,8 @@
     <!-- Column 2: Note Cards List -->
     {#if !appState.noteListCollapsed}
       <section
-        class="notelist-panel {isDraggingNoteList ? '' : 'transition-[width] duration-200 ease-in-out'}"
+        class="notelist-panel transition-[width] duration-200 ease-in-out"
+        class:transition-none={isDraggingSidebar || isDraggingNoteList}
         style="width: {appState.noteListWidth}px;"
       >
         <NoteList />

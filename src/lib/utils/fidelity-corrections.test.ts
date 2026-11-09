@@ -27,9 +27,10 @@ describe('Phase 2 Visual Fidelity & Functional Alignment Tests', () => {
     expect(tabBarFile).toMatch(/class="[^"]*panel-header-bar[^"]*"/);
   });
 
-  it('CORR-02: Tag row preserves note count on hover and provides quick color palette', () => {
-    // Tag row should NOT hide the note count on hover/focus-within
-    expect(sidebarFile).not.toMatch(/group-hover\/tag:opacity-0/);
+  it('CORR-02: Tag row note count hides on hover/focus-within to prevent collision with action button', () => {
+    // Tag row should hide the note count on hover/focus-within
+    expect(sidebarFile).toMatch(/group-hover\/tag:opacity-0/);
+    expect(sidebarFile).toMatch(/group-focus-within\/tag:opacity-0/);
     // Tag row should have actions menu button revealed on hover/focus
     expect(sidebarFile).toMatch(/group-hover\/tag:opacity-100/);
     // Tag actions menu provides "Edit tag name"
@@ -62,5 +63,26 @@ describe('Phase 2 Visual Fidelity & Functional Alignment Tests', () => {
 
   it('CORR-06: Editor resets formatting when no tabs are active', () => {
     expect(editorFile).toMatch(/appState\.resetFormatting\(\)/);
+  });
+
+  it('CORR-07: Redundant sidebar toggles removed from NoteList, Sidebar, and TabBar', () => {
+    expect(noteListFile).not.toMatch(/toggleSidebar/);
+    expect(sidebarFile).not.toMatch(/toggleSidebar/);
+    expect(tabBarFile).not.toMatch(/toggleSidebar/);
+  });
+
+  it('CORR-08: Splitter drag disables transitions using class:transition-none and CSS rule', () => {
+    expect(pageFile).toMatch(/class:transition-none=\{isDraggingSidebar\s*\|\|\s*isDraggingNoteList\}/);
+    expect(cssFile).toMatch(/\.transition-none\s*\{\s*transition:\s*none\s*!important;\s*\}/);
+  });
+
+  it('CORR-09: Settings modal uses adaptive height and 3-column theme grid', () => {
+    const settingsFile = fs.readFileSync(path.join(PROJECT_ROOT, 'src/lib/components/modals/SettingsModal.svelte'), 'utf8');
+    expect(settingsFile).toMatch(/min-h-\[460px\]\s+max-h-\[85vh\]\s+h-auto/);
+    expect(settingsFile).toMatch(/grid-cols-1\s+sm:grid-cols-3/);
+  });
+
+  it('CORR-10: NoteList min width token standardized to 240px', () => {
+    expect(cssFile).toMatch(/--notelist-min-width:\s*240px;/);
   });
 });

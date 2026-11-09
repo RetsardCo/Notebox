@@ -46,8 +46,8 @@ pub struct SessionState {
     pub confirm_permanent_delete: bool,
 }
 
-fn default_sidebar_width() -> u32 { 280 }
-fn default_notelist_width() -> u32 { 340 }
+fn default_sidebar_width() -> u32 { 240 }
+fn default_notelist_width() -> u32 { 300 }
 fn default_theme() -> String { "warm-paper".to_string() }
 fn default_view_mode() -> String { "list".to_string() }
 fn default_word_wrap() -> bool { true }

@@ -562,10 +562,10 @@
             <span class="truncate">#{tag.name}</span>
           </button>
 
-          <!-- Trailing area: Count is preserved; action button revealed on hover/focus/menu-open without overlap -->
-          <div class="flex items-center gap-1 shrink-0 pr-1.5">
+          <!-- Trailing area: Count on idle, action button cleanly swaps in on hover/focus/menu-open without collision -->
+          <div class="relative flex items-center justify-end shrink-0 min-w-[28px] h-6 pr-1.5">
             <span
-              class="text-[11px] font-semibold px-1 rounded transition-opacity duration-150"
+              class="text-[11px] font-semibold px-1 rounded transition-opacity duration-150 {activeTagMenuId === tag.id ? 'opacity-0' : 'group-hover/tag:opacity-0 group-focus-within/tag:opacity-0'}"
               style="color: var(--text-tertiary);"
             >
               {tag.note_count || 0}
@@ -578,7 +578,7 @@
                 activeTagMenuId = activeTagMenuId === tag.id ? null : tag.id;
                 showColorPickerForTag = null;
               }}
-              class="w-6 h-6 flex items-center justify-center rounded-lg transition-opacity duration-150 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 {activeTagMenuId === tag.id ? 'opacity-100' : 'opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100 focus-visible:opacity-100'}"
+              class="absolute right-1.5 w-6 h-6 flex items-center justify-center rounded-lg transition-opacity duration-150 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 {activeTagMenuId === tag.id ? 'opacity-100' : 'opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100 focus-visible:opacity-100'}"
               title="Tag actions"
               aria-label={`Actions for tag ${tag.name}`}
               aria-expanded={activeTagMenuId === tag.id}

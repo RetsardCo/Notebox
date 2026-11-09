@@ -198,6 +198,8 @@ mod tests {
         assert_eq!(session.tabs[0].title, "My Note");
         assert!(session.tabs[0].is_dirty);
         assert_eq!(session.theme, "dark");
+        assert_eq!(session.sidebar_width, 240);
+        assert_eq!(session.note_list_width, 290);
         assert_eq!(session.startup_view, "all");
         assert!(session.confirm_tag_delete);
         assert!(session.confirm_permanent_delete);
@@ -205,9 +207,16 @@ mod tests {
         let serialized = serde_json::to_string_pretty(&session).expect("Failed to serialize session");
         let roundtrip: SessionState = serde_json::from_str(&serialized).expect("Failed to deserialize roundtrip");
         assert_eq!(roundtrip.tabs[0].content, "Live unsaved content");
+        assert_eq!(roundtrip.sidebar_width, 240);
+        assert_eq!(roundtrip.note_list_width, 290);
         assert_eq!(roundtrip.startup_view, "all");
         assert!(roundtrip.confirm_tag_delete);
         assert!(roundtrip.confirm_permanent_delete);
+
+        // Verify default width fallback when fields are omitted
+        let default_session: SessionState = serde_json::from_str(r#"{"tabs":[]}"#).expect("Failed default deserialize");
+        assert_eq!(default_session.sidebar_width, 240);
+        assert_eq!(default_session.note_list_width, 300);
     }
 
     #[test]

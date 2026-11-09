@@ -10,7 +10,6 @@
     Copy,
     RotateCcw,
     X,
-    PanelLeftOpen,
     SlidersHorizontal,
     SquarePen,
   } from '@lucide/svelte';
@@ -100,17 +99,6 @@
   <!-- Middle Column Header (Image 1 Style: Title, Count, Sort, Compose) -->
   <div class="h-[44px] panel-header-bar flex items-center justify-between border-b shrink-0 px-3.5" style="border-color: var(--border-subtle);">
     <div class="flex items-center gap-2 overflow-hidden">
-      {#if appState.sidebarCollapsed}
-        <button
-          onclick={() => appState.toggleSidebar()}
-          class="p-1 rounded-lg text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-black/5 dark:hover:bg-white/10 transition-colors cursor-pointer shrink-0"
-          title="Show Sidebar (Ctrl+\)"
-          aria-label="Show Sidebar"
-        >
-          <PanelLeftOpen size={16} />
-        </button>
-      {/if}
-
       <div class="truncate">
         <h2 class="font-bold text-[11px] leading-tight truncate uppercase tracking-wider" style="color: var(--text-primary);">
           {currentViewTitle}

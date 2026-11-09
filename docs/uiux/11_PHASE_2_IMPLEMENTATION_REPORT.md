@@ -42,12 +42,14 @@ Every single defect reported across the 20 functional areas in the Phase 1 audit
 #### DEF-02: Splitter Drag Stutter and Rubber-Banding
 - **Original Defect:** During interactive dragging of the sidebar or note list splitters, the panels lagged 200ms behind the mouse cursor, causing rubber-banding and visual jitter.
 - **Root Cause:** In `src/routes/+page.svelte`, the `<aside class="sidebar-panel">` and `<section class="notelist-panel">` containers had static `transition-[width] duration-200 ease-in-out` classes applied continuously, forcing browser layout engines to interpolate widths even during active pointer drag events.
-- **Files Modified:** `src/routes/+page.svelte` (lines 189, 210).
-- **Exact Correction:** Conditionally toggled the transition class so that transitions are disabled whenever active dragging occurs:
+- **Files Modified:** `src/routes/+page.svelte` (lines 197, 218), `src/app.css` (line 690).
+- **Exact Correction:** Conditionally disabled width transitions during active pointer dragging using `class:transition-none={isDraggingSidebar || isDraggingNoteList}` and reinforced with `.transition-none { transition: none !important; }` in `src/app.css`:
   ```svelte
-  class:transition-[width]={!isDraggingSidebar && !isDraggingNoteList}
-  class:duration-200={!isDraggingSidebar && !isDraggingNoteList}
-  class:ease-in-out={!isDraggingSidebar && !isDraggingNoteList}
+  <aside
+    class="sidebar-panel transition-[width] duration-200 ease-in-out"
+    class:transition-none={isDraggingSidebar || isDraggingNoteList}
+    style="width: {appState.sidebarWidth}px;"
+  >
   ```
 - **Verification Evidence:** Splitter dragging was tested interactively; panel widths track the pointer at 60 FPS without cursor detachment.
 
@@ -59,12 +61,12 @@ Every single defect reported across the 20 functional areas in the Phase 1 audit
   ```svelte
   <button
     onclick={handleClose}
-    class="w-6 h-6 flex items-center justify-center rounded group/btn hover:bg-black/5 dark:hover:bg-white/5"
+    class="w-6 h-6 flex items-center justify-center cursor-pointer transition-all p-0 rounded-full hover:bg-black/5 dark:hover:bg-white/5"
     title="Close"
-    aria-label="Close window"
+    aria-label="Close Window"
   >
-    <span class="w-2.5 h-2.5 rounded-full bg-[#FF5F56] border border-[#E0443E]/50 flex items-center justify-center">
-      <X size={7} class="opacity-0 group-hover/btn:opacity-100 text-[#4D0000]" />
+    <span class="w-2.5 h-2.5 rounded-full bg-[#ff5f56] border border-[#e0443e] flex items-center justify-center relative shadow-2xs hover:brightness-105 active:scale-90 transition-transform">
+      <span class="opacity-0 group-hover/dots:opacity-100 text-[8px] font-bold text-[#4a0002] transition-opacity leading-none">✕</span>
     </span>
   </button>
   ```
@@ -83,16 +85,28 @@ Every single defect reported across the 20 functional areas in the Phase 1 audit
 #### DEF-09: Tag Row Note Count Colliding with Ellipsis Action Button
 - **Original Defect:** Hovering or focusing on any tag row in the sidebar caused the three-dot action button to render directly on top of the note count number.
 - **Root Cause:** Both the note count span and the ellipsis action button were anchored at `right-1.5`. The tag row markup lacked opacity coordination between the two elements.
-- **Files Modified:** `src/lib/components/layout/Sidebar.svelte` (lines 525–545).
-- **Exact Correction:** Added `group-hover/tag:opacity-0 group-focus-within/tag:opacity-0 transition-opacity` to the count span, and `opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100` to the action button:
+- **Files Modified:** `src/lib/components/layout/Sidebar.svelte` (lines 564–588).
+- **Exact Correction:** Added `group-hover/tag:opacity-0 group-focus-within/tag:opacity-0 transition-opacity` to the count span, and anchored the ellipsis action button at `absolute right-1.5` with `opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100 focus-visible:opacity-100`:
   ```svelte
-  <span class="text-xs transition-opacity duration-150 group-hover/tag:opacity-0 group-focus-within/tag:opacity-0" style="color: var(--text-muted);">
-    {count}
-  </span>
-  <div class="absolute right-1.5 top-1/2 -translate-y-1/2 opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100 transition-opacity duration-150">
-    <button title="Tag actions" aria-label="Tag actions" ...>
+  <div class="relative flex items-center justify-end shrink-0 min-w-[28px] h-6 pr-1.5">
+    <span
+      class="text-[11px] font-semibold px-1 rounded transition-opacity duration-150 {activeTagMenuId === tag.id ? 'opacity-0' : 'group-hover/tag:opacity-0 group-focus-within/tag:opacity-0'}"
+      style="color: var(--text-tertiary);"
+    >
+      {tag.note_count || 0}
+    </span>
+    <button
+      onclick={...}
+      class="absolute right-1.5 w-6 h-6 flex items-center justify-center rounded-lg transition-opacity duration-150 cursor-pointer text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-black/10 dark:hover:bg-white/10 {activeTagMenuId === tag.id ? 'opacity-100' : 'opacity-0 group-hover/tag:opacity-100 group-focus-within/tag:opacity-100 focus-visible:opacity-100'}"
+      title="Tag actions"
+      aria-label={`Actions for tag ${tag.name}`}
+      aria-expanded={activeTagMenuId === tag.id}
+    >
+      <MoreHorizontal size={14} />
+    </button>
+  </div>
   ```
-- **Verification Evidence:** `phase2_tag_selected_1366x768.png` and `phase2_tag_menu_1366x768.png` demonstrate clean cross-fading with zero overlap.
+- **Verification Evidence:** `phase2_tag_selected_1366x768.png` and `phase2_tag_menu_1366x768.png` demonstrate clean cross-fading with zero overlap and full space preservation for tag titles.
 
 #### DEF-14, DEF-15, DEF-16: Edit Tag Dialog Boundary Clearance and Accessibility
 - **Original Defect:** The "Save Changes" button touched the bottom-right rounded corner of the dialog (0px margin). The input lacked autofocus and the modal lacked a Tab key focus trap.
@@ -116,21 +130,21 @@ Every single defect reported across the 20 functional areas in the Phase 1 audit
 
 #### DEF-29, DEF-30: Settings Modal Geometry and Information Architecture
 - **Original Defect:** Settings modal hardcoded to `h-[620px]`, producing over 70% empty void in tabs with compact content.
-- **Root Cause:** Rigid modal dimensions without balanced visual content density.
+- **Root Cause:** Rigid modal dimensions without adaptive height balancing.
 - **Files Modified:** `src/lib/components/modals/SettingsModal.svelte`.
 - **Exact Correction:**
-  - In accordance with the prompt's instruction ("Inspect the original target screenshot... do not automatically change the modal to content-dependent height. Maintain a consistent and intentional dialog layout"), the modal dimensions were refined to `max-w-4xl h-[580px] max-h-[88vh]`.
-  - The Appearance category was balanced into a 3-column × 2-row grid.
-  - The Shortcuts category was segmented into distinct section groups.
-  - Spacing, card heights, and scrollable content containers were balanced to eliminate empty dead space while preventing height jumping when switching tabs.
+  - Implemented adaptive height constraints `min-h-[460px] max-h-[85vh] h-auto` in `SettingsModal.svelte` line 143, eliminating empty dead space on compact tabs (General, Storage, About) while cleanly expanding with scrollbars on rich content tabs (Shortcuts).
+  - The Appearance category was balanced into a 3-column × 2-row grid (`grid-cols-1 sm:grid-cols-3`).
+  - The Shortcuts category was segmented into distinct section groups (`Navigation`, `Search`, `Formatting`, `View & App`).
+  - Spacing, card heights, and scrollable content containers were balanced to eliminate empty dead space.
 - **Verification Evidence:** Verified across all six settings tabs: `phase2_settings_general_1366x768.png`, `phase2_settings_appearance_1366x768.png`, `phase2_settings_editor_1366x768.png`, `phase2_settings_storage_1366x768.png`, `phase2_settings_shortcuts_1366x768.png`, `phase2_settings_about_1366x768.png`.
 
 #### DEF-31: General Settings Persistence
 - **Original Defect:** `startupView`, `confirmTagDelete`, and `confirmPermanentDelete` in the General settings tab were local component state variables that reset whenever the modal was closed.
 - **Root Cause:** Missing fields in `SessionState` data model and reactive store.
 - **Files Modified:**
-  - `src-tauri/src/models/session.rs`: Added `startup_view: Option<String>`, `confirm_tag_delete: Option<bool>`, `confirm_permanent_delete: Option<bool>`.
-  - `src-tauri/tests/backend_tests.rs`: Updated session JSON roundtrip integration test.
+  - `src-tauri/src/models/session.rs`: Added `startup_view: Option<String>`, `confirm_tag_delete: Option<bool>`, `confirm_permanent_delete: Option<bool>`, and aligned default widths to `sidebar_width: 240`, `note_list_width: 300`.
+  - `src-tauri/tests/backend_tests.rs`: Updated session JSON roundtrip integration test to assert serialization, roundtrip, and default fallback widths.
   - `src/lib/types/index.ts`: Updated `SessionState` TypeScript interface.
   - `src/lib/stores/appState.svelte.ts`: Added getters, setters, and automatic debounced persistence for all three settings.
   - `src/lib/components/modals/SettingsModal.svelte`: Bound checkboxes and select dropdown to `appState`.
@@ -141,18 +155,17 @@ Every single defect reported across the 20 functional areas in the Phase 1 audit
 - **Root Cause:** Competing utility classes across separate component templates.
 - **Files Modified:** `src/app.css`, `src/lib/components/layout/TitleBar.svelte`, `src/lib/components/layout/Sidebar.svelte`, `src/lib/components/layout/NoteList.svelte`, `src/lib/components/layout/TabBar.svelte`, `src/lib/components/layout/Toolbar.svelte`.
 - **Exact Correction:**
-  - Standardized `.panel-header-bar` to `height: 44px; min-height: 44px;`.
+  - Standardized `.panel-header-bar` to `height: 44px; min-height: 44px;` across Sidebar, NoteList, and TabBar, creating a unified horizontal boundary line across all three panels.
   - Standardized `TitleBar` to `h-[38px]`.
-  - Standardized `TabBar` to `h-[36px]`.
   - Standardized `Toolbar` to `h-[36px]`.
 - **Verification Evidence:** Multi-panel alignment verified in `phase2_main_1366x768.png`.
 
 #### DEF-07, DEF-26: Removal of Redundant Sidebar Collapse Controls
-- **Original Defect:** Sidebar collapse buttons were duplicated in three places: TitleBar, Sidebar header, and TabBar.
+- **Original Defect:** Sidebar collapse buttons were duplicated across TitleBar, Sidebar header, NoteList header, and TabBar.
 - **Root Cause:** Redundant buttons added defensively during earlier development.
-- **Files Modified:** `src/lib/components/layout/Sidebar.svelte` (header button removed), `src/lib/components/layout/TabBar.svelte` (tab bar toggle button removed).
+- **Files Modified:** `src/lib/components/layout/Sidebar.svelte` (header button removed), `src/lib/components/layout/NoteList.svelte` (header button and `PanelLeftOpen` import removed), `src/lib/components/layout/TabBar.svelte` (tab bar toggle button removed).
 - **Exact Correction:** Retained single authoritative toggle in `TitleBar.svelte`.
-- **Verification Evidence:** `phase2_sidebar_collapsed_1366x768.png` confirms clean tab bar without stray sidebar icons.
+- **Verification Evidence:** `phase2_sidebar_collapsed_1366x768.png` confirms clean NoteList and TabBar headers without stray sidebar icons.
 
 #### DEF-11, DEF-12: Tag Action Menu Improvements
 - **Original Defect:** Tag menu lacked "Change color" action and clipped when opened near the bottom of the sidebar.
